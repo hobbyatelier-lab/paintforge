@@ -331,21 +331,48 @@ function ColorRow({ color, isChecked, inMySet, extraCount, targetCount, toggleOw
   const isLow=(isChecked&&targetCount>0&&extraCount<targetCount)||(!isChecked&&inMySet&&targetCount>0)
   const need=isChecked?Math.max(0,targetCount-extraCount):targetCount+1
   return (
-    <div style={{ display:'flex',alignItems:'center',gap:6,padding:'5px 8px',borderRadius:5,background:isLow?'#2a1a00':isChecked?'#1a2a1a':inMySet?'#1e1a28':'transparent',border:isLow?'1px solid #805010':isChecked?'1px solid #2a4a2a':inMySet?'1px solid #3a2a4a':'1px solid transparent' }}>
-      <button onClick={()=>toggleMySet(color.id)} style={{ width:14,height:14,borderRadius:3,border:'none',cursor:'pointer',flexShrink:0,background:inMySet?'#9060d0':'#2a2a3a',display:'flex',alignItems:'center',justifyContent:'center' }}>
-        <span style={{ fontSize:7,color:inMySet?'#fff':'#444' }}>♦</span>
-      </button>
-      <button onClick={()=>toggleOwned(color.id)} style={{ width:14,height:14,borderRadius:3,border:'none',cursor:'pointer',flexShrink:0,background:isChecked?'#4caf50':'#2a2a3a',display:'flex',alignItems:'center',justifyContent:'center' }}>
-        {isChecked&&<span style={{ color:'#fff',fontSize:9 }}>✓</span>}
-      </button>
-      {color.role&&(()=>{ const s=ROLE_COLORS[color.role]||{bg:'#2a2a2a',color:'#888'}; return <span style={{ fontSize:7,fontWeight:800,padding:'1px 3px',borderRadius:2,background:s.bg,color:s.color,flexShrink:0 }}>{color.role}</span> })()}
-      {color.hex && <div style={{ width:10,height:10,borderRadius:'50%',background:color.hex,flexShrink:0,border:'1px solid rgba(255,255,255,0.12)',boxShadow:'inset 0 0 0 0.5px rgba(0,0,0,0.3)' }} title={color.hex} />}
-      <span style={{ fontSize:10,color:isChecked?'#6a8a6a':'#444',fontFamily:'monospace',minWidth:48,flexShrink:0 }}>{color.id}</span>
+    <div style={{ display:'flex',alignItems:'center',gap:4,padding:'5px 8px',borderRadius:5,background:isLow?'#2a1a00':isChecked?'#1a2a1a':inMySet?'#1e1a28':'transparent',border:isLow?'1px solid #805010':isChecked?'1px solid #2a4a2a':inMySet?'1px solid #3a2a4a':'1px solid transparent' }}>
+
+      {/* Fixed-width left cluster — always same width so name column aligns */}
+      <div style={{ display:'flex',alignItems:'center',gap:3,flexShrink:0,width:78 }}>
+        {/* My Set */}
+        <button onClick={()=>toggleMySet(color.id)} style={{ width:14,height:14,borderRadius:3,border:'none',cursor:'pointer',flexShrink:0,background:inMySet?'#9060d0':'#2a2a3a',display:'flex',alignItems:'center',justifyContent:'center' }}>
+          <span style={{ fontSize:7,color:inMySet?'#fff':'#444' }}>♦</span>
+        </button>
+        {/* Owned */}
+        <button onClick={()=>toggleOwned(color.id)} style={{ width:14,height:14,borderRadius:3,border:'none',cursor:'pointer',flexShrink:0,background:isChecked?'#4caf50':'#2a2a3a',display:'flex',alignItems:'center',justifyContent:'center' }}>
+          {isChecked&&<span style={{ color:'#fff',fontSize:9 }}>✓</span>}
+        </button>
+        {/* Role badge — fixed width slot */}
+        <div style={{ width:18,flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center' }}>
+          {color.role&&(()=>{ const s=ROLE_COLORS[color.role]||{bg:'#2a2a2a',color:'#888'}; return <span style={{ fontSize:7,fontWeight:800,padding:'1px 3px',borderRadius:2,background:s.bg,color:s.color }}>{color.role}</span> })()}
+        </div>
+        {/* Hex swatch — always present, filled or empty ring */}
+        <div style={{ width:12,height:12,borderRadius:'50%',flexShrink:0,
+          background: color.hex || 'transparent',
+          border: color.hex ? '1px solid rgba(255,255,255,0.12)' : '1px solid #3a3a4a',
+          boxShadow: color.hex ? 'inset 0 0 0 0.5px rgba(0,0,0,0.3)' : 'none',
+          display:'flex',alignItems:'center',justifyContent:'center',
+        }} title={color.hex || 'No color data'}>
+          {!color.hex && <span style={{ fontSize:7,color:'#3a3a4a',lineHeight:1 }}>?</span>}
+        </div>
+      </div>
+
+      {/* SKU */}
+      <span style={{ fontSize:10,color:isChecked?'#6a8a6a':'#444',fontFamily:'monospace',width:56,flexShrink:0,overflow:'hidden',textOverflow:'ellipsis' }}>{color.id}</span>
+
+      {/* Name */}
       <span style={{ fontSize:12,flex:1,minWidth:0,color:isLow?'#e0a040':isChecked?'#c8e8c8':inMySet?'#c0b0e0':'#bbb',fontWeight:isChecked?500:400,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' }}>{color.name}</span>
+
+      {/* Low stock badge */}
       {isLow&&<span style={{ fontSize:10,fontWeight:700,color:'#e0a040',flexShrink:0 }}>+{need}</span>}
+
+      {/* Orange dots — extra owned */}
       <div style={{ display:'flex',gap:2,flexShrink:0 }}>
         {[1,2,3,4,5].map(n=><button key={n} onClick={()=>setExtraCount(color.id,n)} style={{ width:8,height:8,borderRadius:'50%',border:'none',cursor:'pointer',padding:0,background:n<=extraCount?'#f07030':'#2a2a3a' }} />)}
       </div>
+
+      {/* Teal dots — target */}
       <div style={{ display:'flex',gap:2,flexShrink:0,marginLeft:3,paddingLeft:3,borderLeft:'1px solid #2a2a3a' }}>
         {[1,2,3,4,5].map(n=><button key={n} onClick={()=>setTargetCount(color.id,n)} style={{ width:8,height:8,borderRadius:'50%',cursor:'pointer',padding:0,background:n<=targetCount?'#20a080':'transparent',border:`1px solid ${n<=targetCount?'#20a080':'#3a3a4a'}` }} />)}
       </div>
