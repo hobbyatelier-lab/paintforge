@@ -29,12 +29,12 @@ export default function Inventory({ user }) {
   const [exportTitle,     setExportTitle]     = useState('')
   const prefSaveRef = useRef(null)
 
-  // ── Load ─────────────────────────────────────────────────────────────────
+  // ── Load everything ───────────────────────────────────────────────────────
   useEffect(() => {
     async function load() {
       const [paintsRes, prefsRes] = await Promise.all([
         supabase.from('user_paints').select('*').eq('user_id', user.id),
-        supabase.from('user_preferences').select('hidden_sections').eq('user_id', user.id).single(),
+        supabase.from('user_preferences').select('*').eq('user_id', user.id).single(),
       ])
       if (!paintsRes.error && paintsRes.data) {
         const c={},m={},e={},t={}
@@ -46,27 +46,35 @@ export default function Inventory({ user }) {
         }
         setChecked(c); setMySet(m); setExtras(e); setTargets(t)
       }
-      if (!prefsRes.error && prefsRes.data?.hidden_sections) {
-        setHiddenSections(new Set(prefsRes.data.hidden_sections))
+      if (!prefsRes.error && prefsRes.data) {
+        const p = prefsRes.data
+        if (p.hidden_sections?.length)   setHiddenSections(new Set(p.hidden_sections))
+        if (p.brand_collapsed?.length)   setBrandCollapsed(new Set(p.brand_collapsed))
+        if (p.line_collapsed?.length)    setLineCollapsed(new Set(p.line_collapsed))
+        if (p.section_collapsed?.length) setCollapsed(new Set(p.section_collapsed))
       }
       setLoaded(true)
     }
     load()
   }, [user.id])
 
-  // ── Auto-save brand filter prefs (debounced) ─────────────────────────────
+  // ── Auto-save ALL preferences (debounced, single write) ───────────────────
   useEffect(() => {
     if (!loaded) return
     if (prefSaveRef.current) clearTimeout(prefSaveRef.current)
     prefSaveRef.current = setTimeout(async () => {
-      await supabase.from('user_preferences').upsert(
-        { user_id: user.id, hidden_sections: [...hiddenSections], updated_at: new Date().toISOString() },
-        { onConflict: 'user_id' }
-      )
+      await supabase.from('user_preferences').upsert({
+        user_id: user.id,
+        hidden_sections:   [...hiddenSections],
+        brand_collapsed:   [...brandCollapsed],
+        line_collapsed:    [...lineCollapsed],
+        section_collapsed: [...collapsed],
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'user_id' })
     }, 600)
-  }, [hiddenSections, loaded, user.id])
+  }, [hiddenSections, brandCollapsed, lineCollapsed, collapsed, loaded, user.id])
 
-  // ── Save paint ────────────────────────────────────────────────────────────
+  // ── Save a paint row ──────────────────────────────────────────────────────
   const savePaint = useCallback(async (id, patch) => {
     setSaving(true)
     const current = { owned:!!checked[id], in_my_set:!!mySet[id], extras:extras[id]||0, target_count:targets[id]||0, ...patch }
@@ -83,10 +91,10 @@ export default function Inventory({ user }) {
   }, [checked, mySet, extras, targets, user.id])
 
   // ── Toggles ───────────────────────────────────────────────────────────────
-  const tog = (set, setter, id) => setter(p => { const n=new Set(p); if(n.has(id)) n.delete(id); else n.add(id); return n })
-  function toggleOwned(id)   { const v=!checked[id]; setChecked(p=>{const n={...p};if(v) n[id]=true;else delete n[id];return n}); savePaint(id,{owned:v}) }
-  function toggleMySet(id)   { const v=!mySet[id];   setMySet(p=>{const n={...p};if(v) n[id]=true;else delete n[id];return n}); savePaint(id,{in_my_set:v}) }
-  function setExtraCount(id,n) { const v=extras[id]===n?0:n; setExtras(p=>{const e={...p};if(v)e[id]=v;else delete e[id];return e}); savePaint(id,{extras:v}) }
+  const togSet = (setter, id) => setter(p => { const n=new Set(p); if(n.has(id)) n.delete(id); else n.add(id); return n })
+  function toggleOwned(id)    { const v=!checked[id]; setChecked(p=>{const n={...p};if(v)n[id]=true;else delete n[id];return n}); savePaint(id,{owned:v}) }
+  function toggleMySet(id)    { const v=!mySet[id];   setMySet(p=>{const n={...p};if(v)n[id]=true;else delete n[id];return n}); savePaint(id,{in_my_set:v}) }
+  function setExtraCount(id,n){ const v=extras[id]===n?0:n; setExtras(p=>{const e={...p};if(v)e[id]=v;else delete e[id];return e}); savePaint(id,{extras:v}) }
   function setTargetCount(id,n){ const v=targets[id]===n?0:n; setTargets(p=>{const t={...p};if(v)t[id]=v;else delete t[id];return t}); savePaint(id,{target_count:v}) }
   async function handleSignOut() { await supabase.auth.signOut() }
 
@@ -100,7 +108,7 @@ export default function Inventory({ user }) {
       const rel=COLORS[key].filter(c=>checked[c.id]||mySet[c.id]||extras[c.id]).sort((a,b)=>parseFloat(a.id)-parseFloat(b.id))
       if(!rel.length) continue
       lines.push(label); lines.push('-'.repeat(label.length+4))
-      rel.forEach(c=>{ lines.push(`  ${c.id}  ${c.name}${checked[c.id]?' ✓':''}${mySet[c.id]?' ♦':''}${extras[c.id]?` [+${extras[c.id]}]`:''}`) })
+      rel.forEach(c=>lines.push(`  ${c.id}  ${c.name}${checked[c.id]?' ✓':''}${mySet[c.id]?' ♦':''}${extras[c.id]?` [+${extras[c.id]}]`:''}`))
       lines.push('')
     }
     lines.push(`Owned: ${oc} / ${all.length}  |  My Set: ${st.filter(c=>checked[c.id]).length}/${st.length}`)
@@ -108,7 +116,7 @@ export default function Inventory({ user }) {
   }
 
   function exportShoppingList() {
-    const lines=['PAINTFORGE — SHOPPING LIST','==========================','','MISSING — in My Set but not owned','-----------------------------------']
+    const lines=['PAINTFORGE — SHOPPING LIST','==========================','','MISSING','-------']
     let total=0,missing=0
     for (const [key,label] of Object.entries(SECTION_LABELS)) {
       if(!COLORS[key]) continue
@@ -119,14 +127,14 @@ export default function Inventory({ user }) {
       missing+=needed.length
     }
     if(!missing) lines.push('  (none)')
-    lines.push('','RESTOCK — below backup target','------------------------------')
+    lines.push('','RESTOCK','-------')
     let restock=0
     for (const [key,label] of Object.entries(SECTION_LABELS)) {
       if(!COLORS[key]) continue
       const needed=COLORS[key].filter(c=>checked[c.id]&&(targets[c.id]||0)>0&&(extras[c.id]||0)<(targets[c.id]||0)).sort((a,b)=>parseFloat(a.id)-parseFloat(b.id))
       if(!needed.length) continue
       lines.push(`  ${label}`)
-      needed.forEach(c=>{ lines.push(`    ${c.id}  ${c.name}  ×${(targets[c.id]||0)-(extras[c.id]||0)}  (have ${extras[c.id]||0}, want ${targets[c.id]||0})`) })
+      needed.forEach(c=>lines.push(`    ${c.id}  ${c.name}  ×${(targets[c.id]||0)-(extras[c.id]||0)}  (have ${extras[c.id]||0}, want ${targets[c.id]||0})`))
       restock+=needed.length
     }
     if(!restock) lines.push('  (none)')
@@ -150,13 +158,13 @@ export default function Inventory({ user }) {
 
   // ── Filter colors ─────────────────────────────────────────────────────────
   function filterColors(list) {
-    let r=[...list].sort((a,b)=>{ const na=parseFloat(a.id),nb=parseFloat(b.id); return (!isNaN(na)&&!isNaN(nb))?na-nb:a.id.localeCompare(b.id) })
+    let r=[...list].sort((a,b)=>{ const na=parseFloat(a.id),nb=parseFloat(b.id); return(!isNaN(na)&&!isNaN(nb))?na-nb:a.id.localeCompare(b.id) })
     if(search){ const q=search.toLowerCase(); r=r.filter(c=>c.name.toLowerCase().includes(q)||c.id.toLowerCase().includes(q)) }
     if(filter==='owned')        return r.filter(c=> checked[c.id])
     if(filter==='missing')      return r.filter(c=>!checked[c.id])
     if(filter==='myset')        return r.filter(c=> mySet[c.id])
     if(filter==='need-restock') return r.filter(c=> mySet[c.id]&&!checked[c.id])
-    if(filter==='low-stock')    return r.filter(c=>{ const t=targets[c.id]||0; return (checked[c.id]&&t>0&&(extras[c.id]||0)<t)||(!checked[c.id]&&mySet[c.id]&&t>0) })
+    if(filter==='low-stock')    return r.filter(c=>{ const t=targets[c.id]||0; return(checked[c.id]&&t>0&&(extras[c.id]||0)<t)||(!checked[c.id]&&mySet[c.id]&&t>0) })
     return r
   }
 
@@ -202,7 +210,6 @@ export default function Inventory({ user }) {
             </div>
           </div>
 
-          {/* Progress */}
           <div style={{ marginBottom:7 }}>
             <div style={{ display:'flex',justifyContent:'space-between',marginBottom:3 }}>
               <span style={{ fontSize:10,color:'#555',textTransform:'uppercase',letterSpacing:'0.08em' }}>Collection</span>
@@ -227,73 +234,66 @@ export default function Inventory({ user }) {
 
           <div style={{ display:'flex',gap:5,flexWrap:'wrap',marginBottom:5 }}>
             {FILTERS.slice(0,3).map(([val,label])=>(
-              <button key={val} onClick={()=>setFilter(val)} style={{ padding:'4px 10px',borderRadius:20,border:'none',cursor:'pointer',fontSize:11,fontWeight:600, background:filter===val?'#e94560':'#2a2a3a', color:filter===val?'#fff':'#888' }}>{label}</button>
+              <button key={val} onClick={()=>setFilter(val)} style={{ padding:'4px 10px',borderRadius:20,border:'none',cursor:'pointer',fontSize:11,fontWeight:600,background:filter===val?'#e94560':'#2a2a3a',color:filter===val?'#fff':'#888' }}>{label}</button>
             ))}
             <div style={{ marginLeft:'auto',display:'flex',gap:5 }}>
-              <button onClick={()=>setShowBrandFilter(true)} style={{ padding:'4px 10px',borderRadius:20,cursor:'pointer',fontSize:11,fontWeight:600, border:hiddenSections.size>0?'1px solid #e94560':'1px solid #3a3a5a', background:hiddenSections.size>0?'#2a0a10':'transparent', color:hiddenSections.size>0?'#e94560':'#7070a0' }}>Brands{hiddenSections.size>0?` (${hiddenSections.size})`:''}</button>
+              <button onClick={()=>setShowBrandFilter(true)} style={{ padding:'4px 10px',borderRadius:20,cursor:'pointer',fontSize:11,fontWeight:600,border:hiddenSections.size>0?'1px solid #e94560':'1px solid #3a3a5a',background:hiddenSections.size>0?'#2a0a10':'transparent',color:hiddenSections.size>0?'#e94560':'#7070a0' }}>Brands{hiddenSections.size>0?` (${hiddenSections.size})`:''}</button>
               <button onClick={exportOwned} style={{ padding:'4px 10px',borderRadius:20,border:'1px solid #2a3a2a',background:'transparent',color:'#4a7a4a',fontSize:11,cursor:'pointer' }}>Export</button>
               <button onClick={exportShoppingList} style={{ padding:'4px 10px',borderRadius:20,border:'1px solid #3a2a10',background:'transparent',color:'#a06020',fontSize:11,cursor:'pointer' }}>Shop 🛒</button>
             </div>
           </div>
           <div style={{ display:'flex',gap:5 }}>
             {FILTERS.slice(3).map(([val,label])=>(
-              <button key={val} onClick={()=>setFilter(val)} style={{ padding:'4px 10px',borderRadius:20,border:'none',cursor:'pointer',fontSize:11,fontWeight:600, background:filter===val?'#a060e0':'#2a2a3a', color:filter===val?'#fff':'#888' }}>{label}</button>
+              <button key={val} onClick={()=>setFilter(val)} style={{ padding:'4px 10px',borderRadius:20,border:'none',cursor:'pointer',fontSize:11,fontWeight:600,background:filter===val?'#a060e0':'#2a2a3a',color:filter===val?'#fff':'#888' }}>{label}</button>
             ))}
           </div>
         </div>
       </div>
 
-      {/* ── Body — hierarchical taxonomy ── */}
+      {/* ── Body ── */}
       <div style={{ maxWidth:700,margin:'0 auto',padding:'12px 20px 60px' }}>
         {TAXONOMY.map(brand => {
           const brandKeys = brand.lines.flatMap(l => l.sections.map(s => s.key))
-          const anyBrandVisible = brandKeys.some(k => !hiddenSections.has(k))
-          if (!anyBrandVisible) return null
-
+          if (!brandKeys.some(k => !hiddenSections.has(k))) return null
           const isBrandCollapsed = brandCollapsed.has(brand.id)
 
           return (
             <div key={brand.id} style={{ marginBottom:8 }}>
-              {/* Brand header */}
-              <div onClick={()=>tog(brandCollapsed,setBrandCollapsed,brand.id)} style={{ display:'flex',alignItems:'center',gap:8,padding:'8px 10px',background:'#1a1a2e',borderRadius:8,cursor:'pointer',userSelect:'none',border:`1px solid ${brand.color}33`,marginBottom:isBrandCollapsed?0:4 }}>
+              <div onClick={()=>togSet(setBrandCollapsed, brand.id)} style={{ display:'flex',alignItems:'center',gap:8,padding:'8px 10px',background:'#1a1a2e',borderRadius:8,cursor:'pointer',userSelect:'none',border:`1px solid ${brand.color}33`,marginBottom:isBrandCollapsed?0:4 }}>
                 <span style={{ fontSize:9,color:brand.color,transform:isBrandCollapsed?'rotate(-90deg)':'rotate(0deg)',display:'inline-block',transition:'transform 0.2s' }}>▼</span>
                 <span style={{ fontSize:13,fontWeight:800,color:brand.color,textTransform:'uppercase',letterSpacing:'0.08em',flex:1 }}>{brand.label}</span>
-                {isBrandCollapsed && <span style={{ fontSize:10,color:'#444' }}>{brandKeys.filter(k=>checked[k]||mySet[k]).length} active</span>}
+                {isBrandCollapsed && <span style={{ fontSize:10,color:'#444' }}>{brandKeys.filter(k=>checked[k]||mySet[k]||extras[k]).length} active</span>}
               </div>
 
-              {/* Lines */}
               {!isBrandCollapsed && brand.lines.map(line => {
                 const lineKeys = line.sections.map(s => s.key)
-                const anyLineVisible = lineKeys.some(k => !hiddenSections.has(k))
-                if (!anyLineVisible) return null
-
+                if (!lineKeys.some(k => !hiddenSections.has(k))) return null
                 const isLineCollapsed = lineCollapsed.has(line.id)
-                const showLineHeader = brand.lines.length > 1
+                const showLine = brand.lines.length > 1
 
                 return (
-                  <div key={line.id} style={{ marginBottom:4, paddingLeft: showLineHeader ? 0 : 0 }}>
-                    {showLineHeader && (
-                      <div onClick={()=>tog(lineCollapsed,setLineCollapsed,line.id)} style={{ display:'flex',alignItems:'center',gap:7,padding:'5px 10px 5px 22px',cursor:'pointer',userSelect:'none',borderRadius:6,marginBottom:isLineCollapsed?0:2 }}>
+                  <div key={line.id} style={{ marginBottom:4 }}>
+                    {showLine && (
+                      <div onClick={()=>togSet(setLineCollapsed, line.id)} style={{ display:'flex',alignItems:'center',gap:7,padding:'5px 10px 5px 22px',cursor:'pointer',userSelect:'none',borderRadius:6,marginBottom:isLineCollapsed?0:2 }}>
                         <span style={{ fontSize:8,color:'#6070a0',transform:isLineCollapsed?'rotate(-90deg)':'rotate(0deg)',display:'inline-block',transition:'transform 0.2s' }}>▼</span>
                         <span style={{ fontSize:12,fontWeight:600,color:isLineCollapsed?'#555':'#a0a0c8',flex:1 }}>{line.label}</span>
                       </div>
                     )}
 
-                    {/* Sections */}
-                    {!isLineCollapsed && line.sections.map(({key: sKey, display}) => {
+                    {!isLineCollapsed && line.sections.map(({key:sKey,display}) => {
                       if (hiddenSections.has(sKey)) return null
-                      const colors = filterColors(COLORS[sKey] || [])
-                      if (colors.length === 0) return null
-                      const accent = SECTION_ACCENTS[sKey] || '#f07030'
+                      const colors = filterColors(COLORS[sKey]||[])
+                      if (colors.length===0) return null
+                      const accent = SECTION_ACCENTS[sKey]||'#f07030'
                       const isSecCollapsed = collapsed.has(sKey)
-                      const ownedInSection = colors.filter(c=>checked[c.id]).length
+                      const ownedInSec = colors.filter(c=>checked[c.id]).length
 
                       return (
-                        <div key={sKey} style={{ marginBottom:2, paddingLeft: showLineHeader ? 36 : 16 }}>
-                          <div onClick={()=>tog(collapsed,setCollapsed,sKey)} style={{ display:'flex',alignItems:'center',gap:7,padding:'4px 8px',cursor:'pointer',userSelect:'none',borderBottom:isSecCollapsed?'none':`1px solid ${accent}22`,marginBottom:isSecCollapsed?0:2 }}>
+                        <div key={sKey} style={{ marginBottom:2, paddingLeft:showLine?36:16 }}>
+                          <div onClick={()=>togSet(setCollapsed,sKey)} style={{ display:'flex',alignItems:'center',gap:7,padding:'4px 8px',cursor:'pointer',userSelect:'none',borderBottom:isSecCollapsed?'none':`1px solid ${accent}22`,marginBottom:isSecCollapsed?0:2 }}>
                             <span style={{ fontSize:8,color:accent,transform:isSecCollapsed?'rotate(-90deg)':'rotate(0deg)',display:'inline-block',transition:'transform 0.2s' }}>▼</span>
                             <span style={{ fontSize:11,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.07em',color:accent,flex:1 }}>{display}</span>
-                            <span style={{ fontSize:10,color:'#444' }}>{ownedInSection}/{colors.length}</span>
+                            <span style={{ fontSize:10,color:'#444' }}>{ownedInSec}/{colors.length}</span>
                           </div>
                           {!isSecCollapsed && (
                             <div style={{ display:'flex',flexDirection:'column',gap:1 }}>
@@ -331,7 +331,7 @@ function ColorRow({ color, isChecked, inMySet, extraCount, targetCount, toggleOw
   const isLow=(isChecked&&targetCount>0&&extraCount<targetCount)||(!isChecked&&inMySet&&targetCount>0)
   const need=isChecked?Math.max(0,targetCount-extraCount):targetCount+1
   return (
-    <div style={{ display:'flex',alignItems:'center',gap:6,padding:'5px 8px',borderRadius:5, background:isLow?'#2a1a00':isChecked?'#1a2a1a':inMySet?'#1e1a28':'transparent', border:isLow?'1px solid #805010':isChecked?'1px solid #2a4a2a':inMySet?'1px solid #3a2a4a':'1px solid transparent' }}>
+    <div style={{ display:'flex',alignItems:'center',gap:6,padding:'5px 8px',borderRadius:5,background:isLow?'#2a1a00':isChecked?'#1a2a1a':inMySet?'#1e1a28':'transparent',border:isLow?'1px solid #805010':isChecked?'1px solid #2a4a2a':inMySet?'1px solid #3a2a4a':'1px solid transparent' }}>
       <button onClick={()=>toggleMySet(color.id)} style={{ width:14,height:14,borderRadius:3,border:'none',cursor:'pointer',flexShrink:0,background:inMySet?'#9060d0':'#2a2a3a',display:'flex',alignItems:'center',justifyContent:'center' }}>
         <span style={{ fontSize:7,color:inMySet?'#fff':'#444' }}>♦</span>
       </button>
