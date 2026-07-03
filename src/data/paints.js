@@ -82,10 +82,24 @@ export const COLORS = {
     { id: "72.045", name: "Charred Brown" }, { id: "72.047", name: "Wolf Grey" },
     { id: "72.048", name: "Sombre Grey" }, { id: "72.049", name: "Stonewall Grey" },
     { id: "72.050", name: "Neutral Grey" }, { id: "72.051", name: "Black" },
-    { id: "72.066", name: "Tan" }, { id: "72.071", name: "Barbarian Skin" },
-    { id: "72.096", name: "Verdigris" }, { id: "72.101", name: "Off-White" },
-    { id: "72.102", name: "Steel Grey" }, { id: "72.118", name: "Sunrise Blue" },
-    { id: "72.155", name: "Charcoal" },
+    { id: "72.061", name: "Khaki" }, { id: "72.062", name: "Earth" },
+    { id: "72.063", name: "Desert Yellow" }, { id: "72.066", name: "Tan" },
+    { id: "72.067", name: "Cayman Green" }, { id: "72.071", name: "Barbarian Skin" },
+    { id: "72.076", name: "Alien Purple" }, { id: "72.095", name: "Glacier Blue" },
+    { id: "72.096", name: "Verdigris" }, { id: "72.098", name: "Elfic Flesh" },
+    { id: "72.099", name: "Skin Tone" }, { id: "72.100", name: "Rosy Flesh" },
+    { id: "72.101", name: "Off-White" }, { id: "72.102", name: "Steel Grey" },
+    { id: "72.106", name: "Scarlet Blood" }, { id: "72.107", name: "Athena Skin" },
+    { id: "72.108", name: "Succubus Skin" }, { id: "72.109", name: "Toxic Yellow" },
+    { id: "72.110", name: "Sunset Orange" }, { id: "72.111", name: "Nocturnal Red" },
+    { id: "72.112", name: "Evil Red" }, { id: "72.113", name: "Deep Magenta" },
+    { id: "72.114", name: "Lustful Purple" }, { id: "72.115", name: "Grunge Brown" },
+    { id: "72.116", name: "Midnight Purple" }, { id: "72.117", name: "Elfic Blue" },
+    { id: "72.118", name: "Sunrise Blue" }, { id: "72.119", name: "Aquamarine" },
+    { id: "72.120", name: "Abyssal Turquoise" }, { id: "72.121", name: "Ghost Green" },
+    { id: "72.122", name: "Bile Green" }, { id: "72.123", name: "Angel Green" },
+    { id: "72.124", name: "Gorgon Brown" }, { id: "72.145", name: "Dirty Grey" },
+    { id: "72.148", name: "Warm Grey" }, { id: "72.155", name: "Charcoal" },
   ],
   metallic: [
     { id: "72.052", name: "Silver" }, { id: "72.053", name: "Chainmail" },
@@ -160,7 +174,7 @@ export const COLORS = {
     { id: "72.483", name: "Viking Grey" }, { id: "72.484", name: "Hospitallier Black" },
   ],
 
-  // ── Vallejo Misc & Auxiliaries ────────────────────────────────────────────
+  // ── Vallejo Misc ──────────────────────────────────────────────────────────
   vallejoMisc: [
     { id: "73.610", name: "Parched Grass — Primer (60ml)" },
   ],
@@ -225,8 +239,7 @@ export const COLORS = {
     { id: "PL01", name: "Rust Red" }, { id: "PL02", name: "Rust Orange" },
     { id: "PL03", name: "Soot Black" }, { id: "PL04", name: "Sand Brown" },
     { id: "PL05", name: "Mat Brown" }, { id: "PL06", name: "Deep Brown" },
-    { id: "PL07", name: "White" }, { id: "PL08", name: "Light Gray" },
-    { id: "PL09", name: "Gray" },
+    { id: "PL07", name: "White" }, { id: "PL08", name: "Light Gray" }, { id: "PL09", name: "Gray" },
   ],
   gundamMarker: [
     { id: "GM04", name: "Gundam Gold" }, { id: "GM05", name: "Gundam Silver" },
@@ -262,8 +275,7 @@ export const COLORS = {
     { id: "APSPMD", name: "Speedpaint Medium" },
   ],
   apSpeedpaintMetallic: [
-    { id: "APSPM01", name: "Hoplite Gold" },
-    { id: "APSPM02", name: "Talos Bronze" },
+    { id: "APSPM01", name: "Hoplite Gold" }, { id: "APSPM02", name: "Talos Bronze" },
     { id: "APSPM03", name: "Broadsword Silver" },
   ],
 
@@ -354,3 +366,53 @@ export const SECTION_ACCENTS = {
   miscAux: "#607060",
   akTransparent: "#30b8c8", akPrimers: "#208898", akMisc: "#187888",
 }
+
+// ── Brand / Line / Section taxonomy ─────────────────────────────────────────
+export const TAXONOMY = [
+  {
+    id: 'vallejo', label: 'Vallejo',
+    lines: [
+      { id: 'v_mecha', label: 'Mecha Color', sections: ['mechaColor','mechaFluo','mechaMetallic','mechaWeathering','mechaAux','mechaPrimer'] },
+      { id: 'v_game',  label: 'Game Color',  sections: ['gamecolor','metallic','ink','fluo','specialfx','wash'] },
+      { id: 'v_xpress',label: 'Xpress Color',sections: ['standard','intense'] },
+      { id: 'v_tmm',   label: 'True Metal',  sections: ['tmmLight','tmmBase','tmmShade'] },
+      { id: 'v_misc',  label: 'Misc',        sections: ['vallejoMisc','auxiliaries'] },
+    ]
+  },
+  {
+    id: 'tamiya', label: 'Tamiya',
+    lines: [
+      { id: 't_weather', label: 'Weathering', sections: ['tamiyaWeatheringStick','tamiyaWeatheringMaster'] },
+    ]
+  },
+  {
+    id: 'mrhobby', label: 'Mr Hobby',
+    lines: [
+      { id: 'mr_all', label: 'Mr Hobby', sections: ['mrWeatheringLiner','gundamMarker'] },
+    ]
+  },
+  {
+    id: 'armypainter', label: 'Army Painter',
+    lines: [
+      { id: 'ap_sp', label: 'Speedpaint 2.0', sections: ['apSpeedpaint','apSpeedpaintMetallic'] },
+    ]
+  },
+  {
+    id: 'indart', label: 'Indart',
+    lines: [
+      { id: 'in_all', label: 'Indart', sections: ['indartPigments','indartAux'] },
+    ]
+  },
+  {
+    id: 'ak', label: 'AK Interactive',
+    lines: [
+      { id: 'ak_all', label: 'AK Interactive', sections: ['akTransparent','akPrimers','akMisc'] },
+    ]
+  },
+  {
+    id: 'misc', label: 'Misc',
+    lines: [
+      { id: 'misc_all', label: 'Misc', sections: ['miscAux'] },
+    ]
+  },
+]
