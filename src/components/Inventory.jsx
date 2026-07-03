@@ -339,6 +339,7 @@ function ColorRow({ color, isChecked, inMySet, extraCount, targetCount, toggleOw
         {isChecked&&<span style={{ color:'#fff',fontSize:9 }}>✓</span>}
       </button>
       {color.role&&(()=>{ const s=ROLE_COLORS[color.role]||{bg:'#2a2a2a',color:'#888'}; return <span style={{ fontSize:7,fontWeight:800,padding:'1px 3px',borderRadius:2,background:s.bg,color:s.color,flexShrink:0 }}>{color.role}</span> })()}
+      {color.hex && <div style={{ width:10,height:10,borderRadius:'50%',background:color.hex,flexShrink:0,border:'1px solid rgba(255,255,255,0.12)',boxShadow:'inset 0 0 0 0.5px rgba(0,0,0,0.3)' }} title={color.hex} />}
       <span style={{ fontSize:10,color:isChecked?'#6a8a6a':'#444',fontFamily:'monospace',minWidth:48,flexShrink:0 }}>{color.id}</span>
       <span style={{ fontSize:12,flex:1,minWidth:0,color:isLow?'#e0a040':isChecked?'#c8e8c8':inMySet?'#c0b0e0':'#bbb',fontWeight:isChecked?500:400,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' }}>{color.name}</span>
       {isLow&&<span style={{ fontSize:10,fontWeight:700,color:'#e0a040',flexShrink:0 }}>+{need}</span>}
