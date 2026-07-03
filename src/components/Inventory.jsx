@@ -148,13 +148,15 @@ export default function Inventory({ user }) {
     try { navigator.clipboard.writeText(text) } catch(_) {}
   }
 
-  // ── Stats ─────────────────────────────────────────────────────────────────
-  const allPaints=Object.values(COLORS).flat()
-  const ownedCount=allPaints.filter(c=>checked[c.id]).length
-  const total=allPaints.length, pct=Math.round(ownedCount/total*100)
-  const setTracked=allPaints.filter(c=>mySet[c.id])
-  const setOwned=setTracked.filter(c=>checked[c.id]).length
-  const setPct=setTracked.length>0?Math.round(setOwned/setTracked.length*100):0
+  // ── Stats — only count sections currently visible (not hidden by brand filter) ──
+  const visibleKeys   = Object.keys(COLORS).filter(k => !hiddenSections.has(k))
+  const visiblePaints = visibleKeys.flatMap(k => COLORS[k] || [])
+  const ownedCount = visiblePaints.filter(c=>checked[c.id]).length
+  const total      = visiblePaints.length
+  const pct        = total>0 ? Math.round(ownedCount/total*100) : 0
+  const setTracked = visiblePaints.filter(c=>mySet[c.id])
+  const setOwned   = setTracked.filter(c=>checked[c.id]).length
+  const setPct     = setTracked.length>0 ? Math.round(setOwned/setTracked.length*100) : 0
 
   // ── Filter colors ─────────────────────────────────────────────────────────
   function filterColors(list) {
