@@ -1,5 +1,4 @@
 export const COLORS = {
-  // ── Mecha Color ───────────────────────────────────────────────────────────
   mechaColor: [
     { id: "69.001", name: "Pure White" }, { id: "69.002", name: "White Grey" },
     { id: "69.003", name: "Off-White" }, { id: "69.004", name: "Yellow" },
@@ -57,8 +56,6 @@ export const COLORS = {
     { id: "70.642", name: "Black" }, { id: "70.643", name: "Ivory" },
     { id: "70.644", name: "Sand" },
   ],
-
-  // ── Game Color ────────────────────────────────────────────────────────────
   gamecolor: [
     { id: "72.001", name: "Dead White" }, { id: "72.003", name: "Pale Flesh" },
     { id: "72.004", name: "Elf Skin Tone" }, { id: "72.005", name: "Moon Yellow" },
@@ -137,8 +134,6 @@ export const COLORS = {
     { id: "73.206", name: "Red" }, { id: "73.207", name: "Blue" },
     { id: "73.208", name: "Yellow" }, { id: "73.209", name: "Violet" },
   ],
-
-  // ── Xpress Color ─────────────────────────────────────────────────────────
   standard: [
     { id: "72.401", name: "Templar White" }, { id: "72.402", name: "Dwarf Skin" },
     { id: "72.403", name: "Imperial Yellow" }, { id: "72.404", name: "Nuclear Yellow" },
@@ -173,14 +168,9 @@ export const COLORS = {
     { id: "72.481", name: "Heretic Turquoise" }, { id: "72.482", name: "Monastic Green" },
     { id: "72.483", name: "Viking Grey" }, { id: "72.484", name: "Hospitallier Black" },
   ],
-
-  // ── Vallejo Misc ──────────────────────────────────────────────────────────
   vallejoMisc: [
     { id: "73.610", name: "Parched Grass — Primer (60ml)" },
   ],
-  auxiliaries: [],
-
-  // ── True Metal ────────────────────────────────────────────────────────────
   tmmLight: [
     { id: "77.101", name: "Sterling Silver", role: "L" }, { id: "77.102", name: "Radiant Yellow", role: "L" },
     { id: "77.103", name: "Imperial Gold", role: "L" }, { id: "77.104", name: "Ancient Copper", role: "L" },
@@ -217,8 +207,6 @@ export const COLORS = {
     { id: "77.157", name: "Arcane Gold", role: "S" }, { id: "77.158", name: "Rusty Metal", role: "S" },
     { id: "77.159", name: "Aged Metal", role: "S" }, { id: "77.160", name: "Obsidian Black", role: "S" },
   ],
-
-  // ── Tamiya ────────────────────────────────────────────────────────────────
   tamiyaWeatheringStick: [
     { id: "87081", name: "Mud" }, { id: "87082", name: "Snow" },
     { id: "87086", name: "Sand" }, { id: "87087", name: "Light Earth" },
@@ -233,8 +221,6 @@ export const COLORS = {
     { id: "87126", name: "Set G — Salmon · Caramel · Chestnut" },
     { id: "87127", name: "Set H — Pale Orange · Ivory · Peach" },
   ],
-
-  // ── Mr Hobby ──────────────────────────────────────────────────────────────
   mrWeatheringLiner: [
     { id: "PL01", name: "Rust Red" }, { id: "PL02", name: "Rust Orange" },
     { id: "PL03", name: "Soot Black" }, { id: "PL04", name: "Sand Brown" },
@@ -246,8 +232,6 @@ export const COLORS = {
     { id: "GM300", name: "Marker Eraser" }, { id: "GM501", name: "Clear Gloss" },
     { id: "GM502", name: "Clear Matt" },
   ],
-
-  // ── Army Painter ──────────────────────────────────────────────────────────
   apSpeedpaint: [
     { id: "APSP01", name: "Grim Black" }, { id: "APSP02", name: "Occultist Cloak" },
     { id: "APSP03", name: "Burnt Moss" }, { id: "APSP04", name: "Battleship Grey" },
@@ -278,8 +262,6 @@ export const COLORS = {
     { id: "APSPM01", name: "Hoplite Gold" }, { id: "APSPM02", name: "Talos Bronze" },
     { id: "APSPM03", name: "Broadsword Silver" },
   ],
-
-  // ── Indart ────────────────────────────────────────────────────────────────
   indartPigments: [
     { id: "IP00", name: "00 Blanco de Titanio" }, { id: "IP11", name: "11 Azul Ptalo" },
     { id: "IP12", name: "12 Amarillo de Cromo Oscuro" }, { id: "IP15", name: "15 Rojo Medio Permanente" },
@@ -293,8 +275,6 @@ export const COLORS = {
   indartAux: [
     { id: "IA01", name: "Diluyente para Acrilicos (125ml)" },
   ],
-
-  // ── AK Interactive ────────────────────────────────────────────────────────
   akTransparent: [
     { id: "AK11213", name: "Clear Red" }, { id: "AK11214", name: "Clear Blue" },
     { id: "AK11215", name: "Clear Smoke" }, { id: "AK11216", name: "Clear Green" },
@@ -310,33 +290,31 @@ export const COLORS = {
   akMisc: [
     { id: "AK11238", name: "Varnish Satin (100ml)" },
   ],
-
-  // ── Misc ──────────────────────────────────────────────────────────────────
   miscAux: [
     { id: "MX01", name: "CA Glue — Aron Alfa Pro Multipurpose (20g)" },
   ],
 }
 
+// Full labels used in exports and BrandFilter panel
 export const SECTION_LABELS = {
-  mechaColor:             "Mecha Color",
-  mechaFluo:              "Mecha Color Fluo",
-  mechaMetallic:          "Mecha Color Metallic",
-  mechaWeathering:        "Mecha Color Weathering",
-  mechaAux:               "Mecha Color Auxiliaries",
-  mechaPrimer:            "Mecha Color Primer",
-  gamecolor:              "Game Color",
-  metallic:               "Game Color Metallic",
-  ink:                    "Game Color Ink",
-  fluo:                   "Game Color Fluo",
-  standard:               "Xpress Color",
-  intense:                "Xpress Color Intense",
-  specialfx:              "Game Color Special FX",
-  wash:                   "Game Color Wash",
+  mechaColor:             "Vallejo — Mecha Color",
+  mechaFluo:              "Vallejo — Mecha Color Fluo",
+  mechaMetallic:          "Vallejo — Mecha Color Metallic",
+  mechaWeathering:        "Vallejo — Mecha Color Weathering",
+  mechaAux:               "Vallejo — Mecha Color Auxiliaries",
+  mechaPrimer:            "Vallejo — Mecha Color Primer",
+  gamecolor:              "Vallejo — Game Color",
+  metallic:               "Vallejo — Game Color Metallic",
+  ink:                    "Vallejo — Game Color Ink",
+  fluo:                   "Vallejo — Game Color Fluo",
+  standard:               "Vallejo — Xpress Color",
+  intense:                "Vallejo — Xpress Color Intense",
+  specialfx:              "Vallejo — Game Color Special FX",
+  wash:                   "Vallejo — Game Color Wash",
   vallejoMisc:            "Vallejo — Misc",
-  auxiliaries:            "Auxiliaries",
-  tmmLight:               "True Metal — Light",
-  tmmBase:                "True Metal — Base",
-  tmmShade:               "True Metal — Shade",
+  tmmLight:               "Vallejo — True Metal Light",
+  tmmBase:                "Vallejo — True Metal Base",
+  tmmShade:               "Vallejo — True Metal Shade",
   tamiyaWeatheringStick:  "Tamiya — Weathering Stick",
   tamiyaWeatheringMaster: "Tamiya — Weathering Master",
   mrWeatheringLiner:      "Mr Hobby — Weathering Liner",
@@ -357,8 +335,7 @@ export const SECTION_ACCENTS = {
   gamecolor: "#c03030", metallic: "#c0a030", ink: "#4090c0",
   fluo: "#e0e000", standard: "#f07030", intense: "#9040f0",
   specialfx: "#80c040", wash: "#8060a0", vallejoMisc: "#708090",
-  auxiliaries: "#708090", tmmLight: "#c8d8e8", tmmBase: "#a89060",
-  tmmShade: "#607080",
+  tmmLight: "#c8d8e8", tmmBase: "#a89060", tmmShade: "#607080",
   tamiyaWeatheringStick: "#c03838", tamiyaWeatheringMaster: "#a02828",
   mrWeatheringLiner: "#4060c0", gundamMarker: "#c09020",
   apSpeedpaint: "#c02030", apSpeedpaintMetallic: "#906820",
@@ -367,52 +344,94 @@ export const SECTION_ACCENTS = {
   akTransparent: "#30b8c8", akPrimers: "#208898", akMisc: "#187888",
 }
 
-// ── Brand / Line / Section taxonomy ─────────────────────────────────────────
+// Three-level taxonomy: Brand > Line > Section
+// sections: [{key, display}] — key matches COLORS, display is the short UI label
 export const TAXONOMY = [
   {
-    id: 'vallejo', label: 'Vallejo',
+    id: 'vallejo', label: 'Vallejo', color: '#e94560',
     lines: [
-      { id: 'v_mecha', label: 'Mecha Color', sections: ['mechaColor','mechaFluo','mechaMetallic','mechaWeathering','mechaAux','mechaPrimer'] },
-      { id: 'v_game',  label: 'Game Color',  sections: ['gamecolor','metallic','ink','fluo','specialfx','wash'] },
-      { id: 'v_xpress',label: 'Xpress Color',sections: ['standard','intense'] },
-      { id: 'v_tmm',   label: 'True Metal',  sections: ['tmmLight','tmmBase','tmmShade'] },
-      { id: 'v_misc',  label: 'Misc',        sections: ['vallejoMisc','auxiliaries'] },
+      { id: 'v_mecha', label: 'Mecha Color', sections: [
+        { key: 'mechaColor',    display: 'Base Colors' },
+        { key: 'mechaFluo',     display: 'Fluo' },
+        { key: 'mechaMetallic', display: 'Metallic' },
+        { key: 'mechaWeathering', display: 'Weathering' },
+        { key: 'mechaAux',      display: 'Auxiliaries' },
+        { key: 'mechaPrimer',   display: 'Primer' },
+      ]},
+      { id: 'v_game', label: 'Game Color', sections: [
+        { key: 'gamecolor',  display: 'Base Colors' },
+        { key: 'metallic',   display: 'Metallic' },
+        { key: 'ink',        display: 'Ink' },
+        { key: 'fluo',       display: 'Fluo' },
+        { key: 'specialfx',  display: 'Special FX' },
+        { key: 'wash',       display: 'Wash' },
+      ]},
+      { id: 'v_xpress', label: 'Xpress Color', sections: [
+        { key: 'standard',   display: 'Standard' },
+        { key: 'intense',    display: 'Intense' },
+      ]},
+      { id: 'v_tmm', label: 'True Metal', sections: [
+        { key: 'tmmLight',   display: 'Light' },
+        { key: 'tmmBase',    display: 'Base' },
+        { key: 'tmmShade',   display: 'Shade' },
+      ]},
+      { id: 'v_misc', label: 'Misc', sections: [
+        { key: 'vallejoMisc', display: 'Misc' },
+      ]},
     ]
   },
   {
-    id: 'tamiya', label: 'Tamiya',
+    id: 'tamiya', label: 'Tamiya', color: '#c03838',
     lines: [
-      { id: 't_weather', label: 'Weathering', sections: ['tamiyaWeatheringStick','tamiyaWeatheringMaster'] },
+      { id: 't_weather', label: 'Weathering', sections: [
+        { key: 'tamiyaWeatheringStick',  display: 'Weathering Stick' },
+        { key: 'tamiyaWeatheringMaster', display: 'Weathering Master' },
+      ]},
     ]
   },
   {
-    id: 'mrhobby', label: 'Mr Hobby',
+    id: 'mrhobby', label: 'Mr Hobby', color: '#4060c0',
     lines: [
-      { id: 'mr_all', label: 'Mr Hobby', sections: ['mrWeatheringLiner','gundamMarker'] },
+      { id: 'mr_all', label: 'Products', sections: [
+        { key: 'mrWeatheringLiner', display: 'Weathering Liner' },
+        { key: 'gundamMarker',      display: 'Gundam Marker' },
+      ]},
     ]
   },
   {
-    id: 'armypainter', label: 'Army Painter',
+    id: 'armypainter', label: 'Army Painter', color: '#c02030',
     lines: [
-      { id: 'ap_sp', label: 'Speedpaint 2.0', sections: ['apSpeedpaint','apSpeedpaintMetallic'] },
+      { id: 'ap_sp', label: 'Speedpaint 2.0', sections: [
+        { key: 'apSpeedpaint',         display: 'Speedpaint 2.0' },
+        { key: 'apSpeedpaintMetallic', display: 'Metallic' },
+      ]},
     ]
   },
   {
-    id: 'indart', label: 'Indart',
+    id: 'indart', label: 'Indart', color: '#c07828',
     lines: [
-      { id: 'in_all', label: 'Indart', sections: ['indartPigments','indartAux'] },
+      { id: 'in_all', label: 'Products', sections: [
+        { key: 'indartPigments', display: 'Pigments' },
+        { key: 'indartAux',      display: 'Auxiliaries' },
+      ]},
     ]
   },
   {
-    id: 'ak', label: 'AK Interactive',
+    id: 'ak', label: 'AK Interactive', color: '#30b8c8',
     lines: [
-      { id: 'ak_all', label: 'AK Interactive', sections: ['akTransparent','akPrimers','akMisc'] },
+      { id: 'ak_all', label: 'Products', sections: [
+        { key: 'akTransparent', display: 'Transparent Colors 3GEN' },
+        { key: 'akPrimers',     display: 'Primers (100ml)' },
+        { key: 'akMisc',        display: 'Misc' },
+      ]},
     ]
   },
   {
-    id: 'misc', label: 'Misc',
+    id: 'misc', label: 'Misc', color: '#607060',
     lines: [
-      { id: 'misc_all', label: 'Misc', sections: ['miscAux'] },
+      { id: 'misc_all', label: 'Misc', sections: [
+        { key: 'miscAux', display: 'Auxiliaries' },
+      ]},
     ]
   },
 ]
