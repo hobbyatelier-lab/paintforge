@@ -52,7 +52,7 @@ export default function Auth() {
           <img
             src={logoUrl}
             alt="PaintForge"
-            style={{ width: 96, height: 96, marginBottom: 16, display: 'block', margin: '0 auto 16px' }}
+            style={{ width: 160, height: 160, marginBottom: 16, display: 'block', margin: '0 auto 20px' }}
           />
           <h1 style={{
             fontSize: 32, fontWeight: 800, letterSpacing: '-0.03em',

@@ -184,7 +184,7 @@ export default function Inventory({ user }) {
   if (!loaded) return (
     <div style={{ background:BG_APP,minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center' }}>
       <div style={{ textAlign:'center',color:'#555',fontFamily:'system-ui' }}>
-        <div style={{ fontSize:32,marginBottom:12 }}>⚒</div>
+        <img src={logoUrl} alt="PaintForge" style={{ width:72,height:72,marginBottom:12,opacity:0.7 }} />
         <p style={{ fontSize:14 }}>Loading your collection…</p>
       </div>
     </div>
