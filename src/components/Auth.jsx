@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import logoUrl from '../assets/logo.svg'
 import { supabase } from '../supabase.js'
 
 // ── Brand tokens ──────────────────────────────────────────────────────────────
@@ -49,7 +50,7 @@ export default function Auth() {
         {/* Logo + Wordmark */}
         <div style={{ textAlign: 'center', marginBottom: 40 }}>
           <img
-            src="/logo.svg"
+            src={logoUrl}
             alt="PaintForge"
             style={{ width: 96, height: 96, marginBottom: 16, display: 'block', margin: '0 auto 16px' }}
           />

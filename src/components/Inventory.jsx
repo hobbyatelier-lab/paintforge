@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
+import logoUrl from '../assets/logo.svg'
 import { supabase } from '../supabase.js'
 import { COLORS, SECTION_LABELS, SECTION_ACCENTS, TAXONOMY } from '../data/paints.js'
 import BrandFilter from './BrandFilter.jsx'
@@ -211,7 +212,7 @@ export default function Inventory({ user }) {
         <div style={{ maxWidth:700,margin:'0 auto' }}>
           <div style={{ display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10 }}>
             <div style={{ display:'flex',alignItems:'center',gap:8 }}>
-              <img src="/logo.svg" alt="" style={{ width:28,height:28,flexShrink:0 }} />
+              <img src={logoUrl} alt="" style={{ width:28,height:28,flexShrink:0 }} />
               <span style={{ fontSize:17,fontWeight:800,letterSpacing:'-0.02em' }}>
                 <span style={{ color:BRAND_CYAN }}>Paint</span>
                 <span style={{ color:'#2E3A3A' }}>forge</span>
