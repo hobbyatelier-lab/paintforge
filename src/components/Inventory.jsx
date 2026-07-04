@@ -4,6 +4,16 @@ import { COLORS, SECTION_LABELS, SECTION_ACCENTS, TAXONOMY } from '../data/paint
 import BrandFilter from './BrandFilter.jsx'
 import HowToUse from './HowToUse.jsx'
 
+// ── Brand & UI hierarchy tokens ───────────────────────────────────────────────
+const BRAND_CYAN   = '#36E2DD'   // Primary brand color
+const BG_APP       = '#141414'   // App background
+const BG_HEADER    = '#171B1B'   // Sticky header background
+const HIER_BRAND   = '#36E2DD'   // Brand headers — brightest, identity level
+const HIER_LINE    = '#2BABA8'   // Line headers — secondary, warm teal
+const HIER_SECTION = '#6B9898'   // Section headers — tertiary, muted label
+
+
+
 const FILTERS = [
   ['all','All'],['owned','Owned ✓'],['missing','Missing'],
   ['myset','My Set ♦'],['need-restock','Need Restock'],['low-stock','Low Stock ⚠'],
@@ -171,7 +181,7 @@ export default function Inventory({ user }) {
   }
 
   if (!loaded) return (
-    <div style={{ background:'#141414',minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center' }}>
+    <div style={{ background:BG_APP,minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center' }}>
       <div style={{ textAlign:'center',color:'#555',fontFamily:'system-ui' }}>
         <div style={{ fontSize:32,marginBottom:12 }}>⚒</div>
         <p style={{ fontSize:14 }}>Loading your collection…</p>
@@ -180,7 +190,7 @@ export default function Inventory({ user }) {
   )
 
   return (
-    <div style={{ background:'#141414',minHeight:'100vh',fontFamily:"'Inter',system-ui,sans-serif",color:'#e8e8e8' }}>
+    <div style={{ background:BG_APP,minHeight:'100vh',fontFamily:"'Montserrat',system-ui,sans-serif",color:'#e8e8e8' }}>
 
       {showBrandFilter && <BrandFilter hiddenSections={hiddenSections} setHiddenSections={setHiddenSections} onClose={()=>setShowBrandFilter(false)} />}
       {showHowToUse   && <HowToUse onClose={()=>setShowHowToUse(false)} />}
@@ -197,12 +207,15 @@ export default function Inventory({ user }) {
       )}
 
       {/* ── Header ── */}
-      <div style={{ background:'linear-gradient(135deg,#1e1e2e 0%,#2a1a2e 100%)',borderBottom:'1px solid #2e2e3e',padding:'14px 20px',position:'sticky',top:0,zIndex:10 }}>
+      <div style={{ background:BG_HEADER,borderBottom:'1px solid #222C2C',padding:'12px 20px',position:'sticky',top:0,zIndex:10 }}>
         <div style={{ maxWidth:700,margin:'0 auto' }}>
           <div style={{ display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10 }}>
             <div style={{ display:'flex',alignItems:'center',gap:8 }}>
-              <span style={{ fontSize:20 }}>⚒</span>
-              <span style={{ fontSize:17,fontWeight:800,color:'#f0f0f0' }}>Paint<span style={{ color:'#e94560' }}>Forge</span></span>
+              <img src="/logo.svg" alt="" style={{ width:28,height:28,flexShrink:0 }} />
+              <span style={{ fontSize:17,fontWeight:800,letterSpacing:'-0.02em' }}>
+                <span style={{ color:BRAND_CYAN }}>Paint</span>
+                <span style={{ color:'#2E3A3A' }}>forge</span>
+              </span>
               {saving&&<span style={{ fontSize:10,color:'#555' }}>saving…</span>}
             </div>
             <div style={{ display:'flex',alignItems:'center',gap:6 }}>
@@ -218,28 +231,28 @@ export default function Inventory({ user }) {
               <span style={{ fontSize:12,color:'#aaa' }}><span style={{ color:'#f0f0f0',fontWeight:600 }}>{ownedCount}</span><span style={{ color:'#444' }}>/{total}</span><span style={{ color:'#554' }}> · {pct}%</span></span>
             </div>
             <div style={{ height:4,background:'#2e2e3e',borderRadius:3,overflow:'hidden' }}>
-              <div style={{ width:`${pct}%`,height:'100%',background:'linear-gradient(90deg,#f07030,#e03060)',borderRadius:3,transition:'width 0.3s' }} />
+              <div style={{ width:`${pct}%`,height:'100%',background:`linear-gradient(90deg,${BRAND_CYAN},#2BABA8)`,borderRadius:3,transition:'width 0.3s' }} />
             </div>
           </div>
           <div style={{ marginBottom:10 }}>
             <div style={{ display:'flex',justifyContent:'space-between',marginBottom:3 }}>
               <span style={{ fontSize:10,color:'#555',textTransform:'uppercase',letterSpacing:'0.08em' }}>My Set ♦</span>
-              <span style={{ fontSize:12,color:'#aaa' }}><span style={{ color:'#c090f0',fontWeight:600 }}>{setOwned}</span><span style={{ color:'#444' }}>/{setTracked.length}</span><span style={{ color:'#554' }}> · {setPct}%</span></span>
+              <span style={{ fontSize:12,color:'#aaa' }}><span style={{ color:BRAND_CYAN,fontWeight:600 }}>{setOwned}</span><span style={{ color:'#444' }}>/{setTracked.length}</span><span style={{ color:'#554' }}> · {setPct}%</span></span>
             </div>
             <div style={{ height:4,background:'#2e2e3e',borderRadius:3,overflow:'hidden' }}>
-              <div style={{ width:`${setPct}%`,height:'100%',background:'linear-gradient(90deg,#9040d0,#6020a0)',borderRadius:3,transition:'width 0.3s' }} />
+              <div style={{ width:`${setPct}%`,height:'100%',background:'linear-gradient(90deg,#2BABA8,#1D6967)',borderRadius:3,transition:'width 0.3s' }} />
             </div>
           </div>
 
           <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search paints…"
-            style={{ width:'100%',padding:'6px 12px',borderRadius:8,marginBottom:7,background:'#141414',border:'1px solid #2e2e3e',color:'#e8e8e8',fontSize:13,outline:'none',boxSizing:'border-box' }} />
+            style={{ width:'100%',padding:'6px 12px',borderRadius:8,marginBottom:7,background:'#0F1818',border:'1px solid #2A3A3A',color:'#e8e8e8',fontSize:13,outline:'none',boxSizing:'border-box' }} />
 
           <div style={{ display:'flex',gap:5,flexWrap:'wrap',marginBottom:5 }}>
             {FILTERS.slice(0,3).map(([val,label])=>(
-              <button key={val} onClick={()=>setFilter(val)} style={{ padding:'4px 10px',borderRadius:20,border:'none',cursor:'pointer',fontSize:11,fontWeight:600,background:filter===val?'#e94560':'#2a2a3a',color:filter===val?'#fff':'#888' }}>{label}</button>
+              <button key={val} onClick={()=>setFilter(val)} style={{ padding:'4px 10px',borderRadius:20,border:'none',cursor:'pointer',fontSize:11,fontWeight:600,background:filter===val?BRAND_CYAN:'#1E2828',color:filter===val?'#0A1414':'#888' }}>{label}</button>
             ))}
             <div style={{ marginLeft:'auto',display:'flex',gap:5 }}>
-              <button onClick={()=>setShowBrandFilter(true)} style={{ padding:'4px 10px',borderRadius:20,cursor:'pointer',fontSize:11,fontWeight:600,border:hiddenSections.size>0?'1px solid #e94560':'1px solid #3a3a5a',background:hiddenSections.size>0?'#2a0a10':'transparent',color:hiddenSections.size>0?'#e94560':'#7070a0' }}>Brands{hiddenSections.size>0?` (${hiddenSections.size})`:''}</button>
+              <button onClick={()=>setShowBrandFilter(true)} style={{ padding:'4px 10px',borderRadius:20,cursor:'pointer',fontSize:11,fontWeight:600,border:hiddenSections.size>0?`1px solid ${BRAND_CYAN}`:'1px solid #2A3A3A',background:hiddenSections.size>0?'#0A1E1E':'transparent',color:hiddenSections.size>0?BRAND_CYAN:'#6B8080' }}>Brands{hiddenSections.size>0?` (${hiddenSections.size})`:''}</button>
               <button onClick={exportOwned} style={{ padding:'4px 10px',borderRadius:20,border:'1px solid #2a3a2a',background:'transparent',color:'#4a7a4a',fontSize:11,cursor:'pointer' }}>Export</button>
               <button onClick={exportShoppingList} style={{ padding:'4px 10px',borderRadius:20,border:'1px solid #3a2a10',background:'transparent',color:'#a06020',fontSize:11,cursor:'pointer' }}>Shop 🛒</button>
             </div>
@@ -261,9 +274,9 @@ export default function Inventory({ user }) {
 
           return (
             <div key={brand.id} style={{ marginBottom:8 }}>
-              <div onClick={()=>togSet(setBrandCollapsed, brand.id)} style={{ display:'flex',alignItems:'center',gap:8,padding:'8px 10px',background:'#1a1a2e',borderRadius:8,cursor:'pointer',userSelect:'none',border:`1px solid ${brand.color}33`,marginBottom:isBrandCollapsed?0:4 }}>
-                <span style={{ fontSize:9,color:brand.color,transform:isBrandCollapsed?'rotate(-90deg)':'rotate(0deg)',display:'inline-block',transition:'transform 0.2s' }}>▼</span>
-                <span style={{ fontSize:13,fontWeight:800,color:brand.color,textTransform:'uppercase',letterSpacing:'0.08em',flex:1 }}>{brand.label}</span>
+              <div onClick={()=>togSet(setBrandCollapsed, brand.id)} style={{ display:'flex',alignItems:'center',gap:8,padding:'8px 10px',background:BG_HEADER,borderRadius:8,cursor:'pointer',userSelect:'none',border:`1px solid ${HIER_BRAND}22`,marginBottom:isBrandCollapsed?0:4 }}>
+                <span style={{ fontSize:9,color:HIER_BRAND,transform:isBrandCollapsed?'rotate(-90deg)':'rotate(0deg)',display:'inline-block',transition:'transform 0.2s' }}>▼</span>
+                <span style={{ fontSize:13,fontWeight:800,color:HIER_BRAND,textTransform:'uppercase',letterSpacing:'0.08em',flex:1 }}>{brand.label}</span>
                 {isBrandCollapsed && <span style={{ fontSize:10,color:'#444' }}>{brandKeys.filter(k=>checked[k]||mySet[k]||extras[k]).length} active</span>}
               </div>
 
@@ -277,8 +290,8 @@ export default function Inventory({ user }) {
                   <div key={line.id} style={{ marginBottom:4 }}>
                     {showLine && (
                       <div onClick={()=>togSet(setLineCollapsed, line.id)} style={{ display:'flex',alignItems:'center',gap:7,padding:'5px 10px 5px 22px',cursor:'pointer',userSelect:'none',borderRadius:6,marginBottom:isLineCollapsed?0:2 }}>
-                        <span style={{ fontSize:8,color:'#6070a0',transform:isLineCollapsed?'rotate(-90deg)':'rotate(0deg)',display:'inline-block',transition:'transform 0.2s' }}>▼</span>
-                        <span style={{ fontSize:12,fontWeight:600,color:isLineCollapsed?'#555':'#a0a0c8',flex:1 }}>{line.label}</span>
+                        <span style={{ fontSize:8,color:HIER_LINE,transform:isLineCollapsed?'rotate(-90deg)':'rotate(0deg)',display:'inline-block',transition:'transform 0.2s' }}>▼</span>
+                        <span style={{ fontSize:12,fontWeight:600,color:isLineCollapsed?'#445858':HIER_LINE,flex:1 }}>{line.label}</span>
                       </div>
                     )}
 
@@ -292,9 +305,9 @@ export default function Inventory({ user }) {
 
                       return (
                         <div key={sKey} style={{ marginBottom:2, paddingLeft:showLine?36:16 }}>
-                          <div onClick={()=>togSet(setCollapsed,sKey)} style={{ display:'flex',alignItems:'center',gap:7,padding:'4px 8px',cursor:'pointer',userSelect:'none',borderBottom:isSecCollapsed?'none':`1px solid ${accent}22`,marginBottom:isSecCollapsed?0:2 }}>
-                            <span style={{ fontSize:8,color:accent,transform:isSecCollapsed?'rotate(-90deg)':'rotate(0deg)',display:'inline-block',transition:'transform 0.2s' }}>▼</span>
-                            <span style={{ fontSize:11,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.07em',color:accent,flex:1 }}>{display}</span>
+                          <div onClick={()=>togSet(setCollapsed,sKey)} style={{ display:'flex',alignItems:'center',gap:7,padding:'4px 8px',cursor:'pointer',userSelect:'none',borderBottom:isSecCollapsed?'none':`1px solid ${HIER_SECTION}25`,marginBottom:isSecCollapsed?0:2 }}>
+                            <span style={{ fontSize:8,color:HIER_SECTION,transform:isSecCollapsed?'rotate(-90deg)':'rotate(0deg)',display:'inline-block',transition:'transform 0.2s' }}>▼</span>
+                            <span style={{ fontSize:11,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.07em',color:HIER_SECTION,flex:1 }}>{display}</span>
                             <span style={{ fontSize:10,color:'#444' }}>{ownedInSec}/{colors.length}</span>
                           </div>
                           {!isSecCollapsed && (
