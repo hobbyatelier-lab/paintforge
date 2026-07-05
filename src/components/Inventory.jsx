@@ -128,7 +128,7 @@ export default function Inventory({ user }) {
   // ── Dismiss How To Use forever ────────────────────────────────────────────
   const dismissHowToUseForever = async () => {
     setSeenHowToUse(true)
-    setShowHowToUse(false)
+    // Modal stays open — user closes with X when ready
     await supabase.from('user_preferences').upsert({
       user_id: user.id,
       seen_how_to_use: true,
@@ -304,8 +304,8 @@ export default function Inventory({ user }) {
                 <span style={{ fontSize:9,color:'#555',textTransform:'uppercase',letterSpacing:'0.07em' }}>My Set ♦</span>
                 <span style={{ fontSize:10,color:'#aaa' }}><span style={{ color:'#9060d0',fontWeight:600 }}>{setOwned}</span><span style={{ color:'#444' }}>/{setTracked.length}</span><span style={{ color:'#554' }}> {setPct}%</span></span>
               </div>
-              <div style={{ height:3,background:'#2e2e3e',borderRadius:2,overflow:'hidden' }}>
-                <div style={{ width:`${setPct}%`,height:'100%',background:'linear-gradient(90deg,#9060d0,#6040a0)',borderRadius:2,transition:'width 0.3s' }} />
+              <div style={{ height:3,background:'#2A1E38',borderRadius:2,overflow:'hidden' }}>
+                <div style={{ width:`${setPct}%`,height:'100%',background:'linear-gradient(90deg,#9060d0,#6840b0)',borderRadius:2,transition:'width 0.3s' }} />
               </div>
             </div>
             {/* Divider */}
@@ -316,18 +316,18 @@ export default function Inventory({ user }) {
                 <span style={{ fontSize:9,color:'#555',textTransform:'uppercase',letterSpacing:'0.07em' }}>Collection</span>
                 <span style={{ fontSize:10,color:'#aaa' }}><span style={{ color:'#36E2DD',fontWeight:600 }}>{ownedCount}</span><span style={{ color:'#444' }}>/{total}</span><span style={{ color:'#554' }}> {pct}%</span></span>
               </div>
-              <div style={{ height:3,background:'#2e2e3e',borderRadius:2,overflow:'hidden' }}>
+              <div style={{ height:3,background:'#162828',borderRadius:2,overflow:'hidden' }}>
                 <div style={{ width:`${pct}%`,height:'100%',background:`linear-gradient(90deg,${BRAND_CYAN},#2BABA8)`,borderRadius:2,transition:'width 0.3s' }} />
               </div>
             </div>
           </div>
 
-          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search paints…"
+          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search… (names or codes)"
             style={{ width:'100%',padding:'6px 12px',borderRadius:8,marginBottom:7,background:'#0F1818',border:'1px solid #2A3A3A',color:'#e8e8e8',fontSize:13,outline:'none',boxSizing:'border-box' }} />
 
           {/* Row 1: tools — Shop (orange!), Export, Brand Filter */}
           <div style={{ display:'flex',gap:5,marginBottom:4 }}>
-            <button onClick={handleShopList} style={{ padding:'3px 10px',borderRadius:20,border:'none',cursor:'pointer',fontSize:11,fontWeight:800,background:'#FF6B00',color:'#fff',letterSpacing:'0.02em' }}>Shop 🛒</button>
+            <button onClick={handleShopList} style={{ padding:'3px 10px',borderRadius:20,border:'2px solid #FF6B00',cursor:'pointer',fontSize:11,fontWeight:700,background:'transparent',color:'#FF6B00' }}>Shop 🛒</button>
             <button onClick={handleExport} style={{ padding:'3px 10px',borderRadius:20,border:'none',cursor:'pointer',fontSize:11,fontWeight:600,background:'#1E2828',color:'#888' }}>Export</button>
             <button onClick={()=>setShowBrandFilter(true)} style={{ padding:'3px 10px',borderRadius:20,cursor:'pointer',fontSize:11,fontWeight:600,border:hiddenSections.size>0?`1px solid ${BRAND_CYAN}`:'1px solid #2A3A3A',background:hiddenSections.size>0?'#0A1E1E':'transparent',color:hiddenSections.size>0?BRAND_CYAN:'#6B8080' }}>Brand Filter{hiddenSections.size>0?` (${hiddenSections.size})`:''}</button>
           </div>
@@ -364,7 +364,7 @@ export default function Inventory({ user }) {
             <div key={brand.id} style={{ marginBottom:8 }}>
               <div onClick={()=>togSet(setBrandCollapsed, brand.id)} style={{ display:'flex',alignItems:'center',gap:8,padding:'8px 10px',background:BG_HEADER,borderRadius:8,cursor:'pointer',userSelect:'none',border:`1px solid ${HIER_BRAND}22`,marginBottom:isBrandCollapsed?0:4 }}>
                 <span style={{ fontSize:9,color:HIER_BRAND,transform:isBrandCollapsed?'rotate(-90deg)':'rotate(0deg)',display:'inline-block',transition:'transform 0.2s' }}>▼</span>
-                <span style={{ fontSize:13,fontWeight:800,color:HIER_BRAND,textTransform:'uppercase',letterSpacing:'0.08em',flex:1 }}>{brand.label}</span>
+                <span style={{ fontSize:isDesktop?15:13,fontWeight:800,color:HIER_BRAND,textTransform:'uppercase',letterSpacing:'0.08em',flex:1 }}>{brand.label}</span>
                 <span style={{ fontSize:9, color:'#555', whiteSpace:'nowrap', display:'flex', gap:5 }}>
                   <span><span style={{color:'#9060d0',fontWeight:600}}>{bOwned}</span><span style={{color:'#36E2DD'}}>/{ bPaints.length }</span><span style={{color:'#E8A838'}}> ({bMissing})  </span></span>
                   <span style={{color:'#444'}}>♦</span>
@@ -389,11 +389,12 @@ export default function Inventory({ user }) {
                     {showLine && (
                       <div onClick={()=>togSet(setLineCollapsed, line.id)} style={{ display:'flex',alignItems:'center',gap:7,padding:'4px 6px',cursor:'pointer',userSelect:'none',borderRadius:6,marginBottom:isLineCollapsed?0:2 }}>
                         <span style={{ fontSize:8,color:HIER_LINE,transform:isLineCollapsed?'rotate(-90deg)':'rotate(0deg)',display:'inline-block',transition:'transform 0.2s' }}>▼</span>
-                        <span style={{ fontSize:12,fontWeight:600,color:isLineCollapsed?'#6B5A1A':HIER_LINE,flex:1 }}>{line.label}</span>
-                        <span style={{ fontSize:9, color:'#555', whiteSpace:'nowrap', display:'flex', gap:5 }}>
-                          <span><span style={{color:'#9060d0',fontWeight:600}}>{lOwned}</span><span style={{color:'#36E2DD'}}>/{ lPaints.length }</span><span style={{color:'#E8A838'}}> ({ lMissing })  </span></span>
-                          <span style={{color:'#444'}}>♦</span>
-                          <span><span style={{color:'#9060d0',fontWeight:600}}>{lSetOwned}</span><span style={{color:'#36E2DD'}}>/{ lInSet.length }</span><span style={{color:'#E8A838'}}> ({ lSetMissing })  </span></span>
+                        <span style={{ fontSize:isDesktop?14:12,fontWeight:600,color:isLineCollapsed?'#6B5A1A':HIER_LINE,flex:1 }}>{line.label}</span>
+                        <span style={{ fontSize:9,whiteSpace:'nowrap',display:'flex',gap:4,alignItems:'center' }}>
+                          <span style={{color:'#9060d0',fontWeight:700,fontSize:10}}>♦</span>
+                          <span><span style={{color:'#9060d0',fontWeight:600}}>{lSetOwned}</span><span style={{color:'#9060d0',opacity:0.7}}>/{lInSet.length}</span>{lSetMissing>0&&<span style={{color:'#E8A838'}}> ({lSetMissing})</span>}</span>
+                          <span style={{color:'#2A3535'}}>·</span>
+                          <span><span style={{color:'#36E2DD',fontWeight:600}}>{lOwned}</span><span style={{color:'#36E2DD',opacity:0.7}}>/{lPaints.length}</span>{lMissing>0&&<span style={{color:'#E8A838'}}> ({lMissing})</span>}</span>
                         </span>
                       </div>
                     )}
@@ -415,11 +416,12 @@ export default function Inventory({ user }) {
                         <div key={sKey} style={{ marginBottom:2, paddingLeft:showLine?12:4 }}>
                           <div onClick={()=>togSet(setCollapsed,sKey)} style={{ display:'flex',alignItems:'center',gap:7,padding:'4px 8px',cursor:'pointer',userSelect:'none',borderBottom:isSecCollapsed?'none':`1px solid ${HIER_SECTION}25`,marginBottom:isSecCollapsed?0:2 }}>
                             <span style={{ fontSize:8,color:HIER_SECTION,transform:isSecCollapsed?'rotate(-90deg)':'rotate(0deg)',display:'inline-block',transition:'transform 0.2s' }}>▼</span>
-                            <span style={{ fontSize:11,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.07em',color:HIER_SECTION,flex:1 }}>{display}</span>
-                            <span style={{ fontSize:9, color:'#555', whiteSpace:'nowrap', display:'flex', gap:4 }}>
-                              <span><span style={{color:'#9060d0',fontWeight:600}}>{sOwned}</span><span style={{color:'#36E2DD'}}>/{ rawPaints.length }</span><span style={{color:'#E8A838'}}> ({ sMissing })  </span></span>
-                              <span style={{color:'#444'}}>♦</span>
-                              <span><span style={{color:'#9060d0',fontWeight:600}}>{sSetOwned}</span><span style={{color:'#36E2DD'}}>/{ sInSet.length }</span><span style={{color:'#E8A838'}}> ({ sSetMissing })  </span></span>
+                            <span style={{ fontSize:isDesktop?13:11,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.07em',color:HIER_SECTION,flex:1 }}>{display}</span>
+                            <span style={{ fontSize:9,whiteSpace:'nowrap',display:'flex',gap:4,alignItems:'center' }}>
+                              <span style={{color:'#9060d0',fontWeight:700,fontSize:10}}>♦</span>
+                              <span><span style={{color:'#9060d0',fontWeight:600}}>{sSetOwned}</span><span style={{color:'#9060d0',opacity:0.7}}>/{sInSet.length}</span>{sSetMissing>0&&<span style={{color:'#E8A838'}}> ({sSetMissing})</span>}</span>
+                              <span style={{color:'#2A3535'}}>·</span>
+                              <span><span style={{color:'#36E2DD',fontWeight:600}}>{sOwned}</span><span style={{color:'#36E2DD',opacity:0.7}}>/{rawPaints.length}</span>{sMissing>0&&<span style={{color:'#E8A838'}}> ({sMissing})</span>}</span>
                             </span>
                           </div>
                           {!isSecCollapsed && (
@@ -468,21 +470,13 @@ function ColorRow({ color, isChecked, inMySet, extraCount, targetCount, toggleOw
       ? '1.5px solid rgba(255,255,255,0.85)'
       : '1.5px solid #3a3a4a'
 
-  // Battery pill builder
-  const Pips = ({count, active, max=5, activeColor, emptyColor='#2a2a3a'}) => (
-    <div style={{ display:'flex',gap:1,flexShrink:0,alignItems:'center' }}>
-      {Array.from({length:max},(_,i)=>i+1).map(n=>(
+  // Battery pill builder — bordered with group outline
+  const Pips = ({count, activeColor, isExtras}) => (
+    <div style={{ display:'flex',gap:2,flexShrink:0,alignItems:'center',border:'1px solid #2A3535',borderRadius:4,padding:'2px 3px' }}>
+      {[1,2,3,4,5].map(n=>(
         <button key={n}
-          onClick={()=>{
-            if(activeColor==='#f07030') setExtraCount(color.id,n)
-            else setTargetCount(color.id,n)
-          }}
-          style={{
-            width:3, height:16, borderRadius:2,
-            border:'none', cursor:'pointer', padding:0, flexShrink:0,
-            background: n<=count ? activeColor : emptyColor,
-            opacity: n<=count ? 1 : 0.35,
-          }}
+          onClick={()=>{ isExtras ? setExtraCount(color.id,n) : setTargetCount(color.id,n) }}
+          style={{ width:5,height:12,borderRadius:2,border:`1px solid ${n<=count?activeColor:'#333'}`,cursor:'pointer',padding:0,flexShrink:0,background:n<=count?activeColor:'transparent' }}
         />
       ))}
     </div>
@@ -529,7 +523,7 @@ function ColorRow({ color, isChecked, inMySet, extraCount, targetCount, toggleOw
       {/* Name — condensed font, gets all remaining space */}
       <span style={{
         fontFamily:"'Barlow Condensed','Montserrat',system-ui",
-        fontSize:13, fontWeight: isChecked?500:400,
+        fontSize:15, fontWeight: isChecked?500:400,
         flex:1, minWidth:0,
         color:isLow?'#e0a040':isChecked?'#c8e8c8':inMySet?'#c0b0e0':'#bbb',
         overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap',
