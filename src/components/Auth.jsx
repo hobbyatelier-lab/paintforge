@@ -78,7 +78,7 @@ export default function Auth() {
             style={{ width: 160, height: 160, display: 'block', margin: '0 auto 20px' }} />
           <h1 style={{ fontSize: 32, fontWeight: 800, letterSpacing: '-0.03em', lineHeight: 1, margin: 0 }}>
             <span style={{ color: BRAND_CYAN }}>Paint</span>
-            <span style={{ color: '#2E3A3A' }}>forge</span>
+            <span style={{ color: '#8AABAB' }}>forge</span>
           </h1>
           <p style={{ color: TEXT_MUTED, fontSize: 13, marginTop: 8, fontWeight: 500, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
             Your miniature painting companion

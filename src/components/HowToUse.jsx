@@ -6,8 +6,8 @@ const PURPLE     = '#9060d0'
 const AMBER      = '#E8A838'
 const GREEN      = '#4caf50'
 
-export default function HowToUse({ onClose, onDismissForever }) {
-  const [dontShow, setDontShow] = useState(false)
+export default function HowToUse({ onClose, onDismissForever, initialDontShow }) {
+  const [dontShow, setDontShow] = useState(!!initialDontShow)
 
   const S  = { fontSize:12, color:'#bbb', lineHeight:1.7 }
   const H  = { fontSize:10, color:'#555', textTransform:'uppercase', letterSpacing:'0.1em', margin:'20px 0 8px', fontWeight:700 }
@@ -45,7 +45,7 @@ export default function HowToUse({ onClose, onDismissForever }) {
             <img src={logoUrl} alt="" style={{ width:26, height:26 }} />
             <div>
               <span style={{ fontSize:14, fontWeight:800, letterSpacing:'-0.02em' }}>
-                <span style={{ color:BRAND_CYAN }}>Paint</span><span style={{ color:'#2E3A3A' }}>forge</span>
+                <span style={{ color:BRAND_CYAN }}>Paint</span><span style={{ color:'#8AABAB' }}>forge</span>
               </span>
               <span style={{ color:'#444', fontWeight:400, fontSize:12 }}> — How to Use</span>
             </div>
@@ -125,9 +125,9 @@ export default function HowToUse({ onClose, onDismissForever }) {
               </div>
             </div>,
             <div style={S}>
-              <div><strong>Solid white border</strong> — true swatch based on manufacturer digital chips.</div>
-              <div style={{ marginTop:5 }}><strong>Dashed border</strong> — approximate. Metallics, clears, and colorshift paints shift with angle and lighting and can't be fully captured in a flat hex value.</div>
-              <div style={{ marginTop:5 }}><strong>Empty ring with ?</strong> — no color data yet for this paint.</div>
+              <div><strong>Solid white border</strong> — true swatch of solid colors based on manufacturer digital chips.</div>
+              <div style={{ marginTop:5 }}><strong>Dashed border</strong> — approximate swatch. Metallics, one coat paints (Contrast, Xpress, Speedpaint, and similar), clears, and colorshift paints shift with angle, lighting, and texture and can't be fully captured in a flat swatch.</div>
+              <div style={{ marginTop:5 }}><strong>Empty ring with ?</strong> — either no color data available or not applicable for this product.</div>
             </div>
           )}
           {row(
@@ -135,15 +135,9 @@ export default function HowToUse({ onClose, onDismissForever }) {
             <>Manufacturer code — the number printed on the bottle. Blank for products without official codes.</>
           )}
           {row(
-            <div style={{ display:'flex',flexDirection:'column',gap:4 }}>
-              <div style={{ display:'flex',gap:3,alignItems:'center' }}>
-                <span style={{ fontSize:9,color:'#f07030',fontWeight:600 }}>Orange</span>
-                <MiniPips count={2} color='#f07030' />
-              </div>
-              <div style={{ display:'flex',gap:3,alignItems:'center' }}>
-                <span style={{ fontSize:9,color:'#20a080',fontWeight:600 }}>Teal</span>
-                <MiniPips count={3} color='#20a080' />
-              </div>
+            <div style={{ display:'flex',flexDirection:'column',gap:5,alignItems:'flex-start' }}>
+              <MiniPips count={2} color='#f07030' />
+              <MiniPips count={3} color='#20a080' />
               <span style={{ fontSize:10,color:AMBER,fontWeight:700 }}>+1</span>
             </div>,
             <div style={S}>
@@ -190,7 +184,7 @@ export default function HowToUse({ onClose, onDismissForever }) {
             </div>
           </div>
           <div style={S}>Three collapsible levels — tap any header to expand or collapse. <span style={{ color:BRAND_CYAN,fontWeight:600 }}>Cyan = brand</span>. <span style={{ color:AMBER,fontWeight:600 }}>Amber = product line</span>. <span style={{ color:'#9B8FD0',fontWeight:600 }}>Violet = section</span>.</div>
-          <div style={{ ...S, marginTop:6 }}>Each header shows <span style={{ color:PURPLE,fontWeight:600 }}>♦ owned/total (missing)</span> for your <span style={{ color:PURPLE,fontWeight:600 }}>My Set</span>, then <span style={{ color:BRAND_CYAN,fontWeight:600 }}>owned/total (missing)</span> for your <span style={{ color:BRAND_CYAN,fontWeight:600 }}>Collection</span>. Missing only shows when non-zero.</div>
+          <div style={{ ...S, marginTop:6 }}>Each header shows <span style={{ color:PURPLE,fontWeight:600 }}>♦ owned/total</span> <span style={{ color:AMBER,fontWeight:600 }}>(missing)</span> for your <span style={{ color:PURPLE,fontWeight:600 }}>My Set</span>, then <span style={{ color:BRAND_CYAN,fontWeight:600 }}>owned/total</span> <span style={{ color:AMBER,fontWeight:600 }}>(missing)</span> for your <span style={{ color:BRAND_CYAN,fontWeight:600 }}>Collection</span>. Missing only shows when non-zero.</div>
 
           {/* Content filters */}
           <div style={H}>Content filters</div>
@@ -208,7 +202,7 @@ export default function HowToUse({ onClose, onDismissForever }) {
           {/* Export / Shop */}
           <div style={H}>Export & Shop</div>
           {row(<span style={{ color:'#FF6B00',fontWeight:700 }}>Shop 🛒</span>, "Shopping list: everything in My Set you don't own yet, plus paints below their backup target, with quantities. Auto-copied to clipboard.")}
-          {row(<span style={{ color:'#888',fontWeight:600 }}>Export</span>, 'Full owned inventory as a text list. For backup or sharing.')}
+          {row(<span style={{ color:'#888',fontWeight:600 }}>Export</span>, <><div>Full inventory as a text list for backup or sharing. Auto-copied to clipboard.</div><div style={{ marginTop:4, color:'#888' }}>Includes owned inventory, curated inventory (My Set), current backup reserves, and backup targets.</div></>)}
 
           {/* Preferences */}
           <div style={H}>Everything saves automatically</div>

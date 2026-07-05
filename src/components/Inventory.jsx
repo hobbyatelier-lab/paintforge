@@ -265,7 +265,7 @@ export default function Inventory({ user }) {
     <div style={{ background:BG_APP,minHeight:'100vh',fontFamily:"'Montserrat',system-ui,sans-serif",color:'#e8e8e8' }}>
 
       {showBrandFilter && <BrandFilter hiddenSections={hiddenSections} setHiddenSections={setHiddenSections} onClose={()=>setShowBrandFilter(false)} />}
-      {showHowToUse   && <HowToUse onClose={()=>setShowHowToUse(false)} onDismissForever={dismissHowToUseForever} />}
+      {showHowToUse   && <HowToUse onClose={()=>setShowHowToUse(false)} onDismissForever={dismissHowToUseForever} initialDontShow={seenHowToUse} />}
 
       {showExport && (
         <div style={{ position:'fixed',inset:0,background:'#000a',zIndex:100,display:'flex',alignItems:'center',justifyContent:'center',padding:20 }}>
@@ -286,7 +286,7 @@ export default function Inventory({ user }) {
               <img src={logoUrl} alt="" style={{ width:28,height:28,flexShrink:0 }} />
               <span style={{ fontSize:17,fontWeight:800,letterSpacing:'-0.02em' }}>
                 <span style={{ color:BRAND_CYAN }}>Paint</span>
-                <span style={{ color:'#2E3A3A' }}>forge</span>
+                <span style={{ color:'#8AABAB' }}>forge</span>
               </span>
               {saving&&<span style={{ fontSize:10,color:'#555' }}>saving…</span>}
             </div>
@@ -301,8 +301,8 @@ export default function Inventory({ user }) {
             {/* My Set bar — LEFT, purple (most important) */}
             <div style={{ flex:1 }}>
               <div style={{ display:'flex',justifyContent:'space-between',marginBottom:2 }}>
-                <span style={{ fontSize:9,color:'#555',textTransform:'uppercase',letterSpacing:'0.07em' }}>My Set ♦</span>
-                <span style={{ fontSize:10,color:'#aaa' }}><span style={{ color:'#9060d0',fontWeight:600 }}>{setOwned}</span><span style={{ color:'#444' }}>/{setTracked.length}</span><span style={{ color:'#554' }}> {setPct}%</span></span>
+                <span style={{ fontSize:9,color:'#7A9898',textTransform:'uppercase',letterSpacing:'0.07em' }}>My Set ♦</span>
+                <span style={{ fontSize:10,color:'#aaa' }}><span style={{ color:'#9060d0',fontWeight:600 }}>{setOwned}</span><span style={{ color:'#444' }}>/{setTracked.length}</span><span style={{ color:'#8AABAB' }}> {setPct}%</span></span>
               </div>
               <div style={{ height:3,background:'#2A1E38',borderRadius:2,overflow:'hidden' }}>
                 <div style={{ width:`${setPct}%`,height:'100%',background:'linear-gradient(90deg,#9060d0,#6840b0)',borderRadius:2,transition:'width 0.3s' }} />
@@ -313,8 +313,8 @@ export default function Inventory({ user }) {
             {/* Collection bar — RIGHT, teal */}
             <div style={{ flex:1 }}>
               <div style={{ display:'flex',justifyContent:'space-between',marginBottom:2 }}>
-                <span style={{ fontSize:9,color:'#555',textTransform:'uppercase',letterSpacing:'0.07em' }}>Collection</span>
-                <span style={{ fontSize:10,color:'#aaa' }}><span style={{ color:'#36E2DD',fontWeight:600 }}>{ownedCount}</span><span style={{ color:'#444' }}>/{total}</span><span style={{ color:'#554' }}> {pct}%</span></span>
+                <span style={{ fontSize:9,color:'#7A9898',textTransform:'uppercase',letterSpacing:'0.07em' }}>Collection</span>
+                <span style={{ fontSize:10,color:'#aaa' }}><span style={{ color:'#36E2DD',fontWeight:600 }}>{ownedCount}</span><span style={{ color:'#444' }}>/{total}</span><span style={{ color:'#8AABAB' }}> {pct}%</span></span>
               </div>
               <div style={{ height:3,background:'#162828',borderRadius:2,overflow:'hidden' }}>
                 <div style={{ width:`${pct}%`,height:'100%',background:`linear-gradient(90deg,${BRAND_CYAN},#2BABA8)`,borderRadius:2,transition:'width 0.3s' }} />
@@ -445,6 +445,11 @@ export default function Inventory({ user }) {
             </div>
           )
         })}
+      </div>
+
+      {/* Footer */}
+      <div style={{ textAlign:'center', padding:'12px 20px 20px', color:'#444', fontSize:11, fontFamily:"'Montserrat',system-ui,sans-serif" }}>
+        © {new Date().getFullYear()} Hobby Atelier · PaintForge
       </div>
     </div>
   )
