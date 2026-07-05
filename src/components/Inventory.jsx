@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import logoUrl from '../assets/logo.svg'
 import { supabase } from '../supabase.js'
 import { COLORS, SECTION_LABELS, SECTION_ACCENTS, TAXONOMY } from '../data/paints.js'
@@ -193,6 +193,9 @@ export default function Inventory({ user }) {
     lines.push(`Owned: ${oc} / ${all.length}  |  My Set: ${st.filter(c=>checked[c.id]).length}/${st.length}`)
     openExport('Inventory Export', lines.join('\n'))
   }
+
+  const handleExport    = () => exportOwned()
+  const handleShopList  = () => exportShoppingList()
 
   function exportShoppingList() {
     const lines=['PAINTFORGE — SHOPPING LIST','==========================','','MISSING','-------']
