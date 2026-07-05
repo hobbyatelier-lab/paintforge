@@ -306,14 +306,14 @@ export const COLORS = {
     { id: "GM502", name: "Clear Matt" },
   ],
   indartPigments: [
-    { id: "IP00", name: "00 Blanco de Titanio" }, { id: "IP11", name: "11 Azul Ptalo" },
-    { id: "IP12", name: "12 Amarillo de Cromo Oscuro" }, { id: "IP15", name: "15 Rojo Medio Permanente" },
-    { id: "IP16", name: "16 Violeta Permanente" }, { id: "IP17", name: "17 Sombra Natural" },
-    { id: "IP18", name: "18 Magenta Medio" }, { id: "IP24", name: "24 Azul Ultramar Claro" },
-    { id: "IP25", name: "25 Negro de Humo" }, { id: "IP26", name: "26 Amarillo Ocre Oxido" },
-    { id: "IP27", name: "27 Rojo Indio Oxido" }, { id: "IP31", name: "31 Verde Oxido de Cromo" },
-    { id: "IP40", name: "40 Naranja de Cromo" }, { id: "IP52", name: "52 Nacar Blanco" },
-    { id: "IP60", name: "60 Verde Ptalo" },
+    { id: "IP00", name: "Blanco de Titanio" }, { id: "IP11", name: "Azul Ptalo" },
+    { id: "IP12", name: "Amarillo de Cromo Oscuro" }, { id: "IP15", name: "Rojo Medio Permanente" },
+    { id: "IP16", name: "Violeta Permanente" }, { id: "IP17", name: "Sombra Natural" },
+    { id: "IP18", name: "Magenta Medio" }, { id: "IP24", name: "Azul Ultramar Claro" },
+    { id: "IP25", name: "Negro de Humo" }, { id: "IP26", name: "Amarillo Ocre Oxido" },
+    { id: "IP27", name: "Rojo Indio Oxido" }, { id: "IP31", name: "Verde Oxido de Cromo" },
+    { id: "IP40", name: "Naranja de Cromo" }, { id: "IP52", name: "Nacar Blanco" },
+    { id: "IP60", name: "Verde Ptalo" },
     { id: "IND_01", name: "Amarillo Limón Hansa", hex: "#F9F16C" },
     { id: "IND_02", name: "Amarillo Hansa Medio", hex: "#F8E44D" },
     { id: "IND_03", name: "Amarillo Oscuro Permanente", hex: "#F6D64F" },
@@ -5554,7 +5554,7 @@ export const COLORS = {
 
   // ── Custom brand placeholder slots ─────────────────────────────────────────
   customSection1: [
-    { id: "CUSTOM_001", name: "" },
+    { id: "CUSTOM_001", name: "Aron Alfa Pro" },
     { id: "CUSTOM_002", name: "" },
     { id: "CUSTOM_003", name: "" },
     { id: "CUSTOM_004", name: "" },

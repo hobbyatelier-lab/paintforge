@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import logoUrl from '../assets/logo.svg'
 import { supabase } from '../supabase.js'
 import { COLORS, SECTION_LABELS, SECTION_ACCENTS, TAXONOMY } from '../data/paints.js'
@@ -6,13 +6,27 @@ import BrandFilter from './BrandFilter.jsx'
 import HowToUse from './HowToUse.jsx'
 
 
+
+// ── Responsive window width ───────────────────────────────────────────────────
+function useWindowWidth() {
+  const [w, setW] = useState(window.innerWidth)
+  useEffect(() => {
+    const h = () => setW(window.innerWidth)
+    window.addEventListener('resize', h)
+    return () => window.removeEventListener('resize', h)
+  }, [])
+  return w
+}
+
 // ── Display code + name extraction ───────────────────────────────────────────
 function getDisplayCode(id, name) {
   const tam = (name||'').match(/^(XF?-\d+)\s/)
   if (tam) return tam[1]
-  if (/^\d{2,3}\.\d{3}$/.test(id)) return id        // Vallejo: 72.034
-  if (/^AK\d{4,}$/.test(id)) return id              // AK: AK11001
-  if (/^[A-Z]{1,3}\d{1,4}$/.test(id) && id.length<=6) return id  // Mr Hobby: C1, GX8, H4
+  if (/^\d{2,3}\.\d{3}$/.test(id)) return id                     // Vallejo: 72.034
+  if (/^AK\d{4,}$/.test(id)) return id                           // AK: AK11001
+  if (/^[A-Z]{1,3}\d{1,4}$/.test(id) && id.length<=6) return id  // Mr Hobby: C1, GX8
+  const indNum = id.match(/^(?:IND|IP)_(\d+)$/)
+  if (indNum) return indNum[1]                                     // Indart: IND_01 → 01
   return null
 }
 function getDisplayName(id, name) {
@@ -48,6 +62,8 @@ export default function Inventory({ user }) {
   const [hiddenSections,  setHiddenSections]  = useState(new Set())
   const [showBrandFilter, setShowBrandFilter] = useState(false)
   const [showHowToUse,    setShowHowToUse]    = useState(false)
+  const winW      = useWindowWidth()
+  const isDesktop = winW > 900
   const [seenHowToUse,    setSeenHowToUse]    = useState(true)  // true = don't auto-show
   const [showExport,      setShowExport]      = useState(false)
   const [exportText,      setExportText]      = useState('')
@@ -260,8 +276,8 @@ export default function Inventory({ user }) {
       )}
 
       {/* ── Header ── */}
-      <div style={{ background:BG_HEADER,borderBottom:'1px solid #222C2C',padding:'12px 20px',position:'sticky',top:0,zIndex:10 }}>
-        <div style={{ maxWidth:700,margin:'0 auto' }}>
+      <div style={{ background:BG_HEADER,borderBottom:'1px solid #222C2C',padding:isDesktop?'12px 32px':'12px 16px',position:'sticky',top:0,zIndex:10 }}>
+        <div style={{ maxWidth:isDesktop?980:700,margin:'0 auto' }}>
           <div style={{ display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10 }}>
             <div style={{ display:'flex',alignItems:'center',gap:8 }}>
               <img src={logoUrl} alt="" style={{ width:28,height:28,flexShrink:0 }} />
@@ -272,34 +288,33 @@ export default function Inventory({ user }) {
               {saving&&<span style={{ fontSize:10,color:'#555' }}>saving…</span>}
             </div>
             <div style={{ display:'flex',alignItems:'center',gap:6 }}>
-              <span style={{ fontSize:11,color:HIER_SECTION,cursor:'pointer',opacity:0.7 }} onClick={()=>setShowHowToUse(true)}>How to use PaintForge</span>
-              <button onClick={()=>setShowHowToUse(true)} title="How to Use" style={{ width:22,height:22,borderRadius:'50%',border:'1px solid #3a3a4a',background:'#2a2a3a',color:'#888',fontSize:11,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:700 }}>?</button>
+              <button onClick={()=>setShowHowToUse(true)} style={{ background:'none',border:'none',cursor:'pointer',fontSize:9,color:HIER_SECTION,fontFamily:'inherit',letterSpacing:'0.08em',textTransform:'uppercase',opacity:0.7,padding:'2px 4px' }}>How to use</button>
               <span style={{ fontSize:11,color:'#444' }}>{user.email.split('@')[0]}</span>
               <button onClick={handleSignOut} style={{ padding:'3px 8px',borderRadius:6,border:'1px solid #3a3a4a',background:'transparent',color:'#666',fontSize:11,cursor:'pointer' }}>out</button>
             </div>
           </div>
 
           <div style={{ display:'flex',gap:10,marginBottom:8,alignItems:'center' }}>
-            {/* Collection bar */}
+            {/* My Set bar — LEFT, purple (most important) */}
             <div style={{ flex:1 }}>
               <div style={{ display:'flex',justifyContent:'space-between',marginBottom:2 }}>
-                <span style={{ fontSize:9,color:'#555',textTransform:'uppercase',letterSpacing:'0.07em' }}>Collection</span>
-                <span style={{ fontSize:10,color:'#aaa' }}><span style={{ color:'#f0f0f0',fontWeight:600 }}>{ownedCount}</span><span style={{ color:'#444' }}>/{total}</span><span style={{ color:'#554' }}> {pct}%</span></span>
+                <span style={{ fontSize:9,color:'#555',textTransform:'uppercase',letterSpacing:'0.07em' }}>My Set ♦</span>
+                <span style={{ fontSize:10,color:'#aaa' }}><span style={{ color:'#9060d0',fontWeight:600 }}>{setOwned}</span><span style={{ color:'#444' }}>/{setTracked.length}</span><span style={{ color:'#554' }}> {setPct}%</span></span>
               </div>
               <div style={{ height:3,background:'#2e2e3e',borderRadius:2,overflow:'hidden' }}>
-                <div style={{ width:`${pct}%`,height:'100%',background:`linear-gradient(90deg,${BRAND_CYAN},#2BABA8)`,borderRadius:2,transition:'width 0.3s' }} />
+                <div style={{ width:`${setPct}%`,height:'100%',background:'linear-gradient(90deg,#9060d0,#6040a0)',borderRadius:2,transition:'width 0.3s' }} />
               </div>
             </div>
             {/* Divider */}
             <div style={{ width:1,height:28,background:'#222' }} />
-            {/* My Set bar */}
+            {/* Collection bar — RIGHT, teal */}
             <div style={{ flex:1 }}>
               <div style={{ display:'flex',justifyContent:'space-between',marginBottom:2 }}>
-                <span style={{ fontSize:9,color:'#555',textTransform:'uppercase',letterSpacing:'0.07em' }}>My Set ♦</span>
-                <span style={{ fontSize:10,color:'#aaa' }}><span style={{ color:BRAND_CYAN,fontWeight:600 }}>{setOwned}</span><span style={{ color:'#444' }}>/{setTracked.length}</span><span style={{ color:'#554' }}> {setPct}%</span></span>
+                <span style={{ fontSize:9,color:'#555',textTransform:'uppercase',letterSpacing:'0.07em' }}>Collection</span>
+                <span style={{ fontSize:10,color:'#aaa' }}><span style={{ color:'#36E2DD',fontWeight:600 }}>{ownedCount}</span><span style={{ color:'#444' }}>/{total}</span><span style={{ color:'#554' }}> {pct}%</span></span>
               </div>
               <div style={{ height:3,background:'#2e2e3e',borderRadius:2,overflow:'hidden' }}>
-                <div style={{ width:`${setPct}%`,height:'100%',background:'linear-gradient(90deg,#2BABA8,#1D6967)',borderRadius:2,transition:'width 0.3s' }} />
+                <div style={{ width:`${pct}%`,height:'100%',background:`linear-gradient(90deg,${BRAND_CYAN},#2BABA8)`,borderRadius:2,transition:'width 0.3s' }} />
               </div>
             </div>
           </div>
@@ -307,30 +322,30 @@ export default function Inventory({ user }) {
           <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search paints…"
             style={{ width:'100%',padding:'6px 12px',borderRadius:8,marginBottom:7,background:'#0F1818',border:'1px solid #2A3A3A',color:'#e8e8e8',fontSize:13,outline:'none',boxSizing:'border-box' }} />
 
-          {/* Filter row: all 6 content filters */}
-          <div style={{ display:'flex',gap:4,marginBottom:5,flexWrap:'wrap' }}>
-            {FILTERS.map(([val,label])=>(
-              <button key={val} onClick={()=>setFilter(val)} style={{ padding:'3px 8px',borderRadius:20,border:'none',cursor:'pointer',fontSize:10,fontWeight:600,background:filter===val?BRAND_CYAN:'#1E2828',color:filter===val?'#0A1414':'#888',flex:'none' }}>{label}</button>
-            ))}
-          </div>
-          {/* Tool row: brand filter, export, shop */}
+          {/* Row 1: tools — Shop (orange!), Export, Brand Filter */}
           <div style={{ display:'flex',gap:5,marginBottom:4 }}>
-            <div style={{ display:'flex',gap:5 }}>
-              <button onClick={()=>setShowBrandFilter(true)} style={{ padding:'4px 10px',borderRadius:20,cursor:'pointer',fontSize:11,fontWeight:600,border:hiddenSections.size>0?`1px solid ${BRAND_CYAN}`:'1px solid #2A3A3A',background:hiddenSections.size>0?'#0A1E1E':'transparent',color:hiddenSections.size>0?BRAND_CYAN:'#6B8080' }}>Brand Filter{hiddenSections.size>0?` (${hiddenSections.size})`:''}</button>
-              <button onClick={exportOwned} style={{ padding:'4px 10px',borderRadius:20,border:'1px solid #2a3a2a',background:'transparent',color:'#4a7a4a',fontSize:11,cursor:'pointer' }}>Export</button>
-              <button onClick={exportShoppingList} style={{ padding:'4px 10px',borderRadius:20,border:'1px solid #3a2a10',background:'transparent',color:'#a06020',fontSize:11,cursor:'pointer' }}>Shop 🛒</button>
-            </div>
+            <button onClick={handleShopList} style={{ padding:'3px 10px',borderRadius:20,border:'none',cursor:'pointer',fontSize:11,fontWeight:800,background:'#FF6B00',color:'#fff',letterSpacing:'0.02em' }}>Shop 🛒</button>
+            <button onClick={handleExport} style={{ padding:'3px 10px',borderRadius:20,border:'none',cursor:'pointer',fontSize:11,fontWeight:600,background:'#1E2828',color:'#888' }}>Export</button>
+            <button onClick={()=>setShowBrandFilter(true)} style={{ padding:'3px 10px',borderRadius:20,cursor:'pointer',fontSize:11,fontWeight:600,border:hiddenSections.size>0?`1px solid ${BRAND_CYAN}`:'1px solid #2A3A3A',background:hiddenSections.size>0?'#0A1E1E':'transparent',color:hiddenSections.size>0?BRAND_CYAN:'#6B8080' }}>Brand Filter{hiddenSections.size>0?` (${hiddenSections.size})`:''}</button>
           </div>
-          <div style={{ display:'flex',gap:5 }}>
-            {FILTERS.slice(3).map(([val,label])=>(
-              <button key={val} onClick={()=>setFilter(val)} style={{ padding:'4px 10px',borderRadius:20,border:'none',cursor:'pointer',fontSize:11,fontWeight:600,background:filter===val?'#a060e0':'#2a2a3a',color:filter===val?'#fff':'#888' }}>{label}</button>
+          {/* Row 2: primary content filters */}
+          <div style={{ display:'flex',gap:4,marginBottom:4 }}>
+            {FILTERS.slice(0,3).map(([val,label])=>(
+              <button key={val} onClick={()=>setFilter(val)} style={{ padding:'3px 8px',borderRadius:20,border:'none',cursor:'pointer',fontSize:10,fontWeight:600,background:filter===val?BRAND_CYAN:'#1E2828',color:filter===val?'#0A1414':'#888' }}>{label}</button>
             ))}
           </div>
+          {/* Row 3: secondary filters */}
+          <div style={{ display:'flex',gap:4,marginBottom:4 }}>
+            {FILTERS.slice(3).map(([val,label])=>(
+              <button key={val} onClick={()=>setFilter(val)} style={{ padding:'3px 8px',borderRadius:20,border:'none',cursor:'pointer',fontSize:10,fontWeight:600,background:filter===val?BRAND_CYAN:'#1E2828',color:filter===val?'#0A1414':'#888' }}>{label}</button>
+            ))}
+          </div>
+
         </div>
       </div>
 
       {/* ── Body ── */}
-      <div style={{ maxWidth:700,margin:'0 auto',padding:'12px 20px 60px' }}>
+      <div style={{ maxWidth:isDesktop?980:700,margin:'0 auto',padding:isDesktop?'16px 32px 80px':'12px 16px 60px' }}>
         {TAXONOMY.map(brand => {
           const brandKeys = brand.lines.flatMap(l => l.sections.map(s => s.key))
           if (!brandKeys.some(k => !hiddenSections.has(k))) return null
@@ -347,10 +362,10 @@ export default function Inventory({ user }) {
               <div onClick={()=>togSet(setBrandCollapsed, brand.id)} style={{ display:'flex',alignItems:'center',gap:8,padding:'8px 10px',background:BG_HEADER,borderRadius:8,cursor:'pointer',userSelect:'none',border:`1px solid ${HIER_BRAND}22`,marginBottom:isBrandCollapsed?0:4 }}>
                 <span style={{ fontSize:9,color:HIER_BRAND,transform:isBrandCollapsed?'rotate(-90deg)':'rotate(0deg)',display:'inline-block',transition:'transform 0.2s' }}>▼</span>
                 <span style={{ fontSize:13,fontWeight:800,color:HIER_BRAND,textTransform:'uppercase',letterSpacing:'0.08em',flex:1 }}>{brand.label}</span>
-                <span style={{ fontSize:9,color:'#666',whiteSpace:'nowrap',display:'flex',gap:5 }}>
-                  <span><span style={{color:HIER_BRAND}}>{bOwned}</span>/{bPaints.length}<span style={{color:'#555'}}> ({bMissing})</span></span>
-                  <span style={{color:'#333'}}>♦</span>
-                  <span><span style={{color:HIER_BRAND}}>{bSetOwned}</span>/{bInSet.length}<span style={{color:'#555'}}> ({bSetMissing})</span></span>
+                <span style={{ fontSize:9, color:'#555', whiteSpace:'nowrap', display:'flex', gap:5 }}>
+                  <span><span style={{color:'#9060d0',fontWeight:600}}>{bOwned}</span><span style={{color:'#36E2DD'}}>/{ bPaints.length }</span><span style={{color:'#E8A838'}}> ({bMissing})  </span></span>
+                  <span style={{color:'#444'}}>♦</span>
+                  <span><span style={{color:'#9060d0',fontWeight:600}}>{bSetOwned}</span><span style={{color:'#36E2DD'}}>/{ bInSet.length }</span><span style={{color:'#E8A838'}}> ({bSetMissing})  </span></span>
                 </span>
               </div>
 
@@ -372,10 +387,10 @@ export default function Inventory({ user }) {
                       <div onClick={()=>togSet(setLineCollapsed, line.id)} style={{ display:'flex',alignItems:'center',gap:7,padding:'4px 6px',cursor:'pointer',userSelect:'none',borderRadius:6,marginBottom:isLineCollapsed?0:2 }}>
                         <span style={{ fontSize:8,color:HIER_LINE,transform:isLineCollapsed?'rotate(-90deg)':'rotate(0deg)',display:'inline-block',transition:'transform 0.2s' }}>▼</span>
                         <span style={{ fontSize:12,fontWeight:600,color:isLineCollapsed?'#6B5A1A':HIER_LINE,flex:1 }}>{line.label}</span>
-                        <span style={{ fontSize:9,color:'#555',whiteSpace:'nowrap',display:'flex',gap:5 }}>
-                          <span><span style={{color:HIER_LINE}}>{lOwned}</span>/{lPaints.length}<span style={{color:'#444'}}> ({lMissing})</span></span>
-                          <span style={{color:'#333'}}>♦</span>
-                          <span><span style={{color:HIER_LINE}}>{lSetOwned}</span>/{lInSet.length}<span style={{color:'#444'}}> ({lSetMissing})</span></span>
+                        <span style={{ fontSize:9, color:'#555', whiteSpace:'nowrap', display:'flex', gap:5 }}>
+                          <span><span style={{color:'#9060d0',fontWeight:600}}>{lOwned}</span><span style={{color:'#36E2DD'}}>/{ lPaints.length }</span><span style={{color:'#E8A838'}}> ({ lMissing })  </span></span>
+                          <span style={{color:'#444'}}>♦</span>
+                          <span><span style={{color:'#9060d0',fontWeight:600}}>{lSetOwned}</span><span style={{color:'#36E2DD'}}>/{ lInSet.length }</span><span style={{color:'#E8A838'}}> ({ lSetMissing })  </span></span>
                         </span>
                       </div>
                     )}
@@ -398,10 +413,10 @@ export default function Inventory({ user }) {
                           <div onClick={()=>togSet(setCollapsed,sKey)} style={{ display:'flex',alignItems:'center',gap:7,padding:'4px 8px',cursor:'pointer',userSelect:'none',borderBottom:isSecCollapsed?'none':`1px solid ${HIER_SECTION}25`,marginBottom:isSecCollapsed?0:2 }}>
                             <span style={{ fontSize:8,color:HIER_SECTION,transform:isSecCollapsed?'rotate(-90deg)':'rotate(0deg)',display:'inline-block',transition:'transform 0.2s' }}>▼</span>
                             <span style={{ fontSize:11,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.07em',color:HIER_SECTION,flex:1 }}>{display}</span>
-                            <span style={{ fontSize:9,color:'#555',whiteSpace:'nowrap',display:'flex',gap:4 }}>
-                              <span><span style={{color:HIER_SECTION}}>{sOwned}</span>/{rawPaints.length}<span style={{color:'#444'}}> ({sMissing})</span></span>
-                              <span style={{color:'#333'}}>♦</span>
-                              <span><span style={{color:HIER_SECTION}}>{sSetOwned}</span>/{sInSet.length}<span style={{color:'#444'}}> ({sSetMissing})</span></span>
+                            <span style={{ fontSize:9, color:'#555', whiteSpace:'nowrap', display:'flex', gap:4 }}>
+                              <span><span style={{color:'#9060d0',fontWeight:600}}>{sOwned}</span><span style={{color:'#36E2DD'}}>/{ rawPaints.length }</span><span style={{color:'#E8A838'}}> ({ sMissing })  </span></span>
+                              <span style={{color:'#444'}}>♦</span>
+                              <span><span style={{color:'#9060d0',fontWeight:600}}>{sSetOwned}</span><span style={{color:'#36E2DD'}}>/{ sInSet.length }</span><span style={{color:'#E8A838'}}> ({ sSetMissing })  </span></span>
                             </span>
                           </div>
                           {!isSecCollapsed && (
@@ -501,12 +516,6 @@ function ColorRow({ color, isChecked, inMySet, extraCount, targetCount, toggleOw
         {!color.hex && <span style={{ fontSize:7,color:'#555',lineHeight:1 }}>?</span>}
       </div>
 
-      {/* Role badge */}
-      {color.role && (()=>{
-        const s=ROLE_COLORS[color.role]||{bg:'#2a2a2a',color:'#888'}
-        return <span style={{ fontSize:7,fontWeight:800,padding:'1px 3px',borderRadius:2,background:s.bg,color:s.color,flexShrink:0 }}>{color.role}</span>
-      })()}
-
       {/* Display code — manufacturer code only, fixed width */}
       <span style={{
         fontSize:10, color:'#4a6060', fontFamily:'monospace',
@@ -527,13 +536,13 @@ function ColorRow({ color, isChecked, inMySet, extraCount, targetCount, toggleOw
       {isLow&&<span style={{ fontSize:9,fontWeight:700,color:'#e0a040',flexShrink:0 }}>+{need}</span>}
 
       {/* Battery pips — owned extras (orange) */}
-      <Pips count={extraCount} activeColor='#f07030' />
+      <Pips count={extraCount} activeColor='#f07030' isExtras={true} />
 
       {/* Gap between groups */}
       <div style={{ width:5, flexShrink:0 }} />
 
       {/* Battery pips — target (teal) */}
-      <Pips count={targetCount} activeColor='#20a080' />
+      <Pips count={targetCount} activeColor='#20a080' isExtras={false} />
     </div>
   )
 }
