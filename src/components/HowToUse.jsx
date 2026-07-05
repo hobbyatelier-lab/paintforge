@@ -6,7 +6,7 @@ const PURPLE     = '#9060d0'
 const AMBER      = '#E8A838'
 const GREEN      = '#4caf50'
 
-export default function HowToUse({ onClose, onDismissForever, initialDontShow }) {
+export default function HowToUse({ onClose, onSaveStartupPreference, initialDontShow }) {
   const [dontShow, setDontShow] = useState(!!initialDontShow)
 
   const S  = { fontSize:12, color:'#bbb', lineHeight:1.7 }

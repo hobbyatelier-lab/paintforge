@@ -126,12 +126,12 @@ export default function Inventory({ user }) {
   }, [loaded, seenHowToUse])
 
   // ── Dismiss How To Use forever ────────────────────────────────────────────
-  const dismissHowToUseForever = async () => {
-    setSeenHowToUse(true)
+  const saveHowToUsePreference = async (value) => {
+    setSeenHowToUse(value)
     // Modal stays open — user closes with X when ready
     await supabase.from('user_preferences').upsert({
       user_id: user.id,
-      seen_how_to_use: true,
+      seen_how_to_use: value,
       updated_at: new Date().toISOString(),
     }, { onConflict: 'user_id' })
   }
@@ -265,7 +265,7 @@ export default function Inventory({ user }) {
     <div style={{ background:BG_APP,minHeight:'100vh',fontFamily:"'Montserrat',system-ui,sans-serif",color:'#e8e8e8' }}>
 
       {showBrandFilter && <BrandFilter hiddenSections={hiddenSections} setHiddenSections={setHiddenSections} onClose={()=>setShowBrandFilter(false)} />}
-      {showHowToUse   && <HowToUse onClose={()=>setShowHowToUse(false)} onDismissForever={dismissHowToUseForever} initialDontShow={seenHowToUse} />}
+      {showHowToUse   && <HowToUse onClose={()=>setShowHowToUse(false)} onSaveStartupPreference={saveHowToUsePreference} initialDontShow={seenHowToUse} />}
 
       {showExport && (
         <div style={{ position:'fixed',inset:0,background:'#000a',zIndex:100,display:'flex',alignItems:'center',justifyContent:'center',padding:20 }}>
@@ -365,10 +365,11 @@ export default function Inventory({ user }) {
               <div onClick={()=>togSet(setBrandCollapsed, brand.id)} style={{ display:'flex',alignItems:'center',gap:8,padding:'8px 10px',background:BG_HEADER,borderRadius:8,cursor:'pointer',userSelect:'none',border:`1px solid ${HIER_BRAND}22`,marginBottom:isBrandCollapsed?0:4 }}>
                 <span style={{ fontSize:9,color:HIER_BRAND,transform:isBrandCollapsed?'rotate(-90deg)':'rotate(0deg)',display:'inline-block',transition:'transform 0.2s' }}>▼</span>
                 <span style={{ fontSize:isDesktop?15:13,fontWeight:800,color:HIER_BRAND,textTransform:'uppercase',letterSpacing:'0.08em',flex:1 }}>{brand.label}</span>
-                <span style={{ fontSize:9, color:'#555', whiteSpace:'nowrap', display:'flex', gap:5 }}>
-                  <span><span style={{color:'#9060d0',fontWeight:600}}>{bOwned}</span><span style={{color:'#36E2DD'}}>/{ bPaints.length }</span><span style={{color:'#E8A838'}}> ({bMissing})  </span></span>
-                  <span style={{color:'#444'}}>♦</span>
-                  <span><span style={{color:'#9060d0',fontWeight:600}}>{bSetOwned}</span><span style={{color:'#36E2DD'}}>/{ bInSet.length }</span><span style={{color:'#E8A838'}}> ({bSetMissing})  </span></span>
+                <span style={{ fontSize:9,whiteSpace:'nowrap',display:'flex',gap:5,alignItems:'center' }}>
+                  <span style={{color:'#9060d0',fontWeight:700,fontSize:10}}>♦</span>
+                  <span><span style={{color:'#9060d0',fontWeight:600}}>{bSetOwned}</span><span style={{color:'#9060d0',opacity:0.7}}>/{bInSet.length}</span>{bSetMissing>0&&<span style={{color:'#E8A838'}}> ({bSetMissing})</span>}</span>
+                  <span style={{color:'#2A3535'}}>·</span>
+                  <span><span style={{color:'#36E2DD',fontWeight:600}}>{bOwned}</span><span style={{color:'#36E2DD',opacity:0.7}}>/{bPaints.length}</span>{bMissing>0&&<span style={{color:'#E8A838'}}> ({bMissing})</span>}</span>
                 </span>
               </div>
 
@@ -515,7 +516,7 @@ function ColorRow({ color, isChecked, inMySet, extraCount, targetCount, toggleOw
         display:'flex', alignItems:'center', justifyContent:'center',
         cursor:'default',
       }} title={color.approx ? `~${color.hex} (approx)` : color.hex || 'No color data'}>
-        {!color.hex && <span style={{ fontSize:7,color:'#555',lineHeight:1 }}>?</span>}
+        {!color.hex && <span style={{ fontSize:7,color:color.approx?'#8AABAB':'#555',lineHeight:1 }}>{color.approx?'~':'?'}</span>}
       </div>
 
       {/* Display code — manufacturer code only, fixed width */}
