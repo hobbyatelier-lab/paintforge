@@ -5,13 +5,26 @@ import { COLORS, SECTION_LABELS, SECTION_ACCENTS, TAXONOMY } from '../data/paint
 import BrandFilter from './BrandFilter.jsx'
 import HowToUse from './HowToUse.jsx'
 
+
+// ── Display code + name extraction ───────────────────────────────────────────
+function getDisplayCode(id, name) {
+  const tam = (name||'').match(/^(XF?-\d+)\s/)
+  if (tam) return tam[1]
+  if (/^\d{2,3}\.\d{3}$/.test(id)) return id        // Vallejo: 72.034
+  if (/^AK\d{4,}$/.test(id)) return id              // AK: AK11001
+  if (/^[A-Z]{1,3}\d{1,4}$/.test(id) && id.length<=6) return id  // Mr Hobby: C1, GX8, H4
+  return null
+}
+function getDisplayName(id, name) {
+  return (name||'').replace(/^XF?-\d+\s+/, '')
+}
 // ── Brand & UI hierarchy tokens ───────────────────────────────────────────────
 const BRAND_CYAN   = '#36E2DD'   // Primary brand color
 const BG_APP       = '#141414'   // App background
 const BG_HEADER    = '#171B1B'   // Sticky header background
 const HIER_BRAND   = '#36E2DD'   // Brand headers — brightest, identity level
-const HIER_LINE    = '#2BABA8'   // Line headers — secondary, warm teal
-const HIER_SECTION = '#6B9898'   // Section headers — tertiary, muted label
+const HIER_LINE    = '#E8A838'   // Line headers — amber/gold, warm forge energy
+const HIER_SECTION = '#9B8FD0'   // Section headers — soft violet, clearly tertiary
 
 
 
@@ -35,6 +48,7 @@ export default function Inventory({ user }) {
   const [hiddenSections,  setHiddenSections]  = useState(new Set())
   const [showBrandFilter, setShowBrandFilter] = useState(false)
   const [showHowToUse,    setShowHowToUse]    = useState(false)
+  const [seenHowToUse,    setSeenHowToUse]    = useState(true)  // true = don't auto-show
   const [showExport,      setShowExport]      = useState(false)
   const [exportText,      setExportText]      = useState('')
   const [exportTitle,     setExportTitle]     = useState('')
@@ -42,9 +56,26 @@ export default function Inventory({ user }) {
 
   // ── Load everything ───────────────────────────────────────────────────────
   useEffect(() => {
+    // Paginate through user_paints — Supabase caps at 1000 rows per trip
+    async function fetchAllUserPaints(userId) {
+      const PAGE = 1000
+      let rows = [], from = 0, keepGoing = true
+      while (keepGoing) {
+        const { data, error } = await supabase
+          .from('user_paints').select('*')
+          .eq('user_id', userId)
+          .range(from, from + PAGE - 1)
+        if (error || !data) break
+        rows = [...rows, ...data]
+        keepGoing = data.length === PAGE
+        from += PAGE
+      }
+      return { data: rows }
+    }
+
     async function load() {
       const [paintsRes, prefsRes] = await Promise.all([
-        supabase.from('user_paints').select('*').eq('user_id', user.id),
+        fetchAllUserPaints(user.id),
         supabase.from('user_preferences').select('*').eq('user_id', user.id).single(),
       ])
       if (!paintsRes.error && paintsRes.data) {
@@ -63,11 +94,31 @@ export default function Inventory({ user }) {
         if (p.brand_collapsed?.length)   setBrandCollapsed(new Set(p.brand_collapsed))
         if (p.line_collapsed?.length)    setLineCollapsed(new Set(p.line_collapsed))
         if (p.section_collapsed?.length) setCollapsed(new Set(p.section_collapsed))
+        if (p.seen_how_to_use === true) setSeenHowToUse(true)
+        else setSeenHowToUse(false)
+      } else {
+        setSeenHowToUse(false) // first time user — show the modal
       }
       setLoaded(true)
     }
     load()
   }, [user.id])
+
+  // ── Auto-show How To Use on first visit ──────────────────────────────────
+  useEffect(() => {
+    if (loaded && !seenHowToUse) setShowHowToUse(true)
+  }, [loaded, seenHowToUse])
+
+  // ── Dismiss How To Use forever ────────────────────────────────────────────
+  const dismissHowToUseForever = async () => {
+    setSeenHowToUse(true)
+    setShowHowToUse(false)
+    await supabase.from('user_preferences').upsert({
+      user_id: user.id,
+      seen_how_to_use: true,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: 'user_id' })
+  }
 
   // ── Auto-save ALL preferences (debounced, single write) ───────────────────
   useEffect(() => {
@@ -80,10 +131,11 @@ export default function Inventory({ user }) {
         brand_collapsed:   [...brandCollapsed],
         line_collapsed:    [...lineCollapsed],
         section_collapsed: [...collapsed],
+        seen_how_to_use: seenHowToUse,
         updated_at: new Date().toISOString(),
       }, { onConflict: 'user_id' })
     }, 600)
-  }, [hiddenSections, brandCollapsed, lineCollapsed, collapsed, loaded, user.id])
+  }, [hiddenSections, brandCollapsed, lineCollapsed, collapsed, seenHowToUse, loaded, user.id])
 
   // ── Save a paint row ──────────────────────────────────────────────────────
   const savePaint = useCallback(async (id, patch) => {
@@ -194,7 +246,7 @@ export default function Inventory({ user }) {
     <div style={{ background:BG_APP,minHeight:'100vh',fontFamily:"'Montserrat',system-ui,sans-serif",color:'#e8e8e8' }}>
 
       {showBrandFilter && <BrandFilter hiddenSections={hiddenSections} setHiddenSections={setHiddenSections} onClose={()=>setShowBrandFilter(false)} />}
-      {showHowToUse   && <HowToUse onClose={()=>setShowHowToUse(false)} />}
+      {showHowToUse   && <HowToUse onClose={()=>setShowHowToUse(false)} onDismissForever={dismissHowToUseForever} />}
 
       {showExport && (
         <div style={{ position:'fixed',inset:0,background:'#000a',zIndex:100,display:'flex',alignItems:'center',justifyContent:'center',padding:20 }}>
@@ -220,40 +272,51 @@ export default function Inventory({ user }) {
               {saving&&<span style={{ fontSize:10,color:'#555' }}>saving…</span>}
             </div>
             <div style={{ display:'flex',alignItems:'center',gap:6 }}>
+              <span style={{ fontSize:11,color:HIER_SECTION,cursor:'pointer',opacity:0.7 }} onClick={()=>setShowHowToUse(true)}>How to use PaintForge</span>
               <button onClick={()=>setShowHowToUse(true)} title="How to Use" style={{ width:22,height:22,borderRadius:'50%',border:'1px solid #3a3a4a',background:'#2a2a3a',color:'#888',fontSize:11,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:700 }}>?</button>
               <span style={{ fontSize:11,color:'#444' }}>{user.email.split('@')[0]}</span>
               <button onClick={handleSignOut} style={{ padding:'3px 8px',borderRadius:6,border:'1px solid #3a3a4a',background:'transparent',color:'#666',fontSize:11,cursor:'pointer' }}>out</button>
             </div>
           </div>
 
-          <div style={{ marginBottom:7 }}>
-            <div style={{ display:'flex',justifyContent:'space-between',marginBottom:3 }}>
-              <span style={{ fontSize:10,color:'#555',textTransform:'uppercase',letterSpacing:'0.08em' }}>Collection</span>
-              <span style={{ fontSize:12,color:'#aaa' }}><span style={{ color:'#f0f0f0',fontWeight:600 }}>{ownedCount}</span><span style={{ color:'#444' }}>/{total}</span><span style={{ color:'#554' }}> · {pct}%</span></span>
+          <div style={{ display:'flex',gap:10,marginBottom:8,alignItems:'center' }}>
+            {/* Collection bar */}
+            <div style={{ flex:1 }}>
+              <div style={{ display:'flex',justifyContent:'space-between',marginBottom:2 }}>
+                <span style={{ fontSize:9,color:'#555',textTransform:'uppercase',letterSpacing:'0.07em' }}>Collection</span>
+                <span style={{ fontSize:10,color:'#aaa' }}><span style={{ color:'#f0f0f0',fontWeight:600 }}>{ownedCount}</span><span style={{ color:'#444' }}>/{total}</span><span style={{ color:'#554' }}> {pct}%</span></span>
+              </div>
+              <div style={{ height:3,background:'#2e2e3e',borderRadius:2,overflow:'hidden' }}>
+                <div style={{ width:`${pct}%`,height:'100%',background:`linear-gradient(90deg,${BRAND_CYAN},#2BABA8)`,borderRadius:2,transition:'width 0.3s' }} />
+              </div>
             </div>
-            <div style={{ height:4,background:'#2e2e3e',borderRadius:3,overflow:'hidden' }}>
-              <div style={{ width:`${pct}%`,height:'100%',background:`linear-gradient(90deg,${BRAND_CYAN},#2BABA8)`,borderRadius:3,transition:'width 0.3s' }} />
-            </div>
-          </div>
-          <div style={{ marginBottom:10 }}>
-            <div style={{ display:'flex',justifyContent:'space-between',marginBottom:3 }}>
-              <span style={{ fontSize:10,color:'#555',textTransform:'uppercase',letterSpacing:'0.08em' }}>My Set ♦</span>
-              <span style={{ fontSize:12,color:'#aaa' }}><span style={{ color:BRAND_CYAN,fontWeight:600 }}>{setOwned}</span><span style={{ color:'#444' }}>/{setTracked.length}</span><span style={{ color:'#554' }}> · {setPct}%</span></span>
-            </div>
-            <div style={{ height:4,background:'#2e2e3e',borderRadius:3,overflow:'hidden' }}>
-              <div style={{ width:`${setPct}%`,height:'100%',background:'linear-gradient(90deg,#2BABA8,#1D6967)',borderRadius:3,transition:'width 0.3s' }} />
+            {/* Divider */}
+            <div style={{ width:1,height:28,background:'#222' }} />
+            {/* My Set bar */}
+            <div style={{ flex:1 }}>
+              <div style={{ display:'flex',justifyContent:'space-between',marginBottom:2 }}>
+                <span style={{ fontSize:9,color:'#555',textTransform:'uppercase',letterSpacing:'0.07em' }}>My Set ♦</span>
+                <span style={{ fontSize:10,color:'#aaa' }}><span style={{ color:BRAND_CYAN,fontWeight:600 }}>{setOwned}</span><span style={{ color:'#444' }}>/{setTracked.length}</span><span style={{ color:'#554' }}> {setPct}%</span></span>
+              </div>
+              <div style={{ height:3,background:'#2e2e3e',borderRadius:2,overflow:'hidden' }}>
+                <div style={{ width:`${setPct}%`,height:'100%',background:'linear-gradient(90deg,#2BABA8,#1D6967)',borderRadius:2,transition:'width 0.3s' }} />
+              </div>
             </div>
           </div>
 
           <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search paints…"
             style={{ width:'100%',padding:'6px 12px',borderRadius:8,marginBottom:7,background:'#0F1818',border:'1px solid #2A3A3A',color:'#e8e8e8',fontSize:13,outline:'none',boxSizing:'border-box' }} />
 
-          <div style={{ display:'flex',gap:5,flexWrap:'wrap',marginBottom:5 }}>
-            {FILTERS.slice(0,3).map(([val,label])=>(
-              <button key={val} onClick={()=>setFilter(val)} style={{ padding:'4px 10px',borderRadius:20,border:'none',cursor:'pointer',fontSize:11,fontWeight:600,background:filter===val?BRAND_CYAN:'#1E2828',color:filter===val?'#0A1414':'#888' }}>{label}</button>
+          {/* Filter row: all 6 content filters */}
+          <div style={{ display:'flex',gap:4,marginBottom:5,flexWrap:'wrap' }}>
+            {FILTERS.map(([val,label])=>(
+              <button key={val} onClick={()=>setFilter(val)} style={{ padding:'3px 8px',borderRadius:20,border:'none',cursor:'pointer',fontSize:10,fontWeight:600,background:filter===val?BRAND_CYAN:'#1E2828',color:filter===val?'#0A1414':'#888',flex:'none' }}>{label}</button>
             ))}
-            <div style={{ marginLeft:'auto',display:'flex',gap:5 }}>
-              <button onClick={()=>setShowBrandFilter(true)} style={{ padding:'4px 10px',borderRadius:20,cursor:'pointer',fontSize:11,fontWeight:600,border:hiddenSections.size>0?`1px solid ${BRAND_CYAN}`:'1px solid #2A3A3A',background:hiddenSections.size>0?'#0A1E1E':'transparent',color:hiddenSections.size>0?BRAND_CYAN:'#6B8080' }}>Brands{hiddenSections.size>0?` (${hiddenSections.size})`:''}</button>
+          </div>
+          {/* Tool row: brand filter, export, shop */}
+          <div style={{ display:'flex',gap:5,marginBottom:4 }}>
+            <div style={{ display:'flex',gap:5 }}>
+              <button onClick={()=>setShowBrandFilter(true)} style={{ padding:'4px 10px',borderRadius:20,cursor:'pointer',fontSize:11,fontWeight:600,border:hiddenSections.size>0?`1px solid ${BRAND_CYAN}`:'1px solid #2A3A3A',background:hiddenSections.size>0?'#0A1E1E':'transparent',color:hiddenSections.size>0?BRAND_CYAN:'#6B8080' }}>Brand Filter{hiddenSections.size>0?` (${hiddenSections.size})`:''}</button>
               <button onClick={exportOwned} style={{ padding:'4px 10px',borderRadius:20,border:'1px solid #2a3a2a',background:'transparent',color:'#4a7a4a',fontSize:11,cursor:'pointer' }}>Export</button>
               <button onClick={exportShoppingList} style={{ padding:'4px 10px',borderRadius:20,border:'1px solid #3a2a10',background:'transparent',color:'#a06020',fontSize:11,cursor:'pointer' }}>Shop 🛒</button>
             </div>
@@ -272,13 +335,23 @@ export default function Inventory({ user }) {
           const brandKeys = brand.lines.flatMap(l => l.sections.map(s => s.key))
           if (!brandKeys.some(k => !hiddenSections.has(k))) return null
           const isBrandCollapsed = brandCollapsed.has(brand.id)
+          const bPaints    = brandKeys.filter(k=>!hiddenSections.has(k)).flatMap(k=>COLORS[k]||[])
+          const bOwned     = bPaints.filter(c=>checked[c.id]).length
+          const bMissing   = bPaints.length - bOwned
+          const bInSet     = bPaints.filter(c=>mySet[c.id])
+          const bSetOwned  = bInSet.filter(c=>checked[c.id]).length
+          const bSetMissing= bInSet.length - bSetOwned
 
           return (
             <div key={brand.id} style={{ marginBottom:8 }}>
               <div onClick={()=>togSet(setBrandCollapsed, brand.id)} style={{ display:'flex',alignItems:'center',gap:8,padding:'8px 10px',background:BG_HEADER,borderRadius:8,cursor:'pointer',userSelect:'none',border:`1px solid ${HIER_BRAND}22`,marginBottom:isBrandCollapsed?0:4 }}>
                 <span style={{ fontSize:9,color:HIER_BRAND,transform:isBrandCollapsed?'rotate(-90deg)':'rotate(0deg)',display:'inline-block',transition:'transform 0.2s' }}>▼</span>
                 <span style={{ fontSize:13,fontWeight:800,color:HIER_BRAND,textTransform:'uppercase',letterSpacing:'0.08em',flex:1 }}>{brand.label}</span>
-                {isBrandCollapsed && <span style={{ fontSize:10,color:'#444' }}>{brandKeys.filter(k=>checked[k]||mySet[k]||extras[k]).length} active</span>}
+                <span style={{ fontSize:9,color:'#666',whiteSpace:'nowrap',display:'flex',gap:5 }}>
+                  <span><span style={{color:HIER_BRAND}}>{bOwned}</span>/{bPaints.length}<span style={{color:'#555'}}> ({bMissing})</span></span>
+                  <span style={{color:'#333'}}>♦</span>
+                  <span><span style={{color:HIER_BRAND}}>{bSetOwned}</span>/{bInSet.length}<span style={{color:'#555'}}> ({bSetMissing})</span></span>
+                </span>
               </div>
 
               {!isBrandCollapsed && brand.lines.map(line => {
@@ -286,13 +359,24 @@ export default function Inventory({ user }) {
                 if (!lineKeys.some(k => !hiddenSections.has(k))) return null
                 const isLineCollapsed = lineCollapsed.has(line.id)
                 const showLine = brand.lines.length > 1
+                const lPaints    = lineKeys.filter(k=>!hiddenSections.has(k)).flatMap(k=>COLORS[k]||[])
+                const lOwned     = lPaints.filter(c=>checked[c.id]).length
+                const lMissing   = lPaints.length - lOwned
+                const lInSet     = lPaints.filter(c=>mySet[c.id])
+                const lSetOwned  = lInSet.filter(c=>checked[c.id]).length
+                const lSetMissing= lInSet.length - lSetOwned
 
                 return (
                   <div key={line.id} style={{ marginBottom:4 }}>
                     {showLine && (
-                      <div onClick={()=>togSet(setLineCollapsed, line.id)} style={{ display:'flex',alignItems:'center',gap:7,padding:'5px 10px 5px 22px',cursor:'pointer',userSelect:'none',borderRadius:6,marginBottom:isLineCollapsed?0:2 }}>
+                      <div onClick={()=>togSet(setLineCollapsed, line.id)} style={{ display:'flex',alignItems:'center',gap:7,padding:'4px 6px',cursor:'pointer',userSelect:'none',borderRadius:6,marginBottom:isLineCollapsed?0:2 }}>
                         <span style={{ fontSize:8,color:HIER_LINE,transform:isLineCollapsed?'rotate(-90deg)':'rotate(0deg)',display:'inline-block',transition:'transform 0.2s' }}>▼</span>
-                        <span style={{ fontSize:12,fontWeight:600,color:isLineCollapsed?'#445858':HIER_LINE,flex:1 }}>{line.label}</span>
+                        <span style={{ fontSize:12,fontWeight:600,color:isLineCollapsed?'#6B5A1A':HIER_LINE,flex:1 }}>{line.label}</span>
+                        <span style={{ fontSize:9,color:'#555',whiteSpace:'nowrap',display:'flex',gap:5 }}>
+                          <span><span style={{color:HIER_LINE}}>{lOwned}</span>/{lPaints.length}<span style={{color:'#444'}}> ({lMissing})</span></span>
+                          <span style={{color:'#333'}}>♦</span>
+                          <span><span style={{color:HIER_LINE}}>{lSetOwned}</span>/{lInSet.length}<span style={{color:'#444'}}> ({lSetMissing})</span></span>
+                        </span>
                       </div>
                     )}
 
@@ -302,14 +386,23 @@ export default function Inventory({ user }) {
                       if (colors.length===0) return null
                       const accent = SECTION_ACCENTS[sKey]||'#f07030'
                       const isSecCollapsed = collapsed.has(sKey)
-                      const ownedInSec = colors.filter(c=>checked[c.id]).length
+                      const rawPaints   = COLORS[sKey]||[]
+                      const sOwned      = rawPaints.filter(c=>checked[c.id]).length
+                      const sMissing    = rawPaints.length - sOwned
+                      const sInSet      = rawPaints.filter(c=>mySet[c.id])
+                      const sSetOwned   = sInSet.filter(c=>checked[c.id]).length
+                      const sSetMissing = sInSet.length - sSetOwned
 
                       return (
-                        <div key={sKey} style={{ marginBottom:2, paddingLeft:showLine?36:16 }}>
+                        <div key={sKey} style={{ marginBottom:2, paddingLeft:showLine?12:4 }}>
                           <div onClick={()=>togSet(setCollapsed,sKey)} style={{ display:'flex',alignItems:'center',gap:7,padding:'4px 8px',cursor:'pointer',userSelect:'none',borderBottom:isSecCollapsed?'none':`1px solid ${HIER_SECTION}25`,marginBottom:isSecCollapsed?0:2 }}>
                             <span style={{ fontSize:8,color:HIER_SECTION,transform:isSecCollapsed?'rotate(-90deg)':'rotate(0deg)',display:'inline-block',transition:'transform 0.2s' }}>▼</span>
                             <span style={{ fontSize:11,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.07em',color:HIER_SECTION,flex:1 }}>{display}</span>
-                            <span style={{ fontSize:10,color:'#444' }}>{ownedInSec}/{colors.length}</span>
+                            <span style={{ fontSize:9,color:'#555',whiteSpace:'nowrap',display:'flex',gap:4 }}>
+                              <span><span style={{color:HIER_SECTION}}>{sOwned}</span>/{rawPaints.length}<span style={{color:'#444'}}> ({sMissing})</span></span>
+                              <span style={{color:'#333'}}>♦</span>
+                              <span><span style={{color:HIER_SECTION}}>{sSetOwned}</span>/{sInSet.length}<span style={{color:'#444'}}> ({sSetMissing})</span></span>
+                            </span>
                           </div>
                           {!isSecCollapsed && (
                             <div style={{ display:'flex',flexDirection:'column',gap:1 }}>
@@ -346,52 +439,101 @@ const ROLE_COLORS = {
 function ColorRow({ color, isChecked, inMySet, extraCount, targetCount, toggleOwned, toggleMySet, setExtraCount, setTargetCount }) {
   const isLow=(isChecked&&targetCount>0&&extraCount<targetCount)||(!isChecked&&inMySet&&targetCount>0)
   const need=isChecked?Math.max(0,targetCount-extraCount):targetCount+1
-  return (
-    <div style={{ display:'flex',alignItems:'center',gap:4,padding:'5px 8px',borderRadius:5,background:isLow?'#2a1a00':isChecked?'#1a2a1a':inMySet?'#1e1a28':'transparent',border:isLow?'1px solid #805010':isChecked?'1px solid #2a4a2a':inMySet?'1px solid #3a2a4a':'1px solid transparent' }}>
+  const dispCode = getDisplayCode(color.id, color.name)
+  const dispName = getDisplayName(color.id, color.name)
 
-      {/* Fixed-width left cluster — always same width so name column aligns */}
-      <div style={{ display:'flex',alignItems:'center',gap:3,flexShrink:0,width:78 }}>
-        {/* My Set */}
-        <button onClick={()=>toggleMySet(color.id)} style={{ width:14,height:14,borderRadius:3,border:'none',cursor:'pointer',flexShrink:0,background:inMySet?'#9060d0':'#2a2a3a',display:'flex',alignItems:'center',justifyContent:'center' }}>
-          <span style={{ fontSize:7,color:inMySet?'#fff':'#444' }}>♦</span>
-        </button>
-        {/* Owned */}
-        <button onClick={()=>toggleOwned(color.id)} style={{ width:14,height:14,borderRadius:3,border:'none',cursor:'pointer',flexShrink:0,background:isChecked?'#4caf50':'#2a2a3a',display:'flex',alignItems:'center',justifyContent:'center' }}>
-          {isChecked&&<span style={{ color:'#fff',fontSize:9 }}>✓</span>}
-        </button>
-        {/* Role badge — fixed width slot */}
-        <div style={{ width:18,flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center' }}>
-          {color.role&&(()=>{ const s=ROLE_COLORS[color.role]||{bg:'#2a2a2a',color:'#888'}; return <span style={{ fontSize:7,fontWeight:800,padding:'1px 3px',borderRadius:2,background:s.bg,color:s.color }}>{color.role}</span> })()}
-        </div>
-        {/* Hex swatch — always present, filled or empty ring */}
-        <div style={{ width:12,height:12,borderRadius:'50%',flexShrink:0,
-          background: color.hex || 'transparent',
-          border: color.hex ? '1px solid rgba(255,255,255,0.12)' : '1px solid #3a3a4a',
-          boxShadow: color.hex ? 'inset 0 0 0 0.5px rgba(0,0,0,0.3)' : 'none',
-          display:'flex',alignItems:'center',justifyContent:'center',
-        }} title={color.hex || 'No color data'}>
-          {!color.hex && <span style={{ fontSize:7,color:'#3a3a4a',lineHeight:1 }}>?</span>}
-        </div>
+  // Swatch style — refined double ring, white outer, solid or dashed for approx
+  const swatchSize = 18
+  const outerBorder = color.approx
+    ? '1.5px dashed rgba(255,255,255,0.7)'
+    : color.hex
+      ? '1.5px solid rgba(255,255,255,0.85)'
+      : '1.5px solid #3a3a4a'
+
+  // Battery pill builder
+  const Pips = ({count, active, max=5, activeColor, emptyColor='#2a2a3a'}) => (
+    <div style={{ display:'flex',gap:1,flexShrink:0,alignItems:'center' }}>
+      {Array.from({length:max},(_,i)=>i+1).map(n=>(
+        <button key={n}
+          onClick={()=>{
+            if(activeColor==='#f07030') setExtraCount(color.id,n)
+            else setTargetCount(color.id,n)
+          }}
+          style={{
+            width:3, height:16, borderRadius:2,
+            border:'none', cursor:'pointer', padding:0, flexShrink:0,
+            background: n<=count ? activeColor : emptyColor,
+            opacity: n<=count ? 1 : 0.35,
+          }}
+        />
+      ))}
+    </div>
+  )
+
+  return (
+    <div style={{
+      display:'flex', alignItems:'center', gap:4, padding:'4px 6px', borderRadius:5,
+      background:isLow?'#2a1a00':isChecked?'#1a2a1a':inMySet?'#1e1a28':'transparent',
+      border:isLow?'1px solid #805010':isChecked?'1px solid #2a4a2a':inMySet?'1px solid #3a2a4a':'1px solid transparent',
+    }}>
+
+      {/* ♦ My Set button */}
+      <button onClick={()=>toggleMySet(color.id)} style={{ width:15,height:15,borderRadius:3,border:'none',cursor:'pointer',flexShrink:0,background:inMySet?'#9060d0':'#1e1e2e',display:'flex',alignItems:'center',justifyContent:'center' }}>
+        <span style={{ fontSize:8,color:inMySet?'#fff':'#333' }}>♦</span>
+      </button>
+
+      {/* ✓ Owned button */}
+      <button onClick={()=>toggleOwned(color.id)} style={{ width:15,height:15,borderRadius:3,border:'none',cursor:'pointer',flexShrink:0,background:isChecked?'#4caf50':'#1e1e2e',display:'flex',alignItems:'center',justifyContent:'center' }}>
+        {isChecked&&<span style={{ color:'#fff',fontSize:9 }}>✓</span>}
+      </button>
+
+      {/* Hex swatch — refined double-ring, bigger, white border */}
+      <div style={{
+        width:swatchSize, height:swatchSize, borderRadius:'50%', flexShrink:0,
+        background: color.hex || '#1a1a1a',
+        border: outerBorder,
+        boxShadow: color.hex
+          ? `inset 0 0 0 2px rgba(0,0,0,0.45), inset 0 0 0 3.5px ${color.hex}`
+          : 'none',
+        display:'flex', alignItems:'center', justifyContent:'center',
+        cursor:'default',
+      }} title={color.approx ? `~${color.hex} (approx)` : color.hex || 'No color data'}>
+        {!color.hex && <span style={{ fontSize:7,color:'#555',lineHeight:1 }}>?</span>}
       </div>
 
-      {/* SKU */}
-      <span style={{ fontSize:10,color:isChecked?'#6a8a6a':'#444',fontFamily:'monospace',width:56,flexShrink:0,overflow:'hidden',textOverflow:'ellipsis' }}>{color.id}</span>
+      {/* Role badge */}
+      {color.role && (()=>{
+        const s=ROLE_COLORS[color.role]||{bg:'#2a2a2a',color:'#888'}
+        return <span style={{ fontSize:7,fontWeight:800,padding:'1px 3px',borderRadius:2,background:s.bg,color:s.color,flexShrink:0 }}>{color.role}</span>
+      })()}
 
-      {/* Name */}
-      <span style={{ fontSize:12,flex:1,minWidth:0,color:isLow?'#e0a040':isChecked?'#c8e8c8':inMySet?'#c0b0e0':'#bbb',fontWeight:isChecked?500:400,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' }}>{color.name}</span>
+      {/* Display code — manufacturer code only, fixed width */}
+      <span style={{
+        fontSize:10, color:'#4a6060', fontFamily:'monospace',
+        width:44, flexShrink:0, overflow:'hidden',
+        display: dispCode ? 'block' : 'none',
+      }}>{dispCode||''}</span>
+
+      {/* Name — condensed font, gets all remaining space */}
+      <span style={{
+        fontFamily:"'Barlow Condensed','Montserrat',system-ui",
+        fontSize:13, fontWeight: isChecked?500:400,
+        flex:1, minWidth:0,
+        color:isLow?'#e0a040':isChecked?'#c8e8c8':inMySet?'#c0b0e0':'#bbb',
+        overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap',
+      }}>{dispName}</span>
 
       {/* Low stock badge */}
-      {isLow&&<span style={{ fontSize:10,fontWeight:700,color:'#e0a040',flexShrink:0 }}>+{need}</span>}
+      {isLow&&<span style={{ fontSize:9,fontWeight:700,color:'#e0a040',flexShrink:0 }}>+{need}</span>}
 
-      {/* Orange dots — extra owned */}
-      <div style={{ display:'flex',gap:2,flexShrink:0 }}>
-        {[1,2,3,4,5].map(n=><button key={n} onClick={()=>setExtraCount(color.id,n)} style={{ width:8,height:8,borderRadius:'50%',border:'none',cursor:'pointer',padding:0,background:n<=extraCount?'#f07030':'#2a2a3a' }} />)}
-      </div>
+      {/* Battery pips — owned extras (orange) */}
+      <Pips count={extraCount} activeColor='#f07030' />
 
-      {/* Teal dots — target */}
-      <div style={{ display:'flex',gap:2,flexShrink:0,marginLeft:3,paddingLeft:3,borderLeft:'1px solid #2a2a3a' }}>
-        {[1,2,3,4,5].map(n=><button key={n} onClick={()=>setTargetCount(color.id,n)} style={{ width:8,height:8,borderRadius:'50%',cursor:'pointer',padding:0,background:n<=targetCount?'#20a080':'transparent',border:`1px solid ${n<=targetCount?'#20a080':'#3a3a4a'}` }} />)}
-      </div>
+      {/* Gap between groups */}
+      <div style={{ width:5, flexShrink:0 }} />
+
+      {/* Battery pips — target (teal) */}
+      <Pips count={targetCount} activeColor='#20a080' />
     </div>
   )
 }

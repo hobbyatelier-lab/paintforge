@@ -1,16 +1,20 @@
-export default function HowToUse({ onClose }) {
+import { useState } from 'react'
+import logoUrl from '../assets/logo.svg'
+
+export default function HowToUse({ onClose, onDismissForever }) {
+  const [dontShowAgain, setDontShowAgain] = useState(false)
   const S = { fontSize:12, color:'#bbb', lineHeight:1.6 }
   const H = { fontSize:11, color:'#555', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:8, marginTop:4 }
 
   const row = (left, right, shade=false) => (
     <div style={{ display:'flex', gap:12, padding:'7px 0', borderBottom:'1px solid #2a2a3a', alignItems:'flex-start' }}>
-      <div style={{ minWidth:100, fontFamily:'monospace', fontSize:11, color:'#e94560', background:shade?'#1e1e2e':'transparent', padding:'2px 6px', borderRadius:4, flexShrink:0 }}>{left}</div>
+      <div style={{ minWidth:100, fontFamily:'monospace', fontSize:11, color:'#36E2DD', background:shade?'#1e1e2e':'transparent', padding:'2px 6px', borderRadius:4, flexShrink:0 }}>{left}</div>
       <div style={S}>{right}</div>
     </div>
   )
 
   const tip = (text) => (
-    <div style={{ margin:'10px 0', padding:'10px 14px', background:'#14141e', borderRadius:8, fontSize:11, color:'#556', lineHeight:1.6, borderLeft:'2px solid #e9456040' }}>
+    <div style={{ margin:'10px 0', padding:'10px 14px', background:'#14141e', borderRadius:8, fontSize:11, color:'#556', lineHeight:1.6, borderLeft:'2px solid #36E2DD40' }}>
       {text}
     </div>
   )
@@ -18,10 +22,10 @@ export default function HowToUse({ onClose }) {
   return (
     <div style={{ position:'fixed', inset:0, background:'#000b', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}
       onClick={e=>{ if(e.target===e.currentTarget) onClose() }}>
-      <div style={{ background:'#1a1a2e', borderRadius:16, border:'1px solid #2e2e4e', width:'100%', maxWidth:540, maxHeight:'90vh', overflowY:'auto' }}>
+      <div style={{ background:'#171B1B', borderRadius:16, border:'1px solid #252E2E', width:'100%', maxWidth:540, maxHeight:'90vh', overflowY:'auto' }}>
 
         {/* Header */}
-        <div style={{ padding:'18px 24px 12px', borderBottom:'1px solid #2e2e3e', display:'flex', alignItems:'center', justifyContent:'space-between', position:'sticky', top:0, background:'#1a1a2e', zIndex:1 }}>
+        <div style={{ padding:'18px 24px 12px', borderBottom:'1px solid #2e2e3e', display:'flex', alignItems:'center', justifyContent:'space-between', position:'sticky', top:0, background:'#171B1B', zIndex:1 }}>
           <div>
             <div style={{ fontSize:15, fontWeight:800, color:'#f0f0f0' }}>⚒ How to Use PaintForge</div>
             <div style={{ fontSize:11, color:'#555', marginTop:2 }}>Early Access · v0.1</div>
@@ -29,7 +33,7 @@ export default function HowToUse({ onClose }) {
           <button onClick={onClose} style={{ fontSize:18, background:'none', border:'none', color:'#666', cursor:'pointer' }}>✕</button>
         </div>
 
-        <div style={{ padding:'16px 24px 28px', fontFamily:"'Inter', system-ui, sans-serif" }}>
+        <div style={{ padding:'16px 24px 28px', fontFamily:"'Montserrat', system-ui, sans-serif" }}>
 
           {/* Paint row visual */}
           <div style={H}>A paint row looks like this</div>
