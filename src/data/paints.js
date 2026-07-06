@@ -306,14 +306,14 @@ export const COLORS = {
     { id: "GM502", name: "Clear Matt" },
   ],
   indartPigments: [
-    { id: "IP00", name: "Blanco de Titanio" }, { id: "IP11", name: "Azul Ptalo" },
-    { id: "IP12", name: "Amarillo de Cromo Oscuro" }, { id: "IP15", name: "Rojo Medio Permanente" },
+    { id: "IP00", name: "Blanco de Titanio", hex: "#FBFBF9" }, { id: "IP11", name: "Azul Ptalo" },
+    { id: "IP12", name: "Amarillo de Cromo Oscuro" }, { id: "IP15", name: "Rojo Medio Permanente", hex: "#C43E33" },
     { id: "IP16", name: "Violeta Permanente" }, { id: "IP17", name: "Sombra Natural" },
-    { id: "IP18", name: "Magenta Medio" }, { id: "IP24", name: "Azul Ultramar Claro" },
-    { id: "IP25", name: "Negro de Humo" }, { id: "IP26", name: "Amarillo Ocre Oxido" },
-    { id: "IP27", name: "Rojo Indio Oxido" }, { id: "IP31", name: "Verde Oxido de Cromo" },
-    { id: "IP40", name: "Naranja de Cromo" }, { id: "IP52", name: "Nacar Blanco" },
-    { id: "IP60", name: "Verde Ptalo" },
+    { id: "IP18", name: "Magenta Medio" }, { id: "IP24", name: "Azul Ultramar Claro", hex: "#32348B" },
+    { id: "IP25", name: "Negro de Humo", hex: "#0A0A08" }, { id: "IP26", name: "Amarillo Ocre Oxido", hex: "#CEA549" },
+    { id: "IP27", name: "Rojo Indio Oxido", hex: "#512A19" }, { id: "IP31", name: "Verde Oxido de Cromo", hex: "#5F7640" },
+    { id: "IP40", name: "Naranja de Cromo" }, { id: "IP52", name: "Nacar Blanco", hex: "#EAEAE8", approx: true },
+    { id: "IP60", name: "Verde Ptalo", hex: "#152C26" },
     { id: "IND_01", name: "Amarillo Limón Hansa", hex: "#F9F16C" },
     { id: "IND_02", name: "Amarillo Hansa Medio", hex: "#F8E44D" },
     { id: "IND_03", name: "Amarillo Oscuro Permanente", hex: "#F6D64F" },
@@ -6754,16 +6754,16 @@ export const TAXONOMY = [
       {key:'akStandard',display:'Standard'},{key:'akAFV',display:'AFV'},
       {key:'akAir',display:'Air'},{key:'akFigures',display:'Figures'},
       {key:'akInks',display:'Inks'},{key:'akMetallics',display:'Metallics'},
-      {key:'akIntense',display:'Intense'},{key:'akPastel',display:'Pastel'},
-      {key:'akAuxiliary',display:'Auxiliary'}]},
+      {key:'akIntense',display:'Intense'},{key:'akPastel',display:'Pastel'}]},
     { id:'ak_legacy',label:'Legacy Ranges',sections:[
       {key:'akAFVLegacy',display:'AFV (Legacy)'},
       {key:'akFiguresLegacy',display:'Figures (Legacy)'},
       {key:'akGeneral',display:'General'},
       {key:'akNaval',display:'Naval'}]},
-    { id:'ak_primers',label:'Primers & Misc',sections:[
+    { id:'ak_primers',label:'Primers, Varnish & Aux',sections:[
       {key:'akPrimer3Gen',display:'Primer (3rd Gen)'},
-      {key:'akPrimers',display:'Primers (100ml)'},{key:'akMisc',display:'Misc'}]}
+      {key:'akVarnish',display:'Varnish'},
+      {key:'akAuxiliary',display:'Mediums & Auxiliaries'}]}
   ]},
   { id:'indart',label:'Indart',color:'#c07828', lines:[
     { id:'in_all',label:'Indart',sections:[

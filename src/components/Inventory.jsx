@@ -24,9 +24,10 @@ function getDisplayCode(id, name) {
   if (tam) return tam[1]
   if (/^\d{2,3}\.\d{3}$/.test(id)) return id                     // Vallejo: 72.034
   if (/^AK\d{4,}$/.test(id)) return id                           // AK: AK11001
+  const indNum = id.match(/^(?:IND_|IP)(\d+)$/)
+  if (indNum) return indNum[1]                                     // Indart: IND_01→01, IP00→00
+  if (/^IA\d+$/.test(id)) return null                             // Indart aux: IA01 → blank
   if (/^[A-Z]{1,3}\d{1,4}$/.test(id) && id.length<=6) return id  // Mr Hobby: C1, GX8
-  const indNum = id.match(/^(?:IND|IP)_(\d+)$/)
-  if (indNum) return indNum[1]                                     // Indart: IND_01 → 01
   return null
 }
 function getDisplayName(id, name) {
@@ -147,11 +148,10 @@ export default function Inventory({ user }) {
         brand_collapsed:   [...brandCollapsed],
         line_collapsed:    [...lineCollapsed],
         section_collapsed: [...collapsed],
-        seen_how_to_use: seenHowToUse,
         updated_at: new Date().toISOString(),
       }, { onConflict: 'user_id' })
     }, 600)
-  }, [hiddenSections, brandCollapsed, lineCollapsed, collapsed, seenHowToUse, loaded, user.id])
+  }, [hiddenSections, brandCollapsed, lineCollapsed, collapsed, loaded, user.id])
 
   // ── Save a paint row ──────────────────────────────────────────────────────
   const savePaint = useCallback(async (id, patch) => {
