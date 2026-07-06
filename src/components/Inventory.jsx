@@ -112,6 +112,7 @@ export default function Inventory({ user }) {
         if (p.line_collapsed?.length)    setLineCollapsed(new Set(p.line_collapsed))
         if (p.section_collapsed?.length) setCollapsed(new Set(p.section_collapsed))
         setSeenHowToUse(p.seen_how_to_use === true)
+        if (p.active_filter) setFilter(p.active_filter)  // null = first time, stays 'all'
       } else {
         setSeenHowToUse(false) // first time user — show the modal
       }
@@ -125,14 +126,9 @@ export default function Inventory({ user }) {
     if (loaded && !seenHowToUse) setShowHowToUse(true)
   }, [loaded, seenHowToUse])
 
-  // ── Dismiss How To Use forever ────────────────────────────────────────────
-  const saveHowToUsePreference = async (value) => {
-    setSeenHowToUse(value)
-    // Use .update() not .upsert() — row always exists by this point
-    const { error } = await supabase.from('user_preferences')
-      .update({ seen_how_to_use: value, updated_at: new Date().toISOString() })
-      .eq('user_id', user.id)
-    if (error) console.error('saveHowToUsePreference failed:', error)
+  // ── Toggle How To Use startup preference — debounced save handles persistence
+  const saveHowToUsePreference = (value) => {
+    setSeenHowToUse(value)  // debounced upsert picks it up automatically
   }
 
   // ── Auto-save ALL preferences (debounced, single write) ───────────────────
@@ -146,10 +142,12 @@ export default function Inventory({ user }) {
         brand_collapsed:   [...brandCollapsed],
         line_collapsed:    [...lineCollapsed],
         section_collapsed: [...collapsed],
+        seen_how_to_use:   seenHowToUse,
+        active_filter:     filter,
         updated_at: new Date().toISOString(),
       }, { onConflict: 'user_id' })
     }, 600)
-  }, [hiddenSections, brandCollapsed, lineCollapsed, collapsed, loaded, user.id])
+  }, [hiddenSections, brandCollapsed, lineCollapsed, collapsed, seenHowToUse, filter, loaded, user.id])
 
   // ── Save a paint row ──────────────────────────────────────────────────────
   const savePaint = useCallback(async (id, patch) => {
