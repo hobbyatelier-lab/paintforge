@@ -306,14 +306,6 @@ export const COLORS = {
     { id: "GM502", name: "Clear Matt" },
   ],
   indartPigments: [
-    { id: "IP00", name: "Blanco de Titanio", hex: "#FBFBF9" }, { id: "IP11", name: "Azul Ptalo" },
-    { id: "IP12", name: "Amarillo de Cromo Oscuro" }, { id: "IP15", name: "Rojo Medio Permanente", hex: "#C43E33" },
-    { id: "IP16", name: "Violeta Permanente" }, { id: "IP17", name: "Sombra Natural" },
-    { id: "IP18", name: "Magenta Medio" }, { id: "IP24", name: "Azul Ultramar Claro", hex: "#32348B" },
-    { id: "IP25", name: "Negro de Humo", hex: "#0A0A08" }, { id: "IP26", name: "Amarillo Ocre Oxido", hex: "#CEA549" },
-    { id: "IP27", name: "Rojo Indio Oxido", hex: "#512A19" }, { id: "IP31", name: "Verde Oxido de Cromo", hex: "#5F7640" },
-    { id: "IP40", name: "Naranja de Cromo" }, { id: "IP52", name: "Nacar Blanco", hex: "#EAEAE8", approx: true },
-    { id: "IP60", name: "Verde Ptalo", hex: "#152C26" },
     { id: "IND_01", name: "Amarillo Limón Hansa", hex: "#F9F16C" },
     { id: "IND_02", name: "Amarillo Hansa Medio", hex: "#F8E44D" },
     { id: "IND_03", name: "Amarillo Oscuro Permanente", hex: "#F6D64F" },
@@ -340,12 +332,13 @@ export const COLORS = {
     { id: "IND_57", name: "Café Oscuro", hex: "#452B1C" },
     { id: "IND_58", name: "Café Adobe", hex: "#8F6B39" },
     { id: "IND_59", name: "Magenta Oscuro", hex: "#672445" },
+    { id: "IP60", name: "Verde Ptalo", hex: "#152C26" },
     { id: "IND_61", name: "Verde Mineral", hex: "#4C653B" },
     { id: "IND_Naranja_Molibda", name: "Naranja Molibdato Solipur", hex: "#E89B43" },
     { id: "IND_Rojo_Bermell_n", name: "Rojo Bermellón", hex: "#DD5434" },
     { id: "IND_Rosa_Eljon", name: "Rosa Eljon", hex: "#A9295C" },
-    { id: "IND_Caf__Medio", name: "Café Medio", hex: "#663C24" },
-  ],
+
+    ],
   indartAux: [
     { id: "IA01", name: "Diluyente para Acrilicos (125ml)" },
   ],
@@ -5546,9 +5539,9 @@ export const COLORS = {
     { id: "AK11240", name: "White Primer", hex: "#EAEAEA" },
   ],
   akVarnish: [
-    { id: "AK11239", name: "Varnish Gloss", hex: "#FEFEFE" },
-    { id: "AK11237", name: "Varnish Matt", hex: "#DADBE1" },
-    { id: "AK11238", name: "Varnish Satin", hex: "#F5F6F8" },
+    { id: "AK11239", name: "Varnish Gloss" },
+    { id: "AK11237", name: "Varnish Matt" },
+    { id: "AK11238", name: "Varnish Satin" },
   ],
 
 

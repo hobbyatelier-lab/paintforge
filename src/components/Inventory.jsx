@@ -111,8 +111,7 @@ export default function Inventory({ user }) {
         if (p.brand_collapsed?.length)   setBrandCollapsed(new Set(p.brand_collapsed))
         if (p.line_collapsed?.length)    setLineCollapsed(new Set(p.line_collapsed))
         if (p.section_collapsed?.length) setCollapsed(new Set(p.section_collapsed))
-        if (p.seen_how_to_use === true) setSeenHowToUse(true)
-        else setSeenHowToUse(false)
+        setSeenHowToUse(p.seen_how_to_use === true)
       } else {
         setSeenHowToUse(false) // first time user — show the modal
       }
@@ -129,12 +128,11 @@ export default function Inventory({ user }) {
   // ── Dismiss How To Use forever ────────────────────────────────────────────
   const saveHowToUsePreference = async (value) => {
     setSeenHowToUse(value)
-    // Modal stays open — user closes with X when ready
-    await supabase.from('user_preferences').upsert({
-      user_id: user.id,
-      seen_how_to_use: value,
-      updated_at: new Date().toISOString(),
-    }, { onConflict: 'user_id' })
+    // Use .update() not .upsert() — row always exists by this point
+    const { error } = await supabase.from('user_preferences')
+      .update({ seen_how_to_use: value, updated_at: new Date().toISOString() })
+      .eq('user_id', user.id)
+    if (error) console.error('saveHowToUsePreference failed:', error)
   }
 
   // ── Auto-save ALL preferences (debounced, single write) ───────────────────
