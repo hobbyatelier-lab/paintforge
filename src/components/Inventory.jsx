@@ -136,7 +136,8 @@ export default function Inventory({ user }) {
     if (!loaded) return
     if (prefSaveRef.current) clearTimeout(prefSaveRef.current)
     prefSaveRef.current = setTimeout(async () => {
-      await supabase.from('user_preferences').upsert({
+      console.log('[PF] saving prefs:', { seen_how_to_use: seenHowToUse, active_filter: filter })
+      const { error: prefError } = await supabase.from('user_preferences').upsert({
         user_id: user.id,
         hidden_sections:   [...hiddenSections],
         brand_collapsed:   [...brandCollapsed],
@@ -146,6 +147,7 @@ export default function Inventory({ user }) {
         active_filter:     filter,
         updated_at: new Date().toISOString(),
       }, { onConflict: 'user_id' })
+      if (prefError) console.error('[PF] pref save failed:', prefError)
     }, 600)
   }, [hiddenSections, brandCollapsed, lineCollapsed, collapsed, seenHowToUse, filter, loaded, user.id])
 
