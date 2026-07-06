@@ -263,7 +263,7 @@ export default function Inventory({ user }) {
     <div style={{ background:BG_APP,minHeight:'100vh',fontFamily:"'Montserrat',system-ui,sans-serif",color:'#e8e8e8' }}>
 
       {showBrandFilter && <BrandFilter hiddenSections={hiddenSections} setHiddenSections={setHiddenSections} onClose={()=>setShowBrandFilter(false)} />}
-      {showHowToUse   && <HowToUse onClose={()=>setShowHowToUse(false)} onSaveStartupPreference={saveHowToUsePreference} initialDontShow={seenHowToUse} />}
+      {showHowToUse   && <HowToUse onClose={()=>setShowHowToUse(false)} dontShow={seenHowToUse} onDontShowChange={saveHowToUsePreference} />}
 
       {showExport && (
         <div style={{ position:'fixed',inset:0,background:'#000a',zIndex:100,display:'flex',alignItems:'center',justifyContent:'center',padding:20 }}>
