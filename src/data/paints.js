@@ -305,43 +305,6 @@ export const COLORS = {
     { id: "GM300", name: "Marker Eraser" }, { id: "GM501", name: "Clear Gloss" },
     { id: "GM502", name: "Clear Matt" },
   ],
-  indartPigments: [
-    { id: "IND_01", name: "Amarillo Limón Hansa", hex: "#F9F16C" },
-    { id: "IND_02", name: "Amarillo Hansa Medio", hex: "#F8E44D" },
-    { id: "IND_03", name: "Amarillo Oscuro Permanente", hex: "#F6D64F" },
-    { id: "IND_05", name: "Amarillo Claro Hostaperm", hex: "#FAEB76" },
-    { id: "IND_07", name: "Amarillo Limón Cadmio", hex: "#F7F06C" },
-    { id: "IND_08", name: "Amarillo Medio Cadmio", hex: "#F8DD58" },
-    { id: "IND_09", name: "Rojo Naranja Novoperm", hex: "#E1773D" },
-    { id: "IND_13", name: "Rojo Oscuro Novoperm", hex: "#A63635" },
-    { id: "IND_14", name: "Rojo Oscuro Permanente", hex: "#9C3435" },
-    { id: "IND_19", name: "Rojo Oscuro Cadmio", hex: "#A0302E" },
-    { id: "IND_20", name: "Verde Oscuro Hostaperm", hex: "#3D6B51" },
-    { id: "IND_21", name: "Azul Oscuro Hostaperm", hex: "#262757" },
-    { id: "IND_22", name: "Azul Violeta Hostaperm", hex: "#342451" },
-    { id: "IND_23", name: "Azul de Prusia Óxido", hex: "#2F3A72" },
-    { id: "IND_29", name: "Sombra Quemada", hex: "#362B25" },
-    { id: "IND_30", name: "Negro Marfil", hex: "#0B0C07" },
-    { id: "IND_32", name: "Blanco de Zinc", hex: "#F9FAF5" },
-    { id: "IND_36", name: "Verde Sapo", hex: "#414D35" },
-    { id: "IND_41", name: "Tierra Siena Natural", hex: "#BD8041" },
-    { id: "IND_43", name: "Sombra Natural", hex: "#3D322C" },
-    { id: "IND_54", name: "Rojo Hostaperm", hex: "#9C3435" },
-    { id: "IND_55", name: "Amarillo Cromo", hex: "#F7DD4A" },
-    { id: "IND_56", name: "Café Claro", hex: "#78543C" },
-    { id: "IND_57", name: "Café Oscuro", hex: "#452B1C" },
-    { id: "IND_58", name: "Café Adobe", hex: "#8F6B39" },
-    { id: "IND_59", name: "Magenta Oscuro", hex: "#672445" },
-    { id: "IP60", name: "Verde Ptalo", hex: "#152C26" },
-    { id: "IND_61", name: "Verde Mineral", hex: "#4C653B" },
-    { id: "IND_Naranja_Molibda", name: "Naranja Molibdato Solipur", hex: "#E89B43" },
-    { id: "IND_Rojo_Bermell_n", name: "Rojo Bermellón", hex: "#DD5434" },
-    { id: "IND_Rosa_Eljon", name: "Rosa Eljon", hex: "#A9295C" },
-
-    ],
-  indartAux: [
-    { id: "IA01", name: "Diluyente para Acrilicos (125ml)" },
-  ],
 
   // ── New Brands ──────────────────────────────────────────────────────────────
   citadelBase: [
@@ -5547,8 +5510,8 @@ export const COLORS = {
 
   // ── Custom brand placeholder slots ─────────────────────────────────────────
   customSection1: [
-    { id: "CUSTOM_001", name: "Aron Alfa Pro" },
-    { id: "CUSTOM_002", name: "" },
+    { id: "CUSTOM_001", name: "CA Glue - Aron Alfa Pro (20g)" },
+    { id: "CUSTOM_002", name: "Diluyente para Acrílicos - Pintart (125ml)" },
     { id: "CUSTOM_003", name: "" },
     { id: "CUSTOM_004", name: "" },
     { id: "CUSTOM_005", name: "" },
@@ -6393,8 +6356,6 @@ export const SECTION_LABELS = {
   tamiyaWeatheringMaster: "Tamiya — Weathering Master",
   mrWeatheringLiner:      "Mr Hobby — Weathering Liner",
   gundamMarker:           "Mr Hobby — Gundam Marker",
-  indartPigments:         "Indart — Pigments",
-  indartAux:              "Indart — Auxiliaries",
   miscAux:                "Misc — Auxiliaries",
   // ── Completion pass ──
   vallejoPremiumAirbrush: "Vallejo — Premium Airbrush Color",
@@ -6540,7 +6501,6 @@ export const SECTION_ACCENTS = {
   tmmLight: "#c8d8e8", tmmBase: "#a89060", tmmShade: "#607080",
   tamiyaWeatheringStick: "#c03838", tamiyaWeatheringMaster: "#a02828",
   mrWeatheringLiner: "#4060c0", gundamMarker: "#c09020",
-  indartPigments: "#c07828", indartAux: "#a06020",
   apSpeedpaint2Metallic: "#906820", apDnDPrimer: "#706080", apDnDWash: "#604870", apDnDUnderdark: "#304050", apSkinTones: "#c07858",
   apSkinTonesWash: "#a05840", apWarpaintsTone: "#806050",
   apMetallic: "#a08030",
@@ -6757,10 +6717,6 @@ export const TAXONOMY = [
       {key:'akPrimer3Gen',display:'Primer (3rd Gen)'},
       {key:'akVarnish',display:'Varnish'},
       {key:'akAuxiliary',display:'Mediums & Auxiliaries'}]}
-  ]},
-  { id:'indart',label:'Indart',color:'#c07828', lines:[
-    { id:'in_all',label:'Indart',sections:[
-      {key:'indartPigments',display:'Pigments'},{key:'indartAux',display:'Auxiliaries'}]},
   ]},
   { id:'custom',label:'Custom',color:'#36E2DD', lines:[
     { id:'custom_all',label:'Custom',sections:[
