@@ -96,7 +96,7 @@ export default function Inventory({ user }) {
     }
 
     async function fetchCatalog() {
-      const PAGE = 2000
+      const PAGE = 1000
       let rows = [], from = 0, keepGoing = true
       while (keepGoing) {
         const { data, error } = await supabase
