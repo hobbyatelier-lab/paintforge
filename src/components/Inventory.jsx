@@ -60,6 +60,7 @@ export default function Inventory({ user }) {
   const [collapsed,       setCollapsed]       = useState(new Set())
   const [expandMode,      setExpandMode]      = useState('custom')
   const [saving,          setSaving]          = useState(false)
+  const [saveError,       setSaveError]       = useState(false)
   const [searchRaw,       setSearchRaw]       = useState('')
   const [search,          setSearch]          = useState('')
   const [hiddenSections,  setHiddenSections]  = useState(new Set())
@@ -160,15 +161,24 @@ export default function Inventory({ user }) {
   // ── Save a paint row ──────────────────────────────────────────────────────
   const savePaint = useCallback(async (id, patch) => {
     setSaving(true)
+    setSaveError(false)
     const current = { owned:!!checked[id], in_my_set:!!mySet[id], extras:extras[id]||0, target_count:targets[id]||0, ...patch }
     const isEmpty = !current.owned&&!current.in_my_set&&current.extras===0&&current.target_count===0
-    if (isEmpty) {
-      await supabase.from('user_paints').delete().eq('user_id',user.id).eq('paint_id',id)
-    } else {
-      await supabase.from('user_paints').upsert(
-        { user_id:user.id, paint_id:id, ...current, updated_at:new Date().toISOString() },
-        { onConflict:'user_id,paint_id' }
-      )
+    try {
+      let res
+      if (isEmpty) {
+        res = await supabase.from('user_paints').delete().eq('user_id',user.id).eq('paint_id',id)
+      } else {
+        res = await supabase.from('user_paints').upsert(
+          { user_id:user.id, paint_id:id, ...current, updated_at:new Date().toISOString() },
+          { onConflict:'user_id,paint_id' }
+        )
+      }
+      if (res.error) throw res.error
+    } catch (err) {
+      console.error('savePaint failed:', err)
+      setSaveError(true)
+      setTimeout(() => setSaveError(false), 4000)
     }
     setSaving(false)
   }, [checked, mySet, extras, targets, user.id])
@@ -185,7 +195,7 @@ export default function Inventory({ user }) {
   function exportOwned() {
     const all=Object.values(COLORS).flat()
     const oc=all.filter(c=>checked[c.id]).length, st=all.filter(c=>mySet[c.id])
-    const lines=['VALLEJO PAINT INVENTORY','=======================','']
+    const lines=['PAINTFORGE — INVENTORY','======================','']
     for (const [key,label] of Object.entries(SECTION_LABELS)) {
       if(!COLORS[key]||!COLORS[key].length) continue
       const rel=COLORS[key].filter(c=>checked[c.id]||mySet[c.id]||extras[c.id]).sort((a,b)=>parseFloat(a.id)-parseFloat(b.id))
@@ -309,7 +319,8 @@ export default function Inventory({ user }) {
                 <span style={{ color:BRAND_CYAN }}>Paint</span>
                 <span style={{ color:'#8AABAB' }}>forge</span>
               </span>
-              {saving&&<span style={{ fontSize:10,color:'#555' }}>saving…</span>}
+              {saving    && <span style={{ fontSize:10,color:'#555' }}>saving…</span>}
+              {saveError && <span style={{ fontSize:10,color:'#e05050' }}>⚠ save failed — check connection</span>}
             </div>
             <div style={{ display:'flex',alignItems:'center',gap:6 }}>
               <button onClick={()=>setShowHowToUse(true)} style={{ background:'none',border:'none',cursor:'pointer',fontSize:9,color:HIER_SECTION,fontFamily:'inherit',letterSpacing:'0.08em',textTransform:'uppercase',opacity:0.7,padding:'2px 4px' }}>How to use</button>
