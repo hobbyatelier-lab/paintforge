@@ -111,30 +111,22 @@ export default function Inventory({ user }) {
         if (p.brand_collapsed?.length)   setBrandCollapsed(new Set(p.brand_collapsed))
         if (p.line_collapsed?.length)    setLineCollapsed(new Set(p.line_collapsed))
         if (p.section_collapsed?.length) setCollapsed(new Set(p.section_collapsed))
-        setSeenHowToUse(p.seen_how_to_use === true)
-        if (p.active_filter) setFilter(p.active_filter)  // null = first time, stays 'all'
+        const hasSeen = p.seen_how_to_use === true
+        setSeenHowToUse(hasSeen)
+        if (p.active_filter) setFilter(p.active_filter)
+        if (!hasSeen) setShowHowToUse(true)  // show once on load if not seen
       } else {
-        setSeenHowToUse(false) // first time user — show the modal
+        setSeenHowToUse(false)
+        setShowHowToUse(true)  // first time user — show the modal
       }
       setLoaded(true)
     }
     load()
   }, [user.id])
 
-  // ── Auto-show How To Use on first visit ──────────────────────────────────
-  useEffect(() => {
-    if (loaded && !seenHowToUse) setShowHowToUse(true)
-  }, [loaded, seenHowToUse])
-
-  // ── Toggle How To Use startup preference — save immediately, not debounced
-  const saveHowToUsePreference = async (value) => {
-    setSeenHowToUse(value)
-    await supabase.from('user_preferences').upsert({
-      user_id: user.id,
-      seen_how_to_use: value,
-      updated_at: new Date().toISOString(),
-    }, { onConflict: 'user_id' })
-  }
+  // ── Toggle How To Use startup preference — same pattern as hiddenSections
+  // seenHowToUse changes → debounced save picks it up, exactly like hiddenSections
+  const saveHowToUsePreference = (value) => setSeenHowToUse(value)
 
   // ── Auto-save ALL preferences (debounced, single write) ───────────────────
   useEffect(() => {
