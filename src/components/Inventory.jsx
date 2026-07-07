@@ -126,19 +126,22 @@ export default function Inventory({ user }) {
     if (loaded && !seenHowToUse) setShowHowToUse(true)
   }, [loaded, seenHowToUse])
 
-  // ── Toggle How To Use startup preference — debounced save handles persistence
-  const saveHowToUsePreference = (value) => {
-    setSeenHowToUse(value)  // debounced upsert picks it up automatically
+  // ── Toggle How To Use startup preference — save immediately, not debounced
+  const saveHowToUsePreference = async (value) => {
+    setSeenHowToUse(value)
+    await supabase.from('user_preferences').upsert({
+      user_id: user.id,
+      seen_how_to_use: value,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: 'user_id' })
   }
 
   // ── Auto-save ALL preferences (debounced, single write) ───────────────────
   useEffect(() => {
-    console.log('[PF] pref effect triggered, loaded:', loaded, 'filter:', filter)
     if (!loaded) return
     if (prefSaveRef.current) clearTimeout(prefSaveRef.current)
     prefSaveRef.current = setTimeout(async () => {
-      console.log('[PF] saving prefs:', { seen_how_to_use: seenHowToUse, active_filter: filter })
-      const { error: prefError } = await supabase.from('user_preferences').upsert({
+      await supabase.from('user_preferences').upsert({
         user_id: user.id,
         hidden_sections:   [...hiddenSections],
         brand_collapsed:   [...brandCollapsed],
@@ -148,7 +151,6 @@ export default function Inventory({ user }) {
         active_filter:     filter,
         updated_at: new Date().toISOString(),
       }, { onConflict: 'user_id' })
-      if (prefError) console.error('[PF] pref save failed:', prefError)
     }, 600)
   }, [hiddenSections, brandCollapsed, lineCollapsed, collapsed, seenHowToUse, filter, loaded, user.id])
 
