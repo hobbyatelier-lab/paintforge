@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, memo } from 'react'
 import logoUrl from '../assets/logo.svg'
 import { supabase } from '../supabase.js'
 import { COLORS, SECTION_LABELS, SECTION_ACCENTS, TAXONOMY } from '../data/paints.js'
@@ -59,6 +59,7 @@ export default function Inventory({ user }) {
   const [lineCollapsed,   setLineCollapsed]   = useState(new Set())
   const [collapsed,       setCollapsed]       = useState(new Set())
   const [saving,          setSaving]          = useState(false)
+  const [searchRaw,       setSearchRaw]       = useState('')
   const [search,          setSearch]          = useState('')
   const [hiddenSections,  setHiddenSections]  = useState(new Set())
   const [showBrandFilter, setShowBrandFilter] = useState(false)
@@ -318,7 +319,7 @@ export default function Inventory({ user }) {
             </div>
           </div>
 
-          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search… (names or codes)"
+          <input value={searchRaw} onChange={e=>setSearchRaw(e.target.value)} placeholder="Search… (names or codes)"
             style={{ width:'100%',padding:'6px 12px',borderRadius:8,marginBottom:7,background:'#0F1818',border:'1px solid #2A3A3A',color:'#e8e8e8',fontSize:13,outline:'none',boxSizing:'border-box' }} />
 
           {/* Row 1: tools — Shop (orange!), Export, Brand Filter */}
@@ -458,7 +459,7 @@ const ROLE_COLORS = {
   S:{bg:'#101820',color:'#6090a8'},
 }
 
-function ColorRow({ color, isChecked, inMySet, extraCount, targetCount, toggleOwned, toggleMySet, setExtraCount, setTargetCount }) {
+const ColorRow = memo(function ColorRow({ color, isChecked, inMySet, extraCount, targetCount, toggleOwned, toggleMySet, setExtraCount, setTargetCount }) {
   const isLow=(isChecked&&targetCount>0&&extraCount<targetCount)||(!isChecked&&inMySet&&targetCount>0)
   const need=isChecked?Math.max(0,targetCount-extraCount):targetCount+1
   const dispCode = getDisplayCode(color.id, color.name)
@@ -544,4 +545,10 @@ function ColorRow({ color, isChecked, inMySet, extraCount, targetCount, toggleOw
       <Pips count={targetCount} activeColor='#20a080' isExtras={false} />
     </div>
   )
-}
+}, (prev, next) =>
+  prev.color.id    === next.color.id    &&
+  prev.isChecked   === next.isChecked   &&
+  prev.inMySet     === next.inMySet     &&
+  prev.extraCount  === next.extraCount  &&
+  prev.targetCount === next.targetCount
+)
