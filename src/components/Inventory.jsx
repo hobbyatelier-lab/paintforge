@@ -133,6 +133,7 @@ export default function Inventory({ user }) {
 
   // ── Auto-save ALL preferences (debounced, single write) ───────────────────
   useEffect(() => {
+    console.log('[PF] pref effect triggered, loaded:', loaded, 'filter:', filter)
     if (!loaded) return
     if (prefSaveRef.current) clearTimeout(prefSaveRef.current)
     prefSaveRef.current = setTimeout(async () => {
