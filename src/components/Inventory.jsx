@@ -601,15 +601,16 @@ const ColorRow = memo(function ColorRow({ color, isChecked, inMySet, extraCount,
   const isPending    = !ff
   const isSolid      = SOLID_FINISH.has(ff)
   const isDashed     = DASHED_FINISH.has(ff)
-  const swatchBg     = isColorshift ? '#FFFFFF'
-                     : (isAuxiliary||isPending) ? 'transparent'
-                     : color.hex ? color.hex : 'transparent'
-  const outerBorder  = (isAuxiliary&&!color.hex) ? '1.5px solid #3a3a4a'
-                     : isPending   ? 'none'
-                     : isColorshift||isDashed ? '1.5px dashed rgba(255,255,255,0.7)'
-                     : isSolid ? '1.5px solid rgba(255,255,255,0.85)'
-                     : color.hex ? '1.5px solid rgba(255,255,255,0.85)'
-                     : '1.5px solid #3a3a4a'
+  const swatchBg     = isColorshift            ? '#FFFFFF'
+                     : isAuxiliary             ? 'transparent'
+                     : color.hex               ? color.hex      // pending OR classified — show hex if we have it
+                     : 'transparent'
+  const outerBorder  = isPending && color.hex  ? 'none'         // pending + hex → color, no border
+                     : isPending               ? '1px dashed #333'  // pending + no hex → almost invisible hint
+                     : isAuxiliary             ? '1.5px solid #3a3a4a'
+                     : isColorshift||isDashed  ? '1.5px dashed rgba(255,255,255,0.7)'
+                     : (isSolid||ff) && color.hex ? '1.5px solid rgba(255,255,255,0.85)'
+                     : '1.5px solid #444'      // finish known, hex missing → muted border + ?
   const swatchInner  = isColorshift ? '~'
                      : isAuxiliary  ? '—'
                      : (!ff && color.hex) ? null
@@ -657,7 +658,7 @@ const ColorRow = memo(function ColorRow({ color, isChecked, inMySet, extraCount,
         width:swatchSize, height:swatchSize, borderRadius:'50%', flexShrink:0,
         background: swatchBg,
         border: outerBorder,
-        boxShadow: (!isColorshift&&!isAuxiliary&&!isPending&&color.hex)
+        boxShadow: (!isColorshift&&!isAuxiliary&&color.hex)
           ? `inset 0 0 0 2px rgba(0,0,0,0.45), inset 0 0 0 3.5px ${color.hex}`
           : 'none',
         display:'flex', alignItems:'center', justifyContent:'center',
