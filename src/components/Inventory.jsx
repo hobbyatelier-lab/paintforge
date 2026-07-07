@@ -114,10 +114,8 @@ export default function Inventory({ user }) {
         const hasSeen = p.seen_how_to_use === true
         setSeenHowToUse(hasSeen)
         if (p.active_filter) setFilter(p.active_filter)
-        if (!hasSeen) setShowHowToUse(true)  // show once on load if not seen
       } else {
-        setSeenHowToUse(false)
-        setShowHowToUse(true)  // first time user — show the modal
+        setSeenHowToUse(false) // first time user — auto-show fires via useEffect
       }
       setLoaded(true)
     }
@@ -125,6 +123,11 @@ export default function Inventory({ user }) {
   }, [user.id])
 
   // ── Toggle How To Use startup preference — same pattern as hiddenSections
+  // Auto-show on startup — fires ONCE when load completes, never again
+  useEffect(() => {
+    if (loaded && !seenHowToUse) setShowHowToUse(true)
+  }, [loaded])  // only [loaded] — seenHowToUse NOT in deps, so checkbox never re-triggers this
+
   // seenHowToUse changes → debounced save picks it up, exactly like hiddenSections
   const saveHowToUsePreference = (value) => setSeenHowToUse(value)
 
