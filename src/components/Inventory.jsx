@@ -74,12 +74,6 @@ export default function Inventory({ user }) {
 
   // ── Load everything ───────────────────────────────────────────────────────
   useEffect(() => {
-  // ── Debounce search input 300ms ──────────────────────────────────────────────
-  useEffect(() => {
-    const t = setTimeout(() => setSearch(searchRaw), 300)
-    return () => clearTimeout(t)
-  }, [searchRaw])
-
     // Paginate through user_paints — Supabase caps at 1000 rows per trip
     async function fetchAllUserPaints(userId) {
       const PAGE = 1000
@@ -130,6 +124,12 @@ export default function Inventory({ user }) {
   }, [user.id])
 
   // ── Toggle How To Use startup preference — same pattern as hiddenSections
+  // ── Debounce search input 300ms ──────────────────────────────────────────────
+  useEffect(() => {
+    const t = setTimeout(() => setSearch(searchRaw), 300)
+    return () => clearTimeout(t)
+  }, [searchRaw])
+
   // Auto-show on startup — fires ONCE when load completes, never again
   useEffect(() => {
     if (loaded && !seenHowToUse) setShowHowToUse(true)
