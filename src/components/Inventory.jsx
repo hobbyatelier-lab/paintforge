@@ -529,12 +529,17 @@ export default function Inventory({ user }) {
                       const sInSet      = rawPaints.filter(c=>mySet[c.id])
                       const sSetOwned   = sInSet.filter(c=>checked[c.id]).length
                       const sSetMissing = sInSet.length - sSetOwned
+                      const sFinish     = rawPaints[0]?.finish_family || null
+                      const sChem       = rawPaints[0]?.chemistry_family || null
 
                       return (
                         <div key={sKey} style={{ marginBottom:2, paddingLeft:showLine?12:4 }}>
                           <div onClick={()=>togSet(setCollapsed,sKey)} style={{ display:'flex',alignItems:'center',gap:7,padding:'4px 8px',cursor:'pointer',userSelect:'none',borderBottom:isSecCollapsed?'none':`1px solid ${HIER_SECTION}25`,marginBottom:isSecCollapsed?0:2 }}>
                             <span style={{ fontSize:8,color:HIER_SECTION,transform:isSecCollapsed?'rotate(-90deg)':'rotate(0deg)',display:'inline-block',transition:'transform 0.2s' }}>▼</span>
-                            <span style={{ fontSize:isDesktop?13:11,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.07em',color:HIER_SECTION,flex:1 }}>{display}</span>
+                            <span style={{ fontSize:isDesktop?13:11,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.07em',color:HIER_SECTION,flex:1,display:'flex',alignItems:'center',gap:5 }}>
+                              {display}
+                              {(sFinish||sChem)&&<span style={{ fontSize:9,fontWeight:400,color:HIER_SECTION,opacity:0.45,textTransform:'none',letterSpacing:'normal' }}>— {[sFinish,sChem].filter(Boolean).join(' · ')}</span>}
+                            </span>
                             <span style={{ fontSize:9,whiteSpace:'nowrap',display:'flex',gap:4,alignItems:'center' }}>
                               <span style={{color:'#9060d0',fontWeight:700,fontSize:10}}>♦</span>
                               <span><span style={{color:'#9060d0',fontWeight:600}}>{sSetOwned}</span><span style={{color:'#9060d0',opacity:0.7}}>/{sInSet.length}</span>{sSetMissing>0&&<span style={{color:'#E8A838'}}> ({sSetMissing})</span>}</span>
