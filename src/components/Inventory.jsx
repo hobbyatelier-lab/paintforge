@@ -100,7 +100,7 @@ export default function Inventory({ user }) {
       let rows = [], from = 0, keepGoing = true
       while (keepGoing) {
         const { data, error } = await supabase
-          .from('paints').select('id,section_key,name,hex')
+          .from('paints').select('id,section_key,name,hex,finish_family,chemistry_family')
           .range(from, from + PAGE - 1)
         if (error || !data) return { data: null, error: error || new Error('no data') }
         rows = [...rows, ...data]
@@ -283,11 +283,11 @@ export default function Inventory({ user }) {
   function filterColors(list) {
     let r=[...list].sort((a,b)=>{ const na=parseFloat(a.id),nb=parseFloat(b.id); return(!isNaN(na)&&!isNaN(nb))?na-nb:a.id.localeCompare(b.id) })
     if(search){ const q=search.toLowerCase(); r=r.filter(c=>c.name.toLowerCase().includes(q)||c.id.toLowerCase().includes(q)) }
-    if(filter==='owned')        return r.filter(c=> checked[c.id])
-    if(filter==='missing')      return r.filter(c=>!checked[c.id])
-    if(filter==='myset')        return r.filter(c=> mySet[c.id])
-    if(filter==='need-restock') return r.filter(c=> mySet[c.id]&&!checked[c.id])
-    if(filter==='low-stock')    return r.filter(c=>{ const t=targets[c.id]||0; return(checked[c.id]&&t>0&&(extras[c.id]||0)<t)||(!checked[c.id]&&mySet[c.id]&&t>0) })
+    if(effectiveFilter==='owned')        return r.filter(c=> checked[c.id])
+    if(effectiveFilter==='missing')      return r.filter(c=>!checked[c.id])
+    if(effectiveFilter==='myset')        return r.filter(c=> mySet[c.id])
+    if(effectiveFilter==='need-restock') return r.filter(c=> mySet[c.id]&&!checked[c.id])
+    if(effectiveFilter==='low-stock')    return r.filter(c=>{ const t=targets[c.id]||0; return(checked[c.id]&&t>0&&(extras[c.id]||0)<t)||(!checked[c.id]&&mySet[c.id]&&t>0) })
     return r
   }
 
@@ -295,7 +295,9 @@ export default function Inventory({ user }) {
   const allBrandIds = TAXONOMY.map(b => b.id)
   const allLineIds  = TAXONOMY.flatMap(b => b.lines.map(l => l.id))
   const allSectKeys = Object.keys(paintsBySection)
-  const displayMode = search ? 'all' : expandMode
+  const displayMode            = search ? 'all' : expandMode
+  const effectiveFilter         = search ? 'all' : filter
+  const effectiveHiddenSections = search ? new Set() : hiddenSections
   const effBrand =
     displayMode==='all'||displayMode==='section'||displayMode==='line' ? new Set() :
     displayMode==='brand' ? new Set(allBrandIds) : brandCollapsed
@@ -429,16 +431,19 @@ export default function Inventory({ user }) {
             <button onClick={handleExport} style={{ padding:'3px 10px',borderRadius:20,border:'none',cursor:'pointer',fontSize:11,fontWeight:600,background:'#1E2828',color:'#888' }}>Export</button>
             <button onClick={()=>setShowBrandFilter(true)} style={{ padding:'3px 10px',borderRadius:20,cursor:'pointer',fontSize:11,fontWeight:600,border:hiddenSections.size>0?`1px solid ${BRAND_CYAN}`:'1px solid #2A3A3A',background:hiddenSections.size>0?'#0A1E1E':'transparent',color:hiddenSections.size>0?BRAND_CYAN:'#6B8080' }}>Brand Filter{hiddenSections.size>0?` (${hiddenSections.size})`:''}</button>
           </div>
+          {search && hiddenSections.size > 0 && (
+            <div style={{ fontSize:10,color:BRAND_CYAN,opacity:0.6,marginBottom:5,paddingLeft:2 }}>showing all brands while you search</div>
+          )}
           {/* Row 2: primary content filters */}
           <div style={{ display:'flex',gap:4,marginBottom:4 }}>
             {FILTERS.slice(0,3).map(([val,label])=>(
-              <button key={val} onClick={()=>setFilter(val)} style={{ padding:'3px 8px',borderRadius:20,border:'none',cursor:'pointer',fontSize:10,fontWeight:600,background:filter===val?BRAND_CYAN:'#1E2828',color:filter===val?'#0A1414':'#888' }}>{label}</button>
+              <button key={val} onClick={()=>setFilter(val)} style={{ padding:'3px 8px',borderRadius:20,border:'none',cursor:'pointer',fontSize:10,fontWeight:600,background:effectiveFilter===val?BRAND_CYAN:'#1E2828',color:effectiveFilter===val?'#0A1414':'#888' }}>{label}</button>
             ))}
           </div>
           {/* Row 3: secondary filters */}
           <div style={{ display:'flex',gap:4,marginBottom:4 }}>
             {FILTERS.slice(3).map(([val,label])=>(
-              <button key={val} onClick={()=>setFilter(val)} style={{ padding:'3px 8px',borderRadius:20,border:'none',cursor:'pointer',fontSize:10,fontWeight:600,background:filter===val?BRAND_CYAN:'#1E2828',color:filter===val?'#0A1414':'#888' }}>{label}</button>
+              <button key={val} onClick={()=>setFilter(val)} style={{ padding:'3px 8px',borderRadius:20,border:'none',cursor:'pointer',fontSize:10,fontWeight:600,background:effectiveFilter===val?BRAND_CYAN:'#1E2828',color:effectiveFilter===val?'#0A1414':'#888' }}>{label}</button>
             ))}
           </div>
 
@@ -463,9 +468,9 @@ export default function Inventory({ user }) {
       <div style={{ maxWidth:isDesktop?980:700,margin:'0 auto',padding:isDesktop?'16px 32px 80px':'12px 16px 60px' }}>
         {TAXONOMY.map(brand => {
           const brandKeys = brand.lines.flatMap(l => l.sections.map(s => s.key))
-          if (!brandKeys.some(k => !hiddenSections.has(k))) return null
+          if (!brandKeys.some(k => !effectiveHiddenSections.has(k))) return null
           const isBrandCollapsed = effBrand.has(brand.id)
-          const bPaints    = brandKeys.filter(k=>!hiddenSections.has(k)).flatMap(k=>paintsBySection[k]||[])
+          const bPaints    = brandKeys.filter(k=>!effectiveHiddenSections.has(k)).flatMap(k=>paintsBySection[k]||[])
           const bOwned     = bPaints.filter(c=>checked[c.id]).length
           const bMissing   = bPaints.length - bOwned
           const bInSet     = bPaints.filter(c=>mySet[c.id])
@@ -487,10 +492,10 @@ export default function Inventory({ user }) {
 
               {!isBrandCollapsed && brand.lines.map(line => {
                 const lineKeys = line.sections.map(s => s.key)
-                if (!lineKeys.some(k => !hiddenSections.has(k))) return null
+                if (!lineKeys.some(k => !effectiveHiddenSections.has(k))) return null
                 const isLineCollapsed = effLine.has(line.id)
                 const showLine = brand.lines.length > 1
-                const lPaints    = lineKeys.filter(k=>!hiddenSections.has(k)).flatMap(k=>paintsBySection[k]||[])
+                const lPaints    = lineKeys.filter(k=>!effectiveHiddenSections.has(k)).flatMap(k=>paintsBySection[k]||[])
                 const lOwned     = lPaints.filter(c=>checked[c.id]).length
                 const lMissing   = lPaints.length - lOwned
                 const lInSet     = lPaints.filter(c=>mySet[c.id])
@@ -513,7 +518,7 @@ export default function Inventory({ user }) {
                     )}
 
                     {!isLineCollapsed && line.sections.map(({key:sKey,display}) => {
-                      if (hiddenSections.has(sKey)) return null
+                      if (effectiveHiddenSections.has(sKey)) return null
                       const colors = filterColors(paintsBySection[sKey]||[])
                       if (colors.length===0) return null
                       const accent = SECTION_ACCENTS[sKey]||'#f07030'
@@ -580,13 +585,43 @@ const ColorRow = memo(function ColorRow({ color, isChecked, inMySet, extraCount,
   const dispCode = getDisplayCode(color.id, color.name)
   const dispName = getDisplayName(color.id, color.name)
 
-  // Swatch style — refined double ring, white outer, solid or dashed for approx
+  // ── Swatch — 6-state system driven by finish_family ─────────────────────
+  // 1. solid fill, solid border   → flat/gloss/satin/ink/one-coat/pigment
+  // 2. solid fill, dashed border  → metallic/wash/fx/clear  (approx hex)
+  // 3. white fill, dashed border  → colorshift (no hex — would be a lie)
+  // 4. empty, no border           → pending (finish_family not yet set)
+  // 5. empty, grey border, —      → auxiliary (no color by design)
+  // 6. empty, grey border, ?      → finish known but hex missing (data gap)
   const swatchSize = 18
-  const outerBorder = color.approx
-    ? '1.5px dashed rgba(255,255,255,0.7)'
-    : color.hex
-      ? '1.5px solid rgba(255,255,255,0.85)'
-      : '1.5px solid #3a3a4a'
+  const SOLID_FINISH  = new Set(['flat','gloss','satin','ink','one-coat','pigment'])
+  const DASHED_FINISH = new Set(['metallic','wash','fx','clear'])
+  const ff = color.finish_family
+  const isColorshift = ff === 'colorshift'
+  const isAuxiliary  = ff === 'auxiliary'
+  const isPending    = !ff
+  const isSolid      = SOLID_FINISH.has(ff)
+  const isDashed     = DASHED_FINISH.has(ff)
+  const swatchBg     = isColorshift ? '#FFFFFF'
+                     : (isAuxiliary||isPending) ? 'transparent'
+                     : color.hex ? color.hex : 'transparent'
+  const outerBorder  = (isAuxiliary&&!color.hex) ? '1.5px solid #3a3a4a'
+                     : isPending   ? 'none'
+                     : isColorshift||isDashed ? '1.5px dashed rgba(255,255,255,0.7)'
+                     : isSolid ? '1.5px solid rgba(255,255,255,0.85)'
+                     : color.hex ? '1.5px solid rgba(255,255,255,0.85)'
+                     : '1.5px solid #3a3a4a'
+  const swatchInner  = isColorshift ? '~'
+                     : isAuxiliary  ? '—'
+                     : (!ff && color.hex) ? null
+                     : !color.hex   ? '?'
+                     : null
+  const innerColor   = isColorshift ? '#888' : '#555'
+  const swatchTitle  = isColorshift ? 'Colorshift — no single hex'
+                     : isAuxiliary  ? 'Auxiliary — no color'
+                     : isPending    ? 'Finish not yet classified'
+                     : isDashed     ? `~${color.hex} (approx)`
+                     : color.hex    ? color.hex
+                     : 'Hex missing'
 
   // Battery pill builder — bordered with group outline
   const Pips = ({count, activeColor, isExtras}) => (
@@ -617,18 +652,18 @@ const ColorRow = memo(function ColorRow({ color, isChecked, inMySet, extraCount,
         {isChecked&&<span style={{ color:'#fff',fontSize:9 }}>✓</span>}
       </button>
 
-      {/* Hex swatch — refined double-ring, bigger, white border */}
+      {/* Hex swatch — 6-state finish_family system */}
       <div style={{
         width:swatchSize, height:swatchSize, borderRadius:'50%', flexShrink:0,
-        background: color.hex || '#1a1a1a',
+        background: swatchBg,
         border: outerBorder,
-        boxShadow: color.hex
+        boxShadow: (!isColorshift&&!isAuxiliary&&!isPending&&color.hex)
           ? `inset 0 0 0 2px rgba(0,0,0,0.45), inset 0 0 0 3.5px ${color.hex}`
           : 'none',
         display:'flex', alignItems:'center', justifyContent:'center',
         cursor:'default',
-      }} title={color.approx ? `~${color.hex} (approx)` : color.hex || 'No color data'}>
-        {!color.hex && <span style={{ fontSize:7,color:color.approx?'#8AABAB':'#555',lineHeight:1 }}>{color.approx?'~':'?'}</span>}
+      }} title={swatchTitle}>
+        {swatchInner && <span style={{ fontSize:7,color:innerColor,lineHeight:1 }}>{swatchInner}</span>}
       </div>
 
       {/* Display code — manufacturer code only, fixed width */}
