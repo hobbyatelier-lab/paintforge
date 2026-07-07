@@ -58,6 +58,7 @@ export default function Inventory({ user }) {
   const [brandCollapsed,  setBrandCollapsed]  = useState(new Set())
   const [lineCollapsed,   setLineCollapsed]   = useState(new Set())
   const [collapsed,       setCollapsed]       = useState(new Set())
+  const [expandMode,      setExpandMode]      = useState('custom')
   const [saving,          setSaving]          = useState(false)
   const [searchRaw,       setSearchRaw]       = useState('')
   const [search,          setSearch]          = useState('')
@@ -173,7 +174,7 @@ export default function Inventory({ user }) {
   }, [checked, mySet, extras, targets, user.id])
 
   // ── Toggles ───────────────────────────────────────────────────────────────
-  const togSet = (setter, id) => setter(p => { const n=new Set(p); if(n.has(id)) n.delete(id); else n.add(id); return n })
+  const togSet = (setter, id) => { setter(p => { const n=new Set(p); if(n.has(id)) n.delete(id); else n.add(id); return n }); setExpandMode('custom') }
   function toggleOwned(id)    { const v=!checked[id]; setChecked(p=>{const n={...p};if(v)n[id]=true;else delete n[id];return n}); savePaint(id,{owned:v}) }
   function toggleMySet(id)    { const v=!mySet[id];   setMySet(p=>{const n={...p};if(v)n[id]=true;else delete n[id];return n}); savePaint(id,{in_my_set:v}) }
   function setExtraCount(id,n){ const v=extras[id]===n?0:n; setExtras(p=>{const e={...p};if(v)e[id]=v;else delete e[id];return e}); savePaint(id,{extras:v}) }
@@ -255,6 +256,23 @@ export default function Inventory({ user }) {
     return r
   }
 
+  // ── Effective collapse — search and expand mode override custom state ────────
+  const allBrandIds = TAXONOMY.map(b => b.id)
+  const allLineIds  = TAXONOMY.flatMap(b => b.lines.map(l => l.id))
+  const allSectKeys = Object.keys(COLORS)
+  const displayMode = search ? 'all' : expandMode
+  const effBrand =
+    displayMode==='all'||displayMode==='section'||displayMode==='line' ? new Set() :
+    displayMode==='brand' ? new Set(allBrandIds) : brandCollapsed
+  const effLine  =
+    displayMode==='all'||displayMode==='section' ? new Set() :
+    displayMode==='line' ? new Set(allLineIds) :
+    displayMode==='brand' ? new Set() : lineCollapsed
+  const effSect  =
+    displayMode==='all' ? new Set() :
+    displayMode==='section'||displayMode==='line' ? new Set(allSectKeys) :
+    displayMode==='brand' ? new Set() : collapsed
+
   if (!loaded) return (
     <div style={{ background:BG_APP,minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center' }}>
       <div style={{ textAlign:'center',color:'#555',fontFamily:'system-ui' }}>
@@ -325,8 +343,16 @@ export default function Inventory({ user }) {
             </div>
           </div>
 
-          <input value={searchRaw} onChange={e=>setSearchRaw(e.target.value)} placeholder="Search… (names or codes)"
-            style={{ width:'100%',padding:'6px 12px',borderRadius:8,marginBottom:7,background:'#0F1818',border:'1px solid #2A3A3A',color:'#e8e8e8',fontSize:13,outline:'none',boxSizing:'border-box' }} />
+          <div style={{ position:'relative',marginBottom:7 }}>
+            <input value={searchRaw} onChange={e=>setSearchRaw(e.target.value)} placeholder="Search… (names or codes)"
+              style={{ width:'100%',padding:'6px 28px 6px 12px',borderRadius:8,background:'#0F1818',border:'1px solid #2A3A3A',color:'#e8e8e8',fontSize:13,outline:'none',boxSizing:'border-box' }} />
+            {searchRaw && (
+              <button onClick={()=>{setSearchRaw('');setSearch('')}}
+                style={{ position:'absolute',right:8,top:'50%',transform:'translateY(-50%)',background:'none',border:'none',color:'#666',cursor:'pointer',fontSize:13,lineHeight:1,padding:2,display:'flex',alignItems:'center',justifyContent:'center',width:16,height:16,borderRadius:'50%',border:'1px solid #444' }}>
+                ✕
+              </button>
+            )}
+          </div>
 
           {/* Row 1: tools — Shop (orange!), Export, Brand Filter */}
           <div style={{ display:'flex',gap:5,marginBottom:4 }}>
@@ -347,6 +373,20 @@ export default function Inventory({ user }) {
             ))}
           </div>
 
+          {/* Row 4: expand level controls */}
+          <div style={{ display:'flex',alignItems:'center',gap:4,marginBottom:4 }}>
+            <span style={{ fontSize:10,color:'#444',marginRight:2 }}>expand:</span>
+            {[['custom','Custom','#666'],['all','All','#D0D0D0'],['section','Section','#9B8FD0'],['line','Line','#E8A838'],['brand','Brand','#36E2DD']].map(([mode,label,color])=>(
+              <button key={mode} onClick={()=>setExpandMode(mode)}
+                style={{ padding:'2px 8px',borderRadius:20,border:`1px solid ${color}44`,cursor:'pointer',fontSize:10,fontWeight:600,
+                  background:displayMode===mode?color+'22':'transparent',
+                  color:displayMode===mode?color:'#555',
+                  transition:'all 0.15s' }}>
+                {label}
+              </button>
+            ))}
+          </div>
+
         </div>
       </div>
 
@@ -355,7 +395,7 @@ export default function Inventory({ user }) {
         {TAXONOMY.map(brand => {
           const brandKeys = brand.lines.flatMap(l => l.sections.map(s => s.key))
           if (!brandKeys.some(k => !hiddenSections.has(k))) return null
-          const isBrandCollapsed = brandCollapsed.has(brand.id)
+          const isBrandCollapsed = effBrand.has(brand.id)
           const bPaints    = brandKeys.filter(k=>!hiddenSections.has(k)).flatMap(k=>COLORS[k]||[])
           const bOwned     = bPaints.filter(c=>checked[c.id]).length
           const bMissing   = bPaints.length - bOwned
@@ -379,7 +419,7 @@ export default function Inventory({ user }) {
               {!isBrandCollapsed && brand.lines.map(line => {
                 const lineKeys = line.sections.map(s => s.key)
                 if (!lineKeys.some(k => !hiddenSections.has(k))) return null
-                const isLineCollapsed = lineCollapsed.has(line.id)
+                const isLineCollapsed = effLine.has(line.id)
                 const showLine = brand.lines.length > 1
                 const lPaints    = lineKeys.filter(k=>!hiddenSections.has(k)).flatMap(k=>COLORS[k]||[])
                 const lOwned     = lPaints.filter(c=>checked[c.id]).length
@@ -408,7 +448,7 @@ export default function Inventory({ user }) {
                       const colors = filterColors(COLORS[sKey]||[])
                       if (colors.length===0) return null
                       const accent = SECTION_ACCENTS[sKey]||'#f07030'
-                      const isSecCollapsed = collapsed.has(sKey)
+                      const isSecCollapsed = effSect.has(sKey)
                       const rawPaints   = COLORS[sKey]||[]
                       const sOwned      = rawPaints.filter(c=>checked[c.id]).length
                       const sMissing    = rawPaints.length - sOwned
