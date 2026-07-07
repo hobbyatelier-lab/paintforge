@@ -74,6 +74,12 @@ export default function Inventory({ user }) {
 
   // ── Load everything ───────────────────────────────────────────────────────
   useEffect(() => {
+  // ── Debounce search input 300ms ──────────────────────────────────────────────
+  useEffect(() => {
+    const t = setTimeout(() => setSearch(searchRaw), 300)
+    return () => clearTimeout(t)
+  }, [searchRaw])
+
     // Paginate through user_paints — Supabase caps at 1000 rows per trip
     async function fetchAllUserPaints(userId) {
       const PAGE = 1000
