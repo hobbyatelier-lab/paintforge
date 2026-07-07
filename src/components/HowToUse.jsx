@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import logoUrl from '../assets/logo.svg'
 
 const BRAND_CYAN = '#36E2DD'
@@ -6,8 +5,8 @@ const PURPLE     = '#9060d0'
 const AMBER      = '#E8A838'
 const GREEN      = '#4caf50'
 
-export default function HowToUse({ onClose, onSaveStartupPreference, initialDontShow }) {
-  const [dontShow, setDontShow] = useState(!!initialDontShow)
+export default function HowToUse({ onClose, dontShow, onDontShowChange }) {
+  // fully controlled — dontShow is seenHowToUse from Inventory, no local copy
 
   const S  = { fontSize:12, color:'#bbb', lineHeight:1.7 }
   const H  = { fontSize:10, color:'#555', textTransform:'uppercase', letterSpacing:'0.1em', margin:'20px 0 8px', fontWeight:700 }
@@ -52,9 +51,8 @@ export default function HowToUse({ onClose, onSaveStartupPreference, initialDont
           </div>
           <div style={{ display:'flex', alignItems:'center', gap:8 }}>
             <label style={{ display:'flex', alignItems:'center', gap:6, cursor:'pointer', userSelect:'none', background:'#1E2828', padding:'5px 10px', borderRadius:6, border:`1px solid ${dontShow?PURPLE:'#2A3A3A'}` }}>
-              <input type="checkbox" checked={dontShow} onChange={e => {
-                setDontShow(e.target.checked)
-                if (e.target.checked && onDismissForever) onDismissForever()
+              <input type="checkbox" checked={!!dontShow} onChange={e => {
+                if (onDontShowChange) onDontShowChange(e.target.checked)
               }} style={{ accentColor:PURPLE, cursor:'pointer', width:14, height:14 }} />
               <span style={{ fontSize:11, color:dontShow?PURPLE:'#6B8080', fontWeight:dontShow?600:400 }}>Don't show on startup</span>
             </label>
