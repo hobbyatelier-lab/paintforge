@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef, memo } from 'react'
 import logoUrl from '../assets/logo.svg'
 import { supabase } from '../supabase.js'
-import { COLORS, SECTION_LABELS, SECTION_ACCENTS, TAXONOMY } from '../data/paints.js'
+import { SECTION_LABELS, SECTION_ACCENTS, TAXONOMY } from '../data/paints.js'
 import BrandFilter from './BrandFilter.jsx'
 import HowToUse from './HowToUse.jsx'
 
@@ -72,6 +72,8 @@ export default function Inventory({ user }) {
   const [showExport,      setShowExport]      = useState(false)
   const [exportText,      setExportText]      = useState('')
   const [exportTitle,     setExportTitle]     = useState('')
+  const [paintsBySection, setPaintsBySection] = useState({})
+  const [catalogError,    setCatalogError]    = useState(false)
   const prefSaveRef = useRef(null)
 
   // ── Load everything ───────────────────────────────────────────────────────
@@ -93,11 +95,34 @@ export default function Inventory({ user }) {
       return { data: rows }
     }
 
+    async function fetchCatalog() {
+      const PAGE = 2000
+      let rows = [], from = 0, keepGoing = true
+      while (keepGoing) {
+        const { data, error } = await supabase
+          .from('paints').select('id,section_key,name,hex')
+          .range(from, from + PAGE - 1)
+        if (error || !data) return { data: null, error: error || new Error('no data') }
+        rows = [...rows, ...data]
+        keepGoing = data.length === PAGE
+        from += PAGE
+      }
+      return { data: rows }
+    }
+
     async function load() {
-      const [paintsRes, prefsRes] = await Promise.all([
+      const [catalogRes, paintsRes, prefsRes] = await Promise.all([
+        fetchCatalog(),
         fetchAllUserPaints(user.id),
         supabase.from('user_preferences').select('*').eq('user_id', user.id).single(),
       ])
+      if (!catalogRes.data) { setCatalogError(true); return }
+      const bySection = {}
+      for (const p of catalogRes.data) {
+        if (!bySection[p.section_key]) bySection[p.section_key] = []
+        bySection[p.section_key].push(p)
+      }
+      setPaintsBySection(bySection)
       if (!paintsRes.error && paintsRes.data) {
         const c={},m={},e={},t={}
         for (const row of paintsRes.data) {
@@ -193,12 +218,12 @@ export default function Inventory({ user }) {
 
   // ── Exports ───────────────────────────────────────────────────────────────
   function exportOwned() {
-    const all=Object.values(COLORS).flat()
+    const all=Object.values(paintsBySection).flat()
     const oc=all.filter(c=>checked[c.id]).length, st=all.filter(c=>mySet[c.id])
     const lines=['PAINTFORGE — INVENTORY','======================','']
     for (const [key,label] of Object.entries(SECTION_LABELS)) {
-      if(!COLORS[key]||!COLORS[key].length) continue
-      const rel=COLORS[key].filter(c=>checked[c.id]||mySet[c.id]||extras[c.id]).sort((a,b)=>parseFloat(a.id)-parseFloat(b.id))
+      if(!paintsBySection[key]||!paintsBySection[key].length) continue
+      const rel=paintsBySection[key].filter(c=>checked[c.id]||mySet[c.id]||extras[c.id]).sort((a,b)=>parseFloat(a.id)-parseFloat(b.id))
       if(!rel.length) continue
       lines.push(label); lines.push('-'.repeat(label.length+4))
       rel.forEach(c=>lines.push(`  ${c.id}  ${c.name}${checked[c.id]?' ✓':''}${mySet[c.id]?' ♦':''}${extras[c.id]?` [+${extras[c.id]}]`:''}`))
@@ -215,8 +240,8 @@ export default function Inventory({ user }) {
     const lines=['PAINTFORGE — SHOPPING LIST','==========================','','MISSING','-------']
     let total=0,missing=0
     for (const [key,label] of Object.entries(SECTION_LABELS)) {
-      if(!COLORS[key]) continue
-      const needed=COLORS[key].filter(c=>mySet[c.id]&&!checked[c.id]).sort((a,b)=>parseFloat(a.id)-parseFloat(b.id))
+      if(!paintsBySection[key]) continue
+      const needed=paintsBySection[key].filter(c=>mySet[c.id]&&!checked[c.id]).sort((a,b)=>parseFloat(a.id)-parseFloat(b.id))
       if(!needed.length) continue
       lines.push(`  ${label}`)
       needed.forEach(c=>{ const t=targets[c.id]||0; lines.push(`    ${c.id}  ${c.name}  ×${t>0?t+1:1}${t>0?`  (1 use + ${t} backup${t>1?'s':''})`:''}`) })
@@ -226,8 +251,8 @@ export default function Inventory({ user }) {
     lines.push('','RESTOCK','-------')
     let restock=0
     for (const [key,label] of Object.entries(SECTION_LABELS)) {
-      if(!COLORS[key]) continue
-      const needed=COLORS[key].filter(c=>checked[c.id]&&(targets[c.id]||0)>0&&(extras[c.id]||0)<(targets[c.id]||0)).sort((a,b)=>parseFloat(a.id)-parseFloat(b.id))
+      if(!paintsBySection[key]) continue
+      const needed=paintsBySection[key].filter(c=>checked[c.id]&&(targets[c.id]||0)>0&&(extras[c.id]||0)<(targets[c.id]||0)).sort((a,b)=>parseFloat(a.id)-parseFloat(b.id))
       if(!needed.length) continue
       lines.push(`  ${label}`)
       needed.forEach(c=>lines.push(`    ${c.id}  ${c.name}  ×${(targets[c.id]||0)-(extras[c.id]||0)}  (have ${extras[c.id]||0}, want ${targets[c.id]||0})`))
@@ -245,8 +270,8 @@ export default function Inventory({ user }) {
   }
 
   // ── Stats — only count sections currently visible (not hidden by brand filter) ──
-  const visibleKeys   = Object.keys(COLORS).filter(k => !hiddenSections.has(k))
-  const visiblePaints = visibleKeys.flatMap(k => COLORS[k] || [])
+  const visibleKeys   = Object.keys(paintsBySection).filter(k => !hiddenSections.has(k))
+  const visiblePaints = visibleKeys.flatMap(k => paintsBySection[k] || [])
   const ownedCount = visiblePaints.filter(c=>checked[c.id]).length
   const total      = visiblePaints.length
   const pct        = total>0 ? Math.round(ownedCount/total*100) : 0
@@ -269,7 +294,7 @@ export default function Inventory({ user }) {
   // ── Effective collapse — search and expand mode override custom state ────────
   const allBrandIds = TAXONOMY.map(b => b.id)
   const allLineIds  = TAXONOMY.flatMap(b => b.lines.map(l => l.id))
-  const allSectKeys = Object.keys(COLORS)
+  const allSectKeys = Object.keys(paintsBySection)
   const displayMode = search ? 'all' : expandMode
   const effBrand =
     displayMode==='all'||displayMode==='section'||displayMode==='line' ? new Set() :
@@ -283,11 +308,44 @@ export default function Inventory({ user }) {
     displayMode==='section'||displayMode==='line' ? new Set(allSectKeys) :
     displayMode==='brand' ? new Set() : collapsed
 
+  if (catalogError) return (
+    <div style={{ background:BG_APP,minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:"'Montserrat',system-ui,sans-serif" }}>
+      <div style={{ textAlign:'center',padding:40 }}>
+        <div style={{ fontSize:36,marginBottom:12 }}>⚠</div>
+        <p style={{ color:'#ccc',fontSize:15,margin:'0 0 6px' }}>Connection unstable</p>
+        <p style={{ color:'#666',fontSize:13,margin:'0 0 24px' }}>Couldn't load the paint catalog. Check your connection and try again.</p>
+        <button onClick={()=>window.location.reload()} style={{ padding:'10px 28px',background:'#36E2DD',color:'#0A1414',border:'none',borderRadius:8,fontSize:14,fontWeight:700,cursor:'pointer' }}>
+          Refresh
+        </button>
+      </div>
+    </div>
+  )
+
   if (!loaded) return (
-    <div style={{ background:BG_APP,minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center' }}>
-      <div style={{ textAlign:'center',color:'#555',fontFamily:'system-ui' }}>
-        <img src={logoUrl} alt="PaintForge" style={{ width:72,height:72,marginBottom:12,opacity:0.7 }} />
-        <p style={{ fontSize:14 }}>Loading your collection…</p>
+    <div style={{ background:BG_APP,minHeight:'100vh',fontFamily:"'Montserrat',system-ui,sans-serif",color:'#e8e8e8' }}>
+      <style>{`
+        @keyframes pf-shimmer{0%,100%{opacity:.35}50%{opacity:.75}}
+        @keyframes pf-spin{to{transform:rotate(360deg)}}
+        .pf-skel{animation:pf-shimmer 1.6s ease-in-out infinite;background:#1E2428;border-radius:4px}
+        .pf-spin{width:32px;height:32px;border:3px solid #1E2428;border-top-color:#36E2DD;border-radius:50%;animation:pf-spin 0.75s linear infinite}
+      `}</style>
+      <div style={{ background:'#171B1B',borderBottom:'1px solid #1E2428',padding:'10px 20px' }}>
+        <div className="pf-skel" style={{ height:26,width:150,marginBottom:8 }}/>
+        <div className="pf-skel" style={{ height:11,width:240 }}/>
+      </div>
+      <div style={{ maxWidth:980,margin:'0 auto',padding:'16px 32px',position:'relative',minHeight:500 }}>
+        {[...Array(5)].map((_,i)=>(
+          <div key={i} style={{ marginBottom:16 }}>
+            <div className="pf-skel" style={{ height:38,width:'100%',marginBottom:6,borderRadius:8 }}/>
+            {[...Array(3)].map((_,j)=>(
+              <div key={j} className="pf-skel" style={{ height:13,width:`${50+j*14}%`,marginBottom:4,marginLeft:14 }}/>
+            ))}
+          </div>
+        ))}
+        <div style={{ position:'absolute',inset:0,background:'rgba(20,20,20,0.82)',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:14,borderRadius:4 }}>
+          <div className="pf-spin"/>
+          <span style={{ color:'#888',fontSize:13 }}>Loading your inventory and preferences…</span>
+        </div>
       </div>
     </div>
   )
@@ -407,7 +465,7 @@ export default function Inventory({ user }) {
           const brandKeys = brand.lines.flatMap(l => l.sections.map(s => s.key))
           if (!brandKeys.some(k => !hiddenSections.has(k))) return null
           const isBrandCollapsed = effBrand.has(brand.id)
-          const bPaints    = brandKeys.filter(k=>!hiddenSections.has(k)).flatMap(k=>COLORS[k]||[])
+          const bPaints    = brandKeys.filter(k=>!hiddenSections.has(k)).flatMap(k=>paintsBySection[k]||[])
           const bOwned     = bPaints.filter(c=>checked[c.id]).length
           const bMissing   = bPaints.length - bOwned
           const bInSet     = bPaints.filter(c=>mySet[c.id])
@@ -432,7 +490,7 @@ export default function Inventory({ user }) {
                 if (!lineKeys.some(k => !hiddenSections.has(k))) return null
                 const isLineCollapsed = effLine.has(line.id)
                 const showLine = brand.lines.length > 1
-                const lPaints    = lineKeys.filter(k=>!hiddenSections.has(k)).flatMap(k=>COLORS[k]||[])
+                const lPaints    = lineKeys.filter(k=>!hiddenSections.has(k)).flatMap(k=>paintsBySection[k]||[])
                 const lOwned     = lPaints.filter(c=>checked[c.id]).length
                 const lMissing   = lPaints.length - lOwned
                 const lInSet     = lPaints.filter(c=>mySet[c.id])
@@ -456,11 +514,11 @@ export default function Inventory({ user }) {
 
                     {!isLineCollapsed && line.sections.map(({key:sKey,display}) => {
                       if (hiddenSections.has(sKey)) return null
-                      const colors = filterColors(COLORS[sKey]||[])
+                      const colors = filterColors(paintsBySection[sKey]||[])
                       if (colors.length===0) return null
                       const accent = SECTION_ACCENTS[sKey]||'#f07030'
                       const isSecCollapsed = effSect.has(sKey)
-                      const rawPaints   = COLORS[sKey]||[]
+                      const rawPaints   = paintsBySection[sKey]||[]
                       const sOwned      = rawPaints.filter(c=>checked[c.id]).length
                       const sMissing    = rawPaints.length - sOwned
                       const sInSet      = rawPaints.filter(c=>mySet[c.id])
