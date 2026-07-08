@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef, memo } from 'react'
 import logoUrl from '../assets/logo.svg'
 import { supabase } from '../supabase.js'
 import { SECTION_LABELS, SECTION_ACCENTS, TAXONOMY } from '../data/paints.js'
+import DetailPopup from './DetailPopup.jsx'
 import BrandFilter from './BrandFilter.jsx'
 import HowToUse from './HowToUse.jsx'
 
@@ -61,6 +62,8 @@ export default function Inventory({ user }) {
   const [expandMode,      setExpandMode]      = useState('custom')
   const [saving,          setSaving]          = useState(false)
   const [saveError,       setSaveError]       = useState(false)
+  const [detailPaint,     setDetailPaint]     = useState(null)
+  const [subPaint,        setSubPaint]        = useState(null)
   const [searchRaw,       setSearchRaw]       = useState('')
   const [search,          setSearch]          = useState('')
   const [hiddenSections,  setHiddenSections]  = useState(new Set())
@@ -184,6 +187,8 @@ export default function Inventory({ user }) {
   }, [hiddenSections, brandCollapsed, lineCollapsed, collapsed, seenHowToUse, filter, loaded, user.id])
 
   // ── Save a paint row ──────────────────────────────────────────────────────
+  const handleNameClick = useCallback((paint) => setDetailPaint(paint), [])
+
   const savePaint = useCallback(async (id, patch) => {
     setSaving(true)
     setSaveError(false)
@@ -381,6 +386,15 @@ export default function Inventory({ user }) {
               </span>
               {saving    && <span style={{ fontSize:10,color:'#555' }}>saving…</span>}
               {saveError && <span style={{ fontSize:10,color:'#e05050' }}>⚠ save failed — check connection</span>}
+
+      {/* Detail Popup */}
+      <DetailPopup
+        paint={detailPaint}
+        isOwned={!!(detailPaint && checked[detailPaint.id])}
+        isInSet={!!(detailPaint && mySet[detailPaint.id])}
+        onClose={()=>setDetailPaint(null)}
+        onFindSubstitute={(p)=>{ setDetailPaint(null); setSubPaint(p) }}
+      />
             </div>
             <div style={{ display:'flex',alignItems:'center',gap:6 }}>
               <button onClick={()=>setShowHowToUse(true)} style={{ background:'none',border:'none',cursor:'pointer',fontSize:9,color:HIER_SECTION,fontFamily:'inherit',letterSpacing:'0.08em',textTransform:'uppercase',opacity:0.7,padding:'2px 4px' }}>How to use</button>
@@ -555,6 +569,7 @@ export default function Inventory({ user }) {
                                   extraCount={extras[c.id]||0} targetCount={targets[c.id]||0}
                                   toggleOwned={toggleOwned} toggleMySet={toggleMySet}
                                   setExtraCount={setExtraCount} setTargetCount={setTargetCount}
+                                  onNameClick={handleNameClick}
                                 />
                               ))}
                             </div>
@@ -584,7 +599,7 @@ const ROLE_COLORS = {
   S:{bg:'#101820',color:'#6090a8'},
 }
 
-const ColorRow = memo(function ColorRow({ color, isChecked, inMySet, extraCount, targetCount, toggleOwned, toggleMySet, setExtraCount, setTargetCount }) {
+const ColorRow = memo(function ColorRow({ color, isChecked, inMySet, extraCount, targetCount, toggleOwned, toggleMySet, setExtraCount, setTargetCount, onNameClick }) {
   const isLow=(isChecked&&targetCount>0&&extraCount<targetCount)||(!isChecked&&inMySet&&targetCount>0)
   const need=isChecked?Math.max(0,targetCount-extraCount):targetCount+1
   const dispCode = getDisplayCode(color.id, color.name)
@@ -679,14 +694,16 @@ const ColorRow = memo(function ColorRow({ color, isChecked, inMySet, extraCount,
         display: dispCode ? 'block' : 'none',
       }}>{dispCode||''}</span>
 
-      {/* Name — condensed font, gets all remaining space */}
-      <span style={{
+      {/* Name — tap to open detail popup */}
+      <button onClick={()=>onNameClick(color)} style={{
         fontFamily:"'Barlow Condensed','Montserrat',system-ui",
         fontSize:15, fontWeight: isChecked?500:400,
         flex:1, minWidth:0,
         color:isLow?'#e0a040':isChecked?'#c8e8c8':inMySet?'#c0b0e0':'#bbb',
         overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap',
-      }}>{dispName}</span>
+        background:'none', border:'none', cursor:'pointer', padding:0,
+        textAlign:'left',
+      }}>{dispName}</button>
 
       {/* Low stock badge */}
       {isLow&&<span style={{ fontSize:9,fontWeight:700,color:'#e0a040',flexShrink:0 }}>+{need}</span>}
