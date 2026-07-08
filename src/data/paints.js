@@ -1,46 +1,46 @@
 export const COLORS = {
   mechaColor: [
-    { id: "69.001", name: "Pure White", hex: "#FFFFFF" }, { id: "69.002", name: "White Grey", hex: "#E3E2E0" },
-    { id: "69.003", name: "Off-White", hex: "#E8D8BE" }, { id: "69.004", name: "Yellow", hex: "#EBA90C" },
-    { id: "69.005", name: "Light Flesh", hex: "#F3D4B8" }, { id: "69.006", name: "Pink", hex: "#D08474" },
-    { id: "69.007", name: "Orange", hex: "#E14C24" }, { id: "69.008", name: "Red", hex: "#BC4040" },
-    { id: "69.009", name: "SZ Red" }, { id: "69.010", name: "Magenta", hex: "#A62355" },
-    { id: "69.011", name: "Dark Red", hex: "#93262C" }, { id: "69.012", name: "Purple", hex: "#AD8DBC" },
-    { id: "69.013", name: "Titan Blue", hex: "#4D4D6F" }, { id: "69.014", name: "Grey Green", hex: "#6D8589" },
-    { id: "69.015", name: "Blue Grey", hex: "#454952" }, { id: "69.016", name: "Light Blue", hex: "#C6C9C0" },
-    { id: "69.017", name: "Sky Blue", hex: "#74B8CF" }, { id: "69.018", name: "Deep Blue", hex: "#0C97C2" },
-    { id: "69.019", name: "Blue", hex: "#372C4C" }, { id: "69.020", name: "Electric Blue", hex: "#2E95B4" },
-    { id: "69.021", name: "Dark Blue", hex: "#273461" }, { id: "69.022", name: "Titan Dark Blue", hex: "#41454E" },
-    { id: "69.023", name: "Turquoise", hex: "#016160" }, { id: "69.024", name: "Stone Grey", hex: "#A1B1B1" },
-    { id: "69.025", name: "Light Green", hex: "#C6C9C0" }, { id: "69.026", name: "Green", hex: "#007133" },
-    { id: "69.027", name: "Green Blue", hex: "#8A9F80" }, { id: "69.028", name: "Olive Green", hex: "#343A38" },
-    { id: "69.029", name: "Deep Green", hex: "#70793A" }, { id: "69.030", name: "Dark Green", hex: "#5D5E56" },
-    { id: "69.031", name: "Grey Sand", hex: "#BA9F72" }, { id: "69.032", name: "Yellow Ochre", hex: "#EAA432" },
-    { id: "69.033", name: "Sand Yellow", hex: "#EABF56" }, { id: "69.034", name: "Brown", hex: "#9A632A" },
-    { id: "69.035", name: "Chipping Brown", hex: "#484242" }, { id: "69.036", name: "Light Grey", hex: "#969DA5" },
-    { id: "69.037", name: "Grey", hex: "#C5C6C8" }, { id: "69.038", name: "Medium Grey", hex: "#867259" },
-    { id: "69.039", name: "Grey Z", hex: "#7A7B7D" }, { id: "69.040", name: "Phantom Grey", hex: "#535762" },
-    { id: "69.041", name: "Dark Grey Green", hex: "#505251" }, { id: "69.042", name: "Pure Black", hex: "#010101" },
+    { id: "69.001", name: "Pure White", hex: "#FFFFFF" }, { id: "69.002", name: "White Grey", hex: "#BDBAA9" },
+    { id: "69.003", name: "Off-White", hex: "#EBE3C9" }, { id: "69.004", name: "Yellow", hex: "#E59800" },
+    { id: "69.005", name: "Light Flesh", hex: "#FBC991" }, { id: "69.006", name: "Pink", hex: "#D5745F" },
+    { id: "69.007", name: "Orange", hex: "#E84B19" }, { id: "69.008", name: "Red", hex: "#A8201B" },
+    { id: "69.009", name: "SZ Red", hex: "#912322" }, { id: "69.010", name: "Magenta", hex: "#8B2A5F" },
+    { id: "69.011", name: "Dark Red", hex: "#601320" }, { id: "69.012", name: "Purple", hex: "#8F6AA5" },
+    { id: "69.013", name: "Titan Blue", hex: "#121E2D" }, { id: "69.014", name: "Grey Green", hex: "#465759" },
+    { id: "69.015", name: "Blue Grey", hex: "#46656F" }, { id: "69.016", name: "Light Blue", hex: "#435F7A" },
+    { id: "69.017", name: "Sky Blue", hex: "#08ABCE" }, { id: "69.018", name: "Deep Blue", hex: "#005F92" },
+    { id: "69.019", name: "Blue", hex: "#1C2347" }, { id: "69.020", name: "Electric Blue", hex: "#1B245C" },
+    { id: "69.021", name: "Dark Blue", hex: "#20313F" }, { id: "69.022", name: "Titan Dark Blue", hex: "#121C1C" },
+    { id: "69.023", name: "Turquoise", hex: "#00777B" }, { id: "69.024", name: "Stone Grey", hex: "#768C89" },
+    { id: "69.025", name: "Light Green", hex: "#B8B8A7" }, { id: "69.026", name: "Green", hex: "#76826A" },
+    { id: "69.027", name: "Green Blue", hex: "#618662" }, { id: "69.028", name: "Olive Green", hex: "#50623C" },
+    { id: "69.029", name: "Deep Green", hex: "#646D57" }, { id: "69.030", name: "Dark Green", hex: "#353525" },
+    { id: "69.031", name: "Grey Sand", hex: "#908472" }, { id: "69.032", name: "Yellow Ochre", hex: "#AE7020" },
+    { id: "69.033", name: "Sand Yellow", hex: "#F5BF57" }, { id: "69.034", name: "Brown", hex: "#6A4B31" },
+    { id: "69.035", name: "Chipping Brown", hex: "#2B1E17" }, { id: "69.036", name: "Light Grey", hex: "#77817E" },
+    { id: "69.037", name: "Grey", hex: "#5C6760" }, { id: "69.038", name: "Medium Grey", hex: "#5A5B5B" },
+    { id: "69.039", name: "Grey Z", hex: "#50524E" }, { id: "69.040", name: "Phantom Grey", hex: "#222C2E" },
+    { id: "69.041", name: "Dark Grey Green", hex: "#34312F" }, { id: "69.042", name: "Pure Black", hex: "#000000" },
   ],
   mechaFluo: [
-    { id: "69.054", name: "Yellow", hex: "#EBA90C" }, { id: "69.055", name: "Orange", hex: "#E14C24" },
-    { id: "69.056", name: "Magenta", hex: "#A62355" }, { id: "69.057", name: "Green", hex: "#007133" },
+    { id: "69.054", name: "Yellow", hex: "#E0DE12" }, { id: "69.055", name: "Orange", hex: "#E84610" },
+    { id: "69.056", name: "Magenta", hex: "#E40074" }, { id: "69.057", name: "Green", hex: "#27A737" },
   ],
   mechaMetallic: [
-    { id: "69.058", name: "Gunmetal", hex: "#646760" }, { id: "69.059", name: "Gold", hex: "#AC8424" },
-    { id: "69.060", name: "Old Gold", hex: "#55371D" }, { id: "69.061", name: "Copper", hex: "#803427" },
-    { id: "69.062", name: "Bronze", hex: "#533C1D" }, { id: "69.063", name: "Steel", hex: "#898A82" },
-    { id: "69.064", name: "Light Steel", hex: "#CDD6D3" }, { id: "69.065", name: "Dark Steel", hex: "#737476" },
-    { id: "69.066", name: "Metallic Red", hex: "#CB5970" }, { id: "69.067", name: "Metallic Blue", hex: "#373C4F" },
-    { id: "69.068", name: "Metallic Green", hex: "#1B927F" },
+    { id: "69.058", name: "Gunmetal", hex: "#757573" }, { id: "69.059", name: "Gold", hex: "#D3B061" },
+    { id: "69.060", name: "Old Gold", hex: "#B9A26E" }, { id: "69.061", name: "Copper", hex: "#B58162" },
+    { id: "69.062", name: "Bronze", hex: "#A78E58" }, { id: "69.063", name: "Steel", hex: "#A39E9A" },
+    { id: "69.064", name: "Light Steel", hex: "#C1C2C5" }, { id: "69.065", name: "Dark Steel", hex: "#898888" },
+    { id: "69.066", name: "Metallic Red", hex: "#CA7872" }, { id: "69.067", name: "Metallic Blue", hex: "#616D84" },
+    { id: "69.068", name: "Metallic Green", hex: "#62AE8C" },
   ],
   mechaWeathering: [
-    { id: "69.505", name: "Light Rust Wash" }, { id: "69.507", name: "Dark Rust Wash" },
-    { id: "69.515", name: "Light Grey Wash" }, { id: "69.518", name: "Black Wash" },
-    { id: "69.521", name: "Oiled Earth Wash" }, { id: "69.522", name: "Desert Dust Wash" },
-    { id: "69.813", name: "Oil Stains (Gloss)" }, { id: "69.814", name: "Fuel Stains (Gloss)" },
-    { id: "69.817", name: "Petrol Spills (Gloss)" }, { id: "69.818", name: "Brown Eng. Soot (Matt)" },
-    { id: "69.821", name: "Rust Texture (Matt)" },
+    { id: "69.505", name: "Light Rust Wash", hex: "#EB7717" }, { id: "69.507", name: "Dark Rust Wash", hex: "#E1580A" },
+    { id: "69.515", name: "Light Grey Wash", hex: "#C8C8C6" }, { id: "69.518", name: "Black Wash", hex: "#000000" },
+    { id: "69.521", name: "Oiled Earth Wash", hex: "#6D5B4F" }, { id: "69.522", name: "Desert Dust Wash", hex: "#D8BD80" },
+    { id: "69.813", name: "Oil Stains (Gloss)", hex: "#755419" }, { id: "69.814", name: "Fuel Stains (Gloss)", hex: "#A06314" },
+    { id: "69.817", name: "Petrol Spills (Gloss)", hex: "#1A1D1F" }, { id: "69.818", name: "Brown Eng. Soot (Matt)", hex: "#60361D" },
+    { id: "69.821", name: "Rust Texture (Matt)", hex: "#6A3329" },
   ],
   mechaAux: [
     { id: "69.701", name: "Mecha Gloss Varnish (200ml)" },
@@ -52,9 +52,9 @@ export const COLORS = {
     { id: "73.214", name: "Chipping Medium" },
   ],
   mechaPrimer: [
-    { id: "70.640", name: "White", hex: "#FFFFFF" }, { id: "70.641", name: "Grey", hex: "#C5C6C8" },
-    { id: "70.642", name: "Black", hex: "#231D1D" }, { id: "70.643", name: "Ivory", hex: "#EBE2D1" },
-    { id: "70.644", name: "Sand", hex: "#DAC495" },
+    { id: "70.640", name: "White", hex: "#FFFFFF", finish_family: 'satin' }, { id: "70.641", name: "Grey", hex: "#C1C2C2", finish_family: 'satin' },
+    { id: "70.642", name: "Black", hex: "#020203", finish_family: 'satin' }, { id: "70.643", name: "Ivory", hex: "#F0EBCB", finish_family: 'satin' },
+    { id: "70.644", name: "Sand", hex: "#C0A478", finish_family: 'satin' },
   ],
   gamecolor: [
     { id: "72.001", name: "Dead White", hex: "#FFFFFF" }, { id: "72.003", name: "Pale Flesh", hex: "#CBA37F" },
@@ -508,6 +508,8 @@ export const COLORS = {
     { id: "CIT_SH_Reikland_Fleshshade", name: "Reikland Fleshshade", hex: "#BE9A80" },
     { id: "CIT_SH_Reikland_Fleshshade_Gloss", name: "Reikland Fleshshade Gloss", hex: "#C2A896" },
     { id: "CIT_SH_Seraphim_Sepia", name: "Seraphim Sepia", hex: "#AE8158" },
+
+    { id: "CIT_SH_Soulblight_Grey", name: "Soulblight Grey" }, { id: "CIT_SH_Berserker_Bloodshade", name: "Berserker Bloodshade" }, { id: "CIT_SH_Tyran_Blue", name: "Tyran Blue" }, { id: "CIT_SH_Mortarion_Grime", name: "Mortarion Grime" }, { id: "CIT_SH_Poxwalker", name: "Poxwalker" }, { id: "CIT_SH_Kroak_Green", name: "Kroak Green" }, { id: "CIT_SH_Targor_Rageshade", name: "Targor Rageshade" },
   ],
   citadelContrast: [
     { id: "CIT_CO_Aethermatic_Blue", name: "Aethermatic Blue", hex: "#1C7E92" },
@@ -545,6 +547,8 @@ export const COLORS = {
     { id: "CIT_CO_Volupus_Pink", name: "Volupus Pink", hex: "#60001C" },
     { id: "CIT_CO_Warp_Lightning", name: "Warp Lightning", hex: "#005E26" },
     { id: "CIT_CO_Wyldwood", name: "Wyldwood", hex: "#432822" },
+
+    { id: "CIT_CO_Nighthaunt_Gloom", name: "Nighthaunt Gloom" }, { id: "CIT_CO_Hexwraith_Flame", name: "Hexwraith Flame" }, { id: "CIT_CO_Magmadroth_Flame", name: "Magmadroth Flame" }, { id: "CIT_CO_Baal_Red", name: "Baal Red" }, { id: "CIT_CO_Doomfire_Magenta", name: "Doomfire Magenta" }, { id: "CIT_CO_Sigvald_Burgundy", name: "Sigvald Burgundy" }, { id: "CIT_CO_Luxion_Purple", name: "Luxion Purple" }, { id: "CIT_CO_Leviathan_Purple", name: "Leviathan Purple" }, { id: "CIT_CO_Celestium_Blue", name: "Celestium Blue" }, { id: "CIT_CO_Asurmen_Blue", name: "Asurmen Blue" }, { id: "CIT_CO_Pylar_Glacier", name: "Pylar Glacier" }, { id: "CIT_CO_Frostheart", name: "Frostheart" }, { id: "CIT_CO_Briar_Queen_Chill", name: "Briar Queen Chill" }, { id: "CIT_CO_Kroxigor_Scales", name: "Kroxigor Scales" }, { id: "CIT_CO_Imperial_Fist", name: "Imperial Fist" }, { id: "CIT_CO_Bad_Moon_Yellow", name: "Bad Moon Yellow" }, { id: "CIT_CO_Striking_Scorpion_Green", name: "Striking Scorpion Green" }, { id: "CIT_CO_Karandras_Green", name: "Karandras Green" }, { id: "CIT_CO_Gutrippa_Flesh", name: "Gutrippa Flesh" }, { id: "CIT_CO_Ratling_Grime", name: "Ratling Grime" }, { id: "CIT_CO_Garaghaks_Sewer", name: "Garaghak''s Sewer" }, { id: "CIT_CO_Dreadful_Visage", name: "Dreadful Visage" }, { id: "CIT_CO_Stormfiend", name: "Stormfiend" }, { id: "CIT_CO_Ironjawz_Yellow", name: "Ironjawz Yellow" }, { id: "CIT_CO_Aeldari_Emerald", name: "Aeldari Emerald" }, { id: "CIT_CO_Mantis_Warriors_Green", name: "Mantis Warriors Green" },
   ],
   citadelDry: [
     { id: "CIT_DR_Astorath_Red", name: "Astorath Red", hex: "#A9311E" },
@@ -707,7 +711,16 @@ export const COLORS = {
     { id: "CIT_GL_Lamenters_Yellow", name: "Lamenters Yellow", hex: "#FFF56B" },
     { id: "CIT_GL_Waywatcher_Green", name: "Waywatcher Green", hex: "#6DC066" },
   ],
-  citadelFoundation: [
+
+  citadelShadeDisc: [
+    { id: "CIT_SH_Coelia_Greenshade", name: "Coelia Greenshade" }, { id: "CIT_SH_Cryptek_Armourshade_Gloss", name: "Cryptek Armourshade Gloss" }, { id: "CIT_SH_Reikland_Fleshshade_Gloss", name: "Reikland Fleshshade Gloss" }, { id: "CIT_SH_Seraphim_Sepia", name: "Seraphim Sepia" },
+  ],
+  citadelDryDisc: [
+    { id: "CIT_DR_Changeling_Pink", name: "Changeling Pink" }, { id: "CIT_DR_Chronus_Blue", name: "Chronus Blue" }, { id: "CIT_DR_Hellion_Green", name: "Hellion Green" }, { id: "CIT_DR_Kindleflame", name: "Kindleflame" }, { id: "CIT_DR_Sigmarite", name: "Sigmarite" }, { id: "CIT_DR_Slaanesh_Grey", name: "Slaanesh Grey" }, { id: "CIT_DR_Thunderhawk_Blue", name: "Thunderhawk Blue" }, { id: "CIT_DR_Verminlord_Hide", name: "Verminlord Hide" },
+  ],
+  citadelTechnicalDisc: [
+    { id: "CIT_TE_Armageddon_Dunes", name: "Armageddon Dunes" }, { id: "CIT_TE_Astrogranite_Debris", name: "Astrogranite Debris" }, { id: "CIT_TE_Stirland_Battlemire", name: "Stirland Battlemire" }, { id: "CIT_TE_Hexwraith_Flame", name: "Hexwraith Flame" }, { id: "CIT_TE_Nighthaunt_Gloom", name: "Nighthaunt Gloom" },
+  ],  citadelFoundation: [
     { id: "CIT_FO_Adeptus_Battlegrey", name: "Adeptus Battlegrey", hex: "#4A4C58" },
     { id: "CIT_FO_Astronomicon_Grey", name: "Astronomicon Grey", hex: "#93ABAF" },
     { id: "CIT_FO_Bad_Moon_Yellow", name: "Bad Moon Yellow", hex: "#FFF200" },
@@ -3885,6 +3898,15 @@ export const COLORS = {
     { id: "73.820", name: "Snow", hex: "#FFFFFF" },
     { id: "73.828", name: "Wet Effects", hex: "#BDBAA7" },
   ],
+  vallejoPigmentFX: [
+    { id: "73.101", name: "Titanium White" }, { id: "73.102", name: "Light Yellow Ochre" }, { id: "73.103", name: "Dark Yellow Ochre" }, { id: "73.104", name: "Light Sienna" }, { id: "73.105", name: "Natural Sienna" }, { id: "73.106", name: "Burnt Sienna" }, { id: "73.107", name: "Dark Red Ochre" }, { id: "73.108", name: "Brown Iron Oxide" }, { id: "73.109", name: "Natural Umber" }, { id: "73.110", name: "Burnt Umber" }, { id: "73.111", name: "Green Earth" }, { id: "73.112", name: "Chrome Oxide Green" }, { id: "73.113", name: "Light Slate Grey" }, { id: "73.114", name: "Dark Slate Grey" }, { id: "73.115", name: "Natural Iron Oxide" }, { id: "73.116", name: "Carbon Black (Smoke Black)" }, { id: "73.117", name: "Rust" }, { id: "73.118", name: "New Rust" }, { id: "73.119", name: "European Earth" }, { id: "73.120", name: "Old Rust" }, { id: "73.121", name: "Desert Dust" }, { id: "73.122", name: "Faded Olive Green" }, { id: "73.123", name: "Dark Steel" }, { id: "73.124", name: "Mid Orient Dust" }, { id: "73.125", name: "Loam Brown" }, { id: "73.126", name: "Wood Green" }, { id: "73.127", name: "Khaki Green" }, { id: "73.128", name: "Blue Grey" }, { id: "73.129", name: "Brown Dry Leaves" }, { id: "26.233", name: "Pigment Binder" },
+  ],
+  vallejoEccentric: [
+    { id: "77.001", name: "Violet/Old Copper" }, { id: "77.002", name: "Light Violet/Green" }, { id: "77.003", name: "Orange/Violet" }, { id: "77.004", name: "Electric Blue/Intense Violet" }, { id: "77.005", name: "Green/Blue Violet" }, { id: "77.006", name: "Gold/Pale Blue" }, { id: "77.007", name: "Pearl/Violet" }, { id: "77.008", name: "Green Gold/Cold Blue" }, { id: "77.009", name: "Turquoise/Violet" }, { id: "77.010", name: "Emerald Green/Mauve" }, { id: "77.011", name: "Old Silver/Violet" }, { id: "77.012", name: "Silver/Pink" }, { id: "77.013", name: "Bright Gold/Brown" }, { id: "77.014", name: "Old Gold/Grey Violet" }, { id: "77.015", name: "Gold Yellow/Burnt Orange" }, { id: "77.016", name: "Red/Gold" }, { id: "77.017", name: "Green/Silver Blue" }, { id: "77.018", name: "Dark Green/Tin" },
+  ],
+  vallejoDioramaFX: [
+    { id: "26.201", name: "Transparent Water" }, { id: "26.202", name: "Mediterranean Blue" }, { id: "26.203", name: "Pacific Blue" }, { id: "26.204", name: "Atlantic Blue" }, { id: "26.211", name: "White Stone" }, { id: "26.212", name: "Rough White Pumice" }, { id: "26.213", name: "Rough Grey Pumice" }, { id: "26.214", name: "Black Lava-Asphalt" }, { id: "26.215", name: "Grey Sand" }, { id: "26.217", name: "Desert Sand" }, { id: "26.218", name: "Dark Earth" }, { id: "26.219", name: "Brown Earth" }, { id: "26.220", name: "Swamp Water" }, { id: "26.221", name: "Muddy Water" }, { id: "26.222", name: "Brown Water" }, { id: "26.223", name: "Tropical Blue" }, { id: "26.224", name: "River Water" }, { id: "26.230", name: "Still Water" }, { id: "26.231", name: "Foam" }, { id: "26.232", name: "Grey Sand" }, { id: "26.235", name: "Still Water" }, { id: "26.301", name: "Alkaline White 0.5-1 mm" }, { id: "26.302", name: "Alkaline White 1-2 mm" }, { id: "26.303", name: "Alkaline White 2-5 mm" }, { id: "26.304", name: "Mars Red 0.2-0.6 mm" }, { id: "26.305", name: "Mars Red 1-2 mm" }, { id: "26.306", name: "Mars Red 2-5 mm" }, { id: "26.307", name: "Granite Grey 0.2-0.6 mm" }, { id: "26.308", name: "Granite Grey 0.5-2 mm" }, { id: "26.309", name: "Granite Grey 2-5 mm" }, { id: "26.310", name: "Moss Green 0.1-1 mm" }, { id: "26.311", name: "Moss Green 0.5-2 mm" }, { id: "26.312", name: "Moss Green 2-5 mm" }, { id: "26.313", name: "Arid Yellow 0.1-0.6 mm" }, { id: "26.314", name: "Arid Yellow 0.5-2 mm" }, { id: "26.315", name: "Arid Yellow 2-5 mm" }, { id: "26.316", name: "Vulcan Black 0.1-0.6 mm" }, { id: "26.317", name: "Vulcan Black 0.1-2 mm" }, { id: "26.318", name: "Vulcan Black 2-5 mm" }, { id: "26.319", name: "Warm Orange 0.1-0.6 mm" }, { id: "26.320", name: "Warm Orange 0.1-1 mm" }, { id: "26.321", name: "Warm Orange 1-2 mm" }, { id: "26.322", name: "Terrain Fixer" }, { id: "26.591", name: "Transparent Water" }, { id: "26.807", name: "European Mud" }, { id: "26.808", name: "Russian Mud" }, { id: "26.809", name: "Industrial Mud" }, { id: "26.810", name: "Light Brown Mud" }, { id: "26.811", name: "Brown Mud" }, { id: "26.812", name: "Black Mud" }, { id: "26.820", name: "Snow" },
+  ],
 
 
   // ── Army Painter — missed sections ──────────────────────────────────────────
@@ -6456,6 +6478,9 @@ export const SECTION_LABELS = {
   vallejoMetalColor:     "Vallejo — Metal Color",
   vallejoWashFX:         "Vallejo — Wash FX",
   vallejoWeatheringFX:   "Vallejo — Weathering FX",
+  vallejoPigmentFX:      "Vallejo — Pigment FX",
+  vallejoEccentric:      "Vallejo — Eccentric Color Series",
+  vallejoDioramaFX:      "Vallejo — Diorama FX",
   s75Warfront:           "Scale 75 — Warfront",
   s75FX:                 "Scale 75 — FX Range",
   s75Primers:            "Scale 75 — Primers",
@@ -6475,7 +6500,10 @@ export const SECTION_LABELS = {
   citadelTechnical:        "Citadel — Technical",
   citadelAir:              "Citadel — Air",
   citadelSpray:            "Citadel — Spray",
-  citadelGlaze:            "Citadel — Glaze",
+  citadelGlaze:            "Citadel — Glaze (discontinued)",
+  citadelShadeDisc:        "Citadel — Shade (discontinued)",
+  citadelDryDisc:          "Citadel — Dry (discontinued)",
+  citadelTechnicalDisc:    "Citadel — Technical (discontinued)",
   citadelFoundation:       "Citadel — Foundation (discontinued)",
   // ── Army Painter ──
   apFanatic:               "Army Painter — Warpaints Fanatic",
@@ -6588,13 +6616,16 @@ export const TAXONOMY = [
     { id:'cit_main',label:'Paint Range',sections:[
       {key:'citadelBase',display:'Base'},{key:'citadelLayer',display:'Layer'},
       {key:'citadelShade',display:'Shade'},{key:'citadelContrast',display:'Contrast'},
-      {key:'citadelDry',display:'Dry'},{key:'citadelTechnical',display:'Technical'},
-      {key:'citadelGlaze',display:'Glaze'}]},
+      {key:'citadelDry',display:'Dry'},{key:'citadelTechnical',display:'Technical'}]},
     { id:'cit_spray',label:'Spray & Air',sections:[
       {key:'citadelAir',display:'Air'},{key:'citadelSpray',display:'Spray'}]},
     { id:'cit_disc',label:'Discontinued',sections:[
       {key:'citadelFoundation',display:'Foundation'},
-      {key:'citadelFoundationWash',display:'Foundation Wash'}]},
+      {key:'citadelFoundationWash',display:'Foundation Wash'},
+      {key:'citadelGlaze',display:'Glaze'},
+      {key:'citadelShadeDisc',display:'Shade (Disc.)'},
+      {key:'citadelDryDisc',display:'Dry (Disc.)'},
+      {key:'citadelTechnicalDisc',display:'Technical (Disc.)'}]},
   ]},
   { id:'vallejo',label:'Vallejo',color:'#e94560', lines:[
     { id:'v_mecha',label:'Mecha Color',sections:[
@@ -6616,13 +6647,16 @@ export const TAXONOMY = [
     { id:'v_tmm',label:'True Metal',sections:[
       {key:'tmmLight',display:'Light'},{key:'tmmBase',display:'Base'},
       {key:'tmmShade',display:'Shade'},{key:'tmmAirbrush',display:'Airbrush'}]},
-    { id:'v_fx',label:'FX & Wash',sections:[
-      {key:'vallejoWashFX',display:'Wash FX'},{key:'vallejoWeatheringFX',display:'Weathering FX'}]},
+    { id:'v_fx',label:'FX',sections:[
+      {key:'vallejoWashFX',display:'Wash FX'},{key:'vallejoWeatheringFX',display:'Weathering FX'},
+      {key:'vallejoPigmentFX',display:'Pigment FX'}]},
     { id:'v_airbrush',label:'Premium Airbrush',sections:[
       {key:'vallejoPremiumAirbrush',display:'Premium Airbrush Color'}]},
     { id:'v_liquidgold',label:'Liquid Gold',sections:[
       {key:'vallejoLiquidGold',display:'Liquid Gold'}]},
     { id:'v_primer',label:'Surface Primer',sections:[{key:'vallejoSurfacePrimer',display:'Surface Primer'}]},
+    { id:'v_eccentric',label:'Eccentric Color',sections:[{key:'vallejoEccentric',display:'Eccentric Color'}]},
+    { id:'v_diorama',label:'Diorama FX',sections:[{key:'vallejoDioramaFX',display:'Diorama FX'}]},
   ]},
   { id:'armypainter_all',label:'Army Painter',color:'#d04010', lines:[
     { id:'ap_fanatic',label:'Warpaints Fanatic',sections:[
