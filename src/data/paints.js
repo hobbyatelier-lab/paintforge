@@ -6636,27 +6636,25 @@ export const TAXONOMY = [
       {key:'gamecolor',display:'Base Colors'},{key:'metallic',display:'Metallic'},
       {key:'ink',display:'Ink'},{key:'fluo',display:'Fluo'},
       {key:'specialfx',display:'Special FX'},{key:'wash',display:'Wash'},
+      {key:'vallejoGameAir',display:'Game Air'},
       {key:'gamecolorDisc',display:'Base (Discontinued)'},
       {key:'washDisc',display:'Wash (Discontinued)'}]},
-    { id:'v_gameair',label:'Game Air',sections:[{key:'vallejoGameAir',display:'Game Air'}]},
     { id:'v_xpress',label:'Xpress Color',sections:[
       {key:'standard',display:'Standard'},{key:'intense',display:'Intense'}]},
-    { id:'v_mc',label:'Model Color',sections:[{key:'vallejoModelColor',display:'Model Color'}]},
-    { id:'v_air',label:'Model Air',sections:[{key:'vallejoModelAir',display:'Model Air'}]},
-    { id:'v_metalcolor',label:'Metal Color',sections:[{key:'vallejoMetalColor',display:'Metal Color'}]},
+    { id:'v_mc',label:'Model Color',sections:[{key:'vallejoModelColor',display:'Model Color'},{key:'vallejoModelAir',display:'Model Air'}]},
+    { id:'v_metalcolor',label:'Metallics',sections:[{key:'vallejoMetalColor',display:'Metal Color'},{key:'vallejoLiquidGold',display:'Liquid Gold'}]},
     { id:'v_tmm',label:'True Metal',sections:[
       {key:'tmmLight',display:'Light'},{key:'tmmBase',display:'Base'},
       {key:'tmmShade',display:'Shade'},{key:'tmmAirbrush',display:'Airbrush'}]},
     { id:'v_fx',label:'FX',sections:[
       {key:'vallejoWashFX',display:'Wash FX'},{key:'vallejoWeatheringFX',display:'Weathering FX'},
-      {key:'vallejoPigmentFX',display:'Pigment FX'}]},
+      {key:'vallejoPigmentFX',display:'Pigment FX'},{key:'vallejoDioramaFX',display:'Diorama FX'}]},
     { id:'v_airbrush',label:'Premium Airbrush',sections:[
       {key:'vallejoPremiumAirbrush',display:'Premium Airbrush Color'}]},
-    { id:'v_liquidgold',label:'Liquid Gold',sections:[
-      {key:'vallejoLiquidGold',display:'Liquid Gold'}]},
+    
     { id:'v_primer',label:'Surface Primer',sections:[{key:'vallejoSurfacePrimer',display:'Surface Primer'}]},
     { id:'v_eccentric',label:'Eccentric Color',sections:[{key:'vallejoEccentric',display:'Eccentric Color'}]},
-    { id:'v_diorama',label:'Diorama FX',sections:[{key:'vallejoDioramaFX',display:'Diorama FX'}]},
+    
   ]},
   { id:'armypainter_all',label:'Army Painter',color:'#d04010', lines:[
     { id:'ap_fanatic',label:'Warpaints Fanatic',sections:[
@@ -6667,10 +6665,9 @@ export const TAXONOMY = [
       {key:'apWarpaintsWash',display:'Warpaints Wash'},
       {key:'apMetallic',display:'Metallic Colours'},{key:'apSkinTones',display:'Skin Tones'},
       {key:'apSkinTonesWash',display:'Skin Tones Wash'}]},
-    { id:'ap_sp2',label:'Speedpaint 2.0',sections:[
+    { id:'ap_sp2',label:'Speedpaint',sections:[
       {key:'apSpeedpaint2',display:'Speedpaint 2.0'},
-      {key:'apSpeedpaint2Metallic',display:'Metallic'}]},
-    { id:'ap_sp1',label:'Speedpaint 1.0',sections:[
+      {key:'apSpeedpaint2Metallic',display:'Metallic 2.0'},
       {key:'apSpeedpaint1',display:'Speedpaint 1.0'}]},
     { id:'ap_dnd',label:'D&D Nolzurs',sections:[
       {key:'apDnDBase',display:'Nolzurs Marvelous Pigments'},
