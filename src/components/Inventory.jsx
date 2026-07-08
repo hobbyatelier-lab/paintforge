@@ -100,7 +100,7 @@ export default function Inventory({ user }) {
       let rows = [], from = 0, keepGoing = true
       while (keepGoing) {
         const { data, error } = await supabase
-          .from('paints').select('id,section_key,name,hex,finish_family,chemistry_family')
+          .from('paints').select('id,section_key,name,hex,finish_family,chemistry_family,lab_l,lab_a,lab_b')
           .range(from, from + PAGE - 1)
         if (error || !data) return { data: null, error: error || new Error('no data') }
         rows = [...rows, ...data]
