@@ -119,7 +119,7 @@ export function rankSubstitutes(targetPaint, { tier, finishExpand, userPaints, c
 
   // ── Pre-filter ────────────────────────────────────────────────
   const candidates = catalog.filter(p => {
-    if (p.id === targetPaint.id && p.section_key === targetPaint.section_key) return false
+    if (p.id === targetPaint.id) return false   // exclude all sections of same paint code
     if (!p.lab_l && p.lab_l !== 0) return false   // no LAB
     if (!p.hex)                    return false   // no hex
     if (!p.finish_family)          return false   // pending — exclude

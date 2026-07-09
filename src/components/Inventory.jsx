@@ -405,6 +405,9 @@ export default function Inventory({ user }) {
         checked={checked}
         mySet={mySet}
         hiddenSections={hiddenSections}
+        toggleMySet={toggleMySet}
+        onShop={handleShopList}
+        onBrandFilter={()=>setShowBrandFilter(true)}
         onClose={()=>setSubPaint(null)}
       />
             </div>
