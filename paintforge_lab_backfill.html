@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PaintForge — LAB Backfill</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#141414;color:#e8e8e8;font-family:'Segoe UI',system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px}
+  .card{background:#1E2428;border:1px solid #2a3535;border-radius:12px;padding:32px;width:100%;max-width:560px}
+  h1{color:#36E2DD;font-size:20px;margin-bottom:4px}
+  .sub{color:#666;font-size:13px;margin-bottom:24px}
+  label{display:block;font-size:12px;color:#888;margin-bottom:6px;margin-top:16px}
+  input{width:100%;padding:10px 12px;background:#141414;border:1px solid #2a3535;border-radius:6px;color:#e8e8e8;font-size:13px;font-family:monospace}
+  input:focus{outline:none;border-color:#36E2DD}
+  button{width:100%;margin-top:24px;padding:12px;background:#36E2DD;color:#0A1414;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer}
+  button:disabled{background:#1E3535;color:#36E2DD44;cursor:not-allowed}
+  .progress-wrap{margin-top:20px;display:none}
+  .bar-bg{background:#141414;border-radius:4px;height:8px;overflow:hidden;margin-bottom:10px}
+  .bar{background:#36E2DD;height:100%;width:0%;transition:width 0.3s;border-radius:4px}
+  .status{font-size:13px;color:#aaa;margin-bottom:8px}
+  .log{background:#141414;border:1px solid #2a3535;border-radius:6px;padding:12px;font-family:monospace;font-size:12px;max-height:220px;overflow-y:auto;color:#666}
+  .ok{color:#36E2DD}.err{color:#e05050}.done{color:#60d060;font-weight:bold}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🎨 PaintForge LAB Backfill</h1>
+  <p class="sub">Computes LAB values for every paint with a hex and writes lab_l / lab_a / lab_b to Supabase.</p>
+
+  <label>Supabase Project URL</label>
+  <input id="url" type="text" placeholder="https://yourproject.supabase.co" />
+
+  <label>Service Role Key</label>
+  <input id="key" type="password" placeholder="eyJh..." />
+
+  <button id="btn" onclick="run()">Run Backfill</button>
+
+  <div class="progress-wrap" id="progress">
+    <div class="status" id="status">Starting…</div>
+    <div class="bar-bg"><div class="bar" id="bar"></div></div>
+    <div class="log" id="log"></div>
+  </div>
+</div>
+
+<script>
+// ── hexToLab (self-contained, no deps) ───────────────────────────
+function hexToLab(hex) {
+  const n = parseInt(hex.slice(1), 16)
+  let [r, g, b] = [(n>>16)&255, (n>>8)&255, n&255].map(v => v/255)
+  const lin = c => c <= 0.04045 ? c/12.92 : Math.pow((c+0.055)/1.055, 2.4)
+  ;[r, g, b] = [lin(r), lin(g), lin(b)]
+  const X = r*0.4124564 + g*0.3575761 + b*0.1804375
+  const Y = r*0.2126729 + g*0.7151522 + b*0.0721750
+  const Z = r*0.0193339 + g*0.1191920 + b*0.9503041
+  const f = t => t > 0.008856 ? Math.cbrt(t) : 7.787*t + 16/116
+  const [fx, fy, fz] = [f(X/0.95047), f(Y/1.0), f(Z/1.08883)]
+  return { L: 116*fy-16, a: 500*(fx-fy), b: 200*(fy-fz) }
+}
+
+function log(msg, cls='') {
+  const el = document.getElementById('log')
+  el.innerHTML += `<div class="${cls}">${msg}</div>`
+  el.scrollTop = el.scrollHeight
+}
+
+async function run() {
+  const url = 'https://cxpydnchumwvemvhyetm.supabase.co'
+const key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN4cHlkbmNodW13dmVtdmh5ZXRtIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MzA3OTY1OCwiZXhwIjoyMDk4NjU1NjU4fQ.qbS8GfvpbI4fjqOaqZOmRbhmoNBjpNgwmcCF3G_JX54'
+  if (!url || !key) { alert('Fill in both fields.'); return }
+
+  document.getElementById('btn').disabled = true
+  document.getElementById('progress').style.display = 'block'
+  document.getElementById('log').innerHTML = ''
+
+  const client = supabase.createClient(url, key)
+
+  // ── 1. Fetch all paints with hex (paginated, PAGE=1000) ─────────
+  log('Fetching paints with hex…')
+  let allPaints = [], from = 0, PAGE = 1000, keepGoing = true
+  while (keepGoing) {
+    const { data, error } = await client
+      .from('paints')
+      .select('id,section_key,name,hex')
+      .not('hex','is',null)
+      .range(from, from + PAGE - 1)
+    if (error) { log('Fetch failed: ' + error.message, 'err'); return }
+    allPaints = [...allPaints, ...data]
+    keepGoing = data.length === PAGE
+    from += PAGE
+  }
+  log(`Found ${allPaints.length} paints with hex values`, 'ok')
+
+  // ── 2. Compute LAB for each ─────────────────────────────────────
+  const rows = allPaints.map(p => {
+    const lab = hexToLab(p.hex)
+    return {
+      id: p.id,
+      section_key: p.section_key, name: p.name,
+      lab_l: Math.round(lab.L * 10000) / 10000,
+      lab_a: Math.round(lab.a * 10000) / 10000,
+      lab_b: Math.round(lab.b * 10000) / 10000,
+    }
+  })
+
+  // Sanity check first row
+  const first = allPaints[0]
+  const check = hexToLab(first.hex)
+  log(`Sanity: ${first.hex} → L=${check.L.toFixed(2)}, a=${check.a.toFixed(2)}, b=${check.b.toFixed(2)}`)
+
+  // ── 3. Upsert in batches of 500 ─────────────────────────────────
+  const BATCH = 500
+  const batches = Math.ceil(rows.length / BATCH)
+  let done = 0
+
+  for (let i = 0; i < rows.length; i += BATCH) {
+    const batch = rows.slice(i, i + BATCH)
+    const batchNum = Math.floor(i / BATCH) + 1
+    const { error } = await client
+      .from('paints')
+      .upsert(batch, { onConflict: 'id,section_key' })
+    if (error) {
+      log(`Batch ${batchNum} failed: ${error.message}`, 'err')
+      document.getElementById('btn').disabled = false
+      return
+    }
+    done += batch.length
+    const pct = Math.round(done / rows.length * 100)
+    document.getElementById('bar').style.width = pct + '%'
+    document.getElementById('status').textContent = `Batch ${batchNum}/${batches} — ${done}/${rows.length} rows (${pct}%)`
+    log(`✓ Batch ${batchNum}/${batches} — ${done} rows`, 'ok')
+  }
+
+  document.getElementById('bar').style.width = '100%'
+  document.getElementById('status').textContent = '✅ Done!'
+  log(`All ${rows.length} LAB values written. M1 complete.`, 'done')
+}
+</script>
+</body>
+</html>

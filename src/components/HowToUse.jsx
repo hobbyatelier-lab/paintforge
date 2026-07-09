@@ -146,6 +146,32 @@ export default function HowToUse({ onClose, dontShow, onDontShowChange }) {
           )}
           {tip('My Set is what you track against — the progress bars and section counters show My Set first, Collection second.')}
 
+          {/* Paint Types */}
+          <div style={H}>Paint types</div>
+          <div style={S}>PaintForge uses one vocabulary across all brands — "matt," "matte," and "flat" all become <strong>flat</strong>. Here's what each type means in IrisMatch, which only ever compares paints of the same type.</div>
+          <div style={{ marginTop:8, marginBottom:4 }}>
+            {[
+              ['Flat',            'No shine when dry. Matt, matte, flat — all the same.'],
+              ['Satin',           'Soft sheen between flat and gloss. Semi-gloss and silk live here.'],
+              ['Gloss',           'Fully shiny when dry.'],
+              ['Metallic',        'Metal-flake or mica particles. Swatch shows dominant tone, not the sparkle.'],
+              ['Wash / Shade',    'Very thin, flows into recesses. Looks like a color on screen but gives a translucent puddle on a model. Washes match only washes.'],
+              ['One-coat',        'Translucent — final color depends on undercoat and pooling. Contrast, Speedpaint, Xpress Color. Matches only other one-coats.'],
+              ['Ink',             'Transparent high-intensity pigment for glazing. Inks match inks.'],
+              ['Glaze',           'Diluted color for shifting hue on highlights. Glazes match glazes.'],
+              ['Dry',             'Heavily pigmented, fast-drying, for drybrushing. Warhammer Colour Dry range.'],
+              ['Primer',          'Surface prep. Primers match only other primers.'],
+              ['Varnish',         'Protective clear coat. Never in color matching.'],
+              ['Auxiliary',       'Thinners, mediums, flow improvers. No color. Never in color matching.'],
+            ].map(([t, d]) => (
+              <div key={t} style={{ display:'flex', gap:8, padding:'4px 0', borderBottom:'1px solid #141e1e', fontSize:11 }}>
+                <div style={{ minWidth:96, flexShrink:0, color:'#36E2DD', fontWeight:600 }}>{t}</div>
+                <div style={{ color:'#8AABAB', lineHeight:1.5 }}>{d}</div>
+              </div>
+            ))}
+          </div>
+          {tip('Tap the ? next to "Type" inside IrisMatch for the full glossary including the sheen honesty note.')}
+
           {/* Navigating the list */}
           <div style={H}>Navigating the list</div>
           <div style={{ borderRadius:8, overflow:'hidden', border:'1px solid #252E2E', marginBottom:8 }}>

@@ -113,9 +113,9 @@ export function deltaE2000(lab1, lab2) {
 
 const SHEEN_TRIO      = new Set(['flat', 'satin', 'gloss'])
 const EXCLUDED_TYPES  = new Set([
-  'auxiliary','colorshift','pigment',           // never color-matchable
-  'primer','contrast_primer','metallic_primer', // functional products
-  'varnish','satin_varnish',                   // protective coats
+  'auxiliary','colorshift','pigment',  // never color-matchable
+  'varnish','satin_varnish',           // protective coats
+  // primers are NOT excluded — a primer matches other primers via the finish rule
 ])
 
 export function rankSubstitutes(targetPaint, { tier, finishExpand, userPaints, catalog, brandFilter = new Set() }) {

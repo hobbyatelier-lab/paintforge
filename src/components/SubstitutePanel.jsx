@@ -94,11 +94,14 @@ function PaintInfo({ paint, emptyLabel }) {
 }
 
 // ── Attribute comparison ───────────────────────────────────────────
-function AttrRow({ label, val1, val2 }) {
+function AttrRow({ label, val1, val2, onInfo }) {
   const same = val1 && val2 && val1 === val2
   return (
     <div style={{ display:'flex', alignItems:'center', gap:6, fontSize:10, padding:'3px 0' }}>
-      <span style={{ color:'#8AABAB', width:64, flexShrink:0 }}>{label}</span>
+      <div style={{ display:'flex', alignItems:'center', gap:3, width:64, flexShrink:0 }}>
+        <span style={{ color:'#8AABAB' }}>{label}</span>
+        {onInfo && <button onClick={onInfo} style={{ background:'none', border:`1px solid #2a3535`, color:'#4a6060', borderRadius:'50%', width:13, height:13, cursor:'pointer', fontSize:8, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, padding:0 }}>?</button>}
+      </div>
       <span style={{ flex:1, color:'#8AABAB', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', textAlign:'left' }}>{val1||'—'}</span>
       <span style={{ fontSize:13, flexShrink:0, color: same ? '#4caf50' : (val1&&val2) ? '#E8A838' : '#3a5050' }}>
         {same ? '✓' : val1&&val2 ? '⚠' : '—'}
@@ -287,6 +290,7 @@ export default function SubstitutePanel({
   const [finishExpand, setFinishExpand] = useState(false)
   const [selected,     setSelected]     = useState(null)
   const [showTooltip,  setShowTooltip]  = useState(false)
+  const [showGlossary, setShowGlossary] = useState(false)
 
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 640
 
@@ -336,7 +340,8 @@ export default function SubstitutePanel({
 
   return (
     <>
-      {showTooltip && <DeltaTooltip onClose={()=>setShowTooltip(false)} />}
+      {showTooltip  && <DeltaTooltip  onClose={()=>setShowTooltip(false)}  />}
+      {showGlossary && <GlossaryPopup onClose={()=>setShowGlossary(false)} />}
 
       <div onClick={onClose} style={{
         position:'fixed', inset:0, background:'rgba(0,0,0,0.65)', zIndex:1100,
@@ -393,7 +398,8 @@ export default function SubstitutePanel({
             {/* Attribute comparison */}
             {candidate && (
               <div style={{ marginTop:10, padding:'8px 10px', background:BG_DEEP, borderRadius:6 }}>
-                <AttrRow label='Type'    val1={paint.finish_family}    val2={candidate.finish_family}    />
+                <AttrRow label='Type'    val1={paint.finish_family}    val2={candidate.finish_family}
+                  onInfo={()=>setShowGlossary(true)} />
                 <AttrRow label='Chemistry' val1={paint.chemistry_family} val2={candidate.chemistry_family} />
                 <AttrRow label='Section'   val1={sec1} val2={sec2} />
               </div>
