@@ -146,6 +146,16 @@ export default function HowToUse({ onClose, dontShow, onDontShowChange }) {
           )}
           {tip('My Set is what you track against — the progress bars and section counters show My Set first, Collection second.')}
 
+          {/* Tapping a paint name */}
+          <div style={H}>Tapping a paint name</div>
+          <div style={S}>Tap any paint name in the list to open its <strong>detail panel</strong> — swatch, code, brand, type and chemistry. From there you can launch tools specific to that paint:</div>
+          <div style={{ marginTop:8 }}>
+            {row(
+              <span style={{ color:'#C084FC', fontWeight:700, fontSize:11 }}>IrisMatch</span>,
+              'Find the closest substitute for that paint across your inventory or the full catalog. Uses real color science (ΔE 2000).'
+            )}
+          </div>
+
           {/* Paint Types */}
           <div style={H}>Paint types</div>
           <div style={S}>PaintForge uses one vocabulary across all brands — "matt," "matte," and "flat" all become <strong>flat</strong>. Here's what each type means in IrisMatch, which only ever compares paints of the same type.</div>
@@ -197,7 +207,7 @@ export default function HowToUse({ onClose, dontShow, onDontShowChange }) {
               </span>
             </div>
             <div style={{ background:'#111818', padding:'4px 10px 4px 22px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-              <span style={{ fontSize:11,fontWeight:700,color:'#9B8FD0',textTransform:'uppercase',letterSpacing:'0.07em' }}>BASE COLORS</span>
+              <span style={{ fontSize:11,fontWeight:700,color:'#9B8FD0',textTransform:'uppercase',letterSpacing:'0.07em',display:'flex',alignItems:'center',gap:5 }}>BASE COLORS <span style={{ fontSize:9,fontWeight:400,color:'#9B8FD0',opacity:0.45,textTransform:'none',letterSpacing:'normal' }}>— flat · waterborne_acrylic</span></span>
               <span style={{ fontSize:9,display:'flex',gap:4,alignItems:'center' }}>
                 <span style={{ color:PURPLE,fontWeight:700 }}>♦</span>
                 <span style={{ color:PURPLE,fontWeight:600 }}>51</span><span style={{ color:PURPLE,opacity:0.7 }}>/51</span>
@@ -207,7 +217,7 @@ export default function HowToUse({ onClose, dontShow, onDontShowChange }) {
               </span>
             </div>
           </div>
-          <div style={S}>Three collapsible levels — tap any header to expand or collapse. <span style={{ color:BRAND_CYAN,fontWeight:600 }}>Cyan = brand</span>. <span style={{ color:AMBER,fontWeight:600 }}>Amber = product line</span>. <span style={{ color:'#9B8FD0',fontWeight:600 }}>Violet = section</span>.</div>
+          <div style={S}>Three collapsible levels — tap any header to expand or collapse. <span style={{ color:BRAND_CYAN,fontWeight:600 }}>Cyan = brand</span>. <span style={{ color:AMBER,fontWeight:600 }}>Amber = product line</span>. <span style={{ color:'#9B8FD0',fontWeight:600 }}>Violet = section</span>. Section headers also show the paint <strong>type and chemistry</strong> in muted text when classified — for example, <em>flat · waterborne_acrylic</em>.</div>
           <div style={{ ...S, marginTop:6 }}>Each header shows <span style={{ color:PURPLE,fontWeight:600 }}>♦ owned/total</span> <span style={{ color:AMBER,fontWeight:600 }}>(missing)</span> for your <span style={{ color:PURPLE,fontWeight:600 }}>My Set</span>, then <span style={{ color:BRAND_CYAN,fontWeight:600 }}>owned/total</span> <span style={{ color:AMBER,fontWeight:600 }}>(missing)</span> for your <span style={{ color:BRAND_CYAN,fontWeight:600 }}>Collection</span>. Missing only shows when non-zero.</div>
 
           {/* Content filters */}

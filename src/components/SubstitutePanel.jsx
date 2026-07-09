@@ -100,7 +100,7 @@ function AttrRow({ label, val1, val2, onInfo }) {
     <div style={{ display:'flex', alignItems:'center', gap:6, fontSize:10, padding:'3px 0' }}>
       <div style={{ display:'flex', alignItems:'center', gap:3, width:64, flexShrink:0 }}>
         <span style={{ color:'#8AABAB' }}>{label}</span>
-        {onInfo && <button onClick={onInfo} style={{ background:'none', border:`1px solid #2a3535`, color:'#4a6060', borderRadius:'50%', width:13, height:13, cursor:'pointer', fontSize:8, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, padding:0 }}>?</button>}
+        {onInfo && <button onClick={onInfo} style={{ background:'none', border:`1px solid #2a3535`, color:'#4a6060', borderRadius:'50%', width:18, height:18, cursor:'pointer', fontSize:10, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, padding:0, color:'#8AABAB' }}>?</button>}
       </div>
       <span style={{ flex:1, color:'#8AABAB', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', textAlign:'left' }}>{val1||'—'}</span>
       <span style={{ fontSize:13, flexShrink:0, color: same ? '#4caf50' : (val1&&val2) ? '#E8A838' : '#3a5050' }}>
@@ -297,7 +297,7 @@ export default function SubstitutePanel({
   useEffect(()=>{ setSelected(null) }, [paint?.id, paint?.section_key])
 
   useEffect(()=>{
-    const h = e => { if(e.key==='Escape'){ if(showTooltip) setShowTooltip(false); else onClose() } }
+    const h = e => { if(e.key==='Escape'){ if(showGlossary) setShowGlossary(false); else if(showTooltip) setShowTooltip(false); else onClose() } }
     window.addEventListener('keydown', h)
     return ()=>window.removeEventListener('keydown', h)
   }, [onClose, showTooltip])
