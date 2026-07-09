@@ -188,7 +188,7 @@ const GLOSS_TYPES = [
     ]},
   { heading: 'Specialty paints', items: [
     { n:'Metallic',          d:'Color from metal-flake or mica. Swatch shows dominant tone, not the sparkle. Only another metallic is a fair comparison.' },
-    { n:'Wash / Shade',      d:'Very thin, flows into recesses. Looks like a color on screen but gives a translucent puddle on a model. Washes match only washes.' },
+    { n:'Wash',      d:'Very thin, flows into recesses. Looks like a color on screen but gives a translucent puddle on a model. Washes match only washes.' },
     { n:'One-coat',          d:'Translucent by design — final color depends on undercoat and pooling. Contrast, Speedpaint, Xpress Color. Matches only other one-coats.' },
     { n:'Transparent color', d:'Deliberately clear tinting paints and candy effects.' },
     { n:'Ink',               d:'Transparent high-intensity pigment for glazing and tinting. Inks match inks.' },
@@ -219,7 +219,7 @@ function GlossaryPopup({ onClose }) {
       }}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:16 }}>
           <div>
-            <div style={{ fontSize:15, fontWeight:700, color:'#e8e8e8', marginBottom:3 }}>Paint Types</div>
+            <div style={{ fontSize:15, fontWeight:700, color:'#e8e8e8', marginBottom:3 }}>Item Types Glossary</div>
             <div style={{ fontSize:11, color:'#4a6060', lineHeight:1.5 }}>How PaintForge classifies paint. One vocabulary across all brands.</div>
           </div>
           <button onClick={onClose} style={{ background:'none', border:'none', color:'#4a6060', fontSize:18, cursor:'pointer', padding:'0 4px' }}>✕</button>

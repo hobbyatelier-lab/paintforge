@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import logoUrl from '../assets/logo.svg'
 
 const BRAND_CYAN = '#36E2DD'
@@ -5,9 +6,81 @@ const PURPLE     = '#9060d0'
 const AMBER      = '#E8A838'
 const GREEN      = '#4caf50'
 
+
+// ── Item Types Glossary (shared with IrisMatch ? button) ──────────────────
+const HU_GLOSS_TYPES = [
+  { heading: 'Standard paints',
+    note: "Flat, satin, and gloss aren't lab measurements — they're buckets along a spectrum, and every brand draws the lines differently. Treat the type tag as a strong guide, not a promise.",
+    items: [
+      { n:'Flat',   d:'No shine when dry. Matt, matte, flat — all the same.' },
+      { n:'Satin',  d:'Soft sheen between flat and gloss. Semi-gloss and silk live here.' },
+      { n:'Gloss',  d:'Fully shiny when dry.' },
+    ]},
+  { heading: 'Specialty paints', items: [
+    { n:'Metallic',          d:'Color from metal-flake or mica. Swatch shows dominant tone, not the sparkle. Only another metallic is a fair comparison.' },
+    { n:'Wash',              d:'Very thin, flows into recesses. Looks like a color on screen but gives a translucent puddle on a model. Washes match only washes.' },
+    { n:'One-coat',          d:'Translucent by design — final color depends on undercoat and pooling. Contrast, Speedpaint, Xpress Color. Matches only other one-coats.' },
+    { n:'Transparent color', d:'Deliberately clear tinting paints and candy effects.' },
+    { n:'Ink',               d:'Transparent high-intensity pigment for glazing and tinting. Inks match inks.' },
+    { n:'Glaze',             d:'Diluted color applied over raised areas to gently shift hue. Glazes match glazes.' },
+    { n:'Dry',               d:'Heavily pigmented, fast-drying, for drybrushing. Warhammer Colour (Citadel Colour) Dry range is the canonical example.' },
+    { n:'Pigment',           d:'Dry powder, no liquid vehicle. Different application from all other types.' },
+    { n:'FX',                d:'Special effects — blood, rust, frost, corrosion. Effect first, color second.' },
+  ]},
+  { heading: 'Non-color products', items: [
+    { n:'Primer',    d:'Surface prep. Primers match only other primers, never standard colors.' },
+    { n:'Varnish',   d:'Protective clear coat. Does not appear in color matching.' },
+    { n:'Auxiliary', d:'Thinners, flow improvers, mediums. No color. Does not appear in color matching.' },
+  ]},
+]
+
+function HU_GlossaryPopup({ onClose }) {
+  return (
+    <div onClick={onClose} style={{
+      position:'fixed', inset:0, zIndex:1300,
+      background:'rgba(0,0,0,0.72)',
+      display:'flex', alignItems:'center', justifyContent:'center',
+      fontFamily:"'Montserrat',system-ui,sans-serif", padding:20,
+    }}>
+      <div onClick={e=>e.stopPropagation()} style={{
+        background:'#1E2428', border:'1px solid #2a3535', borderRadius:12,
+        width:'100%', maxWidth:460, maxHeight:'85vh',
+        overflowY:'auto', padding:'20px 20px 24px', color:'#e8e8e8',
+      }}>
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:16 }}>
+          <div>
+            <div style={{ fontSize:15, fontWeight:700, color:'#e8e8e8', marginBottom:3 }}>Item Types Glossary</div>
+            <div style={{ fontSize:11, color:'#4a6060', lineHeight:1.5 }}>How PaintForge classifies paint. One vocabulary across all brands.</div>
+          </div>
+          <button onClick={onClose} style={{ background:'none', border:'none', color:'#4a6060', fontSize:18, cursor:'pointer', padding:'0 4px' }}>✕</button>
+        </div>
+        {HU_GLOSS_TYPES.map((sec, si) => (
+          <div key={si} style={{ marginBottom:18 }}>
+            <div style={{ fontSize:9, color:'#4a6060', textTransform:'uppercase', letterSpacing:'0.1em', fontWeight:700, marginBottom:6, paddingBottom:4, borderBottom:'1px solid #1a2428' }}>
+              {sec.heading}
+            </div>
+            {sec.items.map((item, ii) => (
+              <div key={ii} style={{ display:'flex', gap:10, padding:'4px 0', borderBottom:'1px solid #141a1a' }}>
+                <div style={{ minWidth:110, flexShrink:0, fontSize:11, fontWeight:600, color:'#36E2DD', paddingTop:1 }}>{item.n}</div>
+                <div style={{ fontSize:11, color:'#8AABAB', lineHeight:1.6 }}>{item.d}</div>
+              </div>
+            ))}
+            {sec.note && (
+              <div style={{ marginTop:6, padding:'7px 10px', background:'#141414', borderRadius:6, fontSize:10, color:'#5a7070', lineHeight:1.6, borderLeft:'2px solid #36E2DD30' }}>
+                {sec.note}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default function HowToUse({ onClose, dontShow, onDontShowChange }) {
   // fully controlled — dontShow is seenHowToUse from Inventory, no local copy
 
+  const [showGlossary, setShowGlossary] = useState(false)
   const S  = { fontSize:12, color:'#bbb', lineHeight:1.7 }
   const H  = { fontSize:10, color:'#555', textTransform:'uppercase', letterSpacing:'0.1em', margin:'20px 0 8px', fontWeight:700 }
 
@@ -156,31 +229,13 @@ export default function HowToUse({ onClose, dontShow, onDontShowChange }) {
             )}
           </div>
 
-          {/* Paint Types */}
-          <div style={H}>Paint types</div>
-          <div style={S}>PaintForge uses one vocabulary across all brands — "matt," "matte," and "flat" all become <strong>flat</strong>. Here's what each type means in IrisMatch, which only ever compares paints of the same type.</div>
-          <div style={{ marginTop:8, marginBottom:4 }}>
-            {[
-              ['Flat',            'No shine when dry. Matt, matte, flat — all the same.'],
-              ['Satin',           'Soft sheen between flat and gloss. Semi-gloss and silk live here.'],
-              ['Gloss',           'Fully shiny when dry.'],
-              ['Metallic',        'Metal-flake or mica particles. Swatch shows dominant tone, not the sparkle.'],
-              ['Wash / Shade',    'Very thin, flows into recesses. Looks like a color on screen but gives a translucent puddle on a model. Washes match only washes.'],
-              ['One-coat',        'Translucent — final color depends on undercoat and pooling. Contrast, Speedpaint, Xpress Color. Matches only other one-coats.'],
-              ['Ink',             'Transparent high-intensity pigment for glazing. Inks match inks.'],
-              ['Glaze',           'Diluted color for shifting hue on highlights. Glazes match glazes.'],
-              ['Dry',             'Heavily pigmented, fast-drying, for drybrushing. Warhammer Colour Dry range.'],
-              ['Primer',          'Surface prep. Primers match only other primers.'],
-              ['Varnish',         'Protective clear coat. Never in color matching.'],
-              ['Auxiliary',       'Thinners, mediums, flow improvers. No color. Never in color matching.'],
-            ].map(([t, d]) => (
-              <div key={t} style={{ display:'flex', gap:8, padding:'4px 0', borderBottom:'1px solid #141e1e', fontSize:11 }}>
-                <div style={{ minWidth:96, flexShrink:0, color:'#36E2DD', fontWeight:600 }}>{t}</div>
-                <div style={{ color:'#8AABAB', lineHeight:1.5 }}>{d}</div>
-              </div>
-            ))}
-          </div>
-          {tip('Tap the ? next to "Type" inside IrisMatch for the full glossary including the sheen honesty note.')}
+          {/* Item Types */}
+          <div style={H}>Item types</div>
+          <div style={S}>PaintForge uses one vocabulary across all brands — "matt," "matte," and "flat" all become <strong>flat</strong>. Here's what each type means in IrisMatch, which only ever compares items of the same type.</div>
+          <button onClick={()=>setShowGlossary(true)} style={{ marginTop:10, padding:'8px 16px', background:'none', border:'1px solid #36E2DD44', borderRadius:8, color:'#36E2DD', fontSize:12, fontWeight:600, cursor:'pointer', display:'block', fontFamily:"'Montserrat',system-ui,sans-serif" }}>
+            See full Item Types Glossary →
+          </button>
+          {showGlossary && <HU_GlossaryPopup onClose={()=>setShowGlossary(false)} />}
 
           {/* Navigating the list */}
           <div style={H}>Navigating the list</div>
