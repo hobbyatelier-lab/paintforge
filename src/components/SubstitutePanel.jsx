@@ -80,17 +80,17 @@ function PaintInfo({ paint, emptyLabel }) {
       <Swatch paint={paint} size={110} />
       <div style={{ textAlign:'center', width:'100%', padding:'0 4px' }}>
         <div style={{
-          fontSize:15, fontWeight:700, color:'#e8e8e8',
+          fontSize:15, fontWeight:700, color:'#8AABAB',
           fontFamily:"'Barlow Condensed','Montserrat',system-ui",
           overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', marginBottom:2,
         }}>{paint.name}</div>
         <div style={{ fontSize:11, color:'#8AABAB', marginBottom:1 }}>{brand}</div>
-        {line && <div style={{ fontSize:10, color:'#6b8080' }}>{line}</div>}
-        {paint.id && <div style={{ fontSize:9, color:'#3a5050', fontFamily:'monospace', marginTop:2 }}>{paint.id}</div>}
+        {line && <div style={{ fontSize:10, color:'#8AABAB' }}>{line}</div>}
+        {paint.id && <div style={{ fontSize:9, color:'#8AABAB', fontFamily:'monospace', marginTop:2 }}>{paint.id}</div>}
         {paint.finish_family && (
           <div style={{ fontSize:10, color:'#9B8FD0', marginTop:4 }}>
             {paint.finish_family}
-            {paint.chemistry_family && <span style={{ color:'#6b8080' }}> · {paint.chemistry_family}</span>}
+            {paint.chemistry_family && <span style={{ color:'#8AABAB' }}> · {paint.chemistry_family}</span>}
           </div>
         )}
       </div>
@@ -103,7 +103,7 @@ function AttrRow({ label, val1, val2 }) {
   const same = val1 && val2 && val1 === val2
   return (
     <div style={{ display:'flex', alignItems:'center', gap:6, fontSize:10, padding:'3px 0' }}>
-      <span style={{ color:'#4a6060', width:64, flexShrink:0 }}>{label}</span>
+      <span style={{ color:'#8AABAB', width:64, flexShrink:0 }}>{label}</span>
       <span style={{ flex:1, color:'#8AABAB', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', textAlign:'left' }}>{val1||'—'}</span>
       <span style={{ fontSize:13, flexShrink:0, color: same ? '#4caf50' : (val1&&val2) ? '#E8A838' : '#3a5050' }}>
         {same ? '✓' : val1&&val2 ? '⚠' : '—'}
@@ -148,25 +148,25 @@ function LabHints({ target, candidate }) {
 
   return (
     <div style={{ marginTop:8, padding:'8px 10px', background:'#0e1414', borderRadius:6, border:`1px solid #1a2828` }}>
-      <div style={{ fontSize:9, color:'#3a5050', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:6 }}>
+      <div style={{ fontSize:9, color:'#8AABAB', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:6 }}>
         For a closer match:
       </div>
       {axes.map(ax => {
         const abs = Math.abs(ax.delta)
         if (abs < 1) return (
           <div key={ax.label} style={{ display:'flex', gap:6, alignItems:'center', padding:'2px 0' }}>
-            <span style={{ fontSize:9, color:'#2a4040', width:80, flexShrink:0 }}>{ax.label}</span>
-            <span style={{ fontSize:9, color:'#2a4040' }}>≈ same</span>
+            <span style={{ fontSize:9, color:'#8AABAB', width:80, flexShrink:0 }}>{ax.label}</span>
+            <span style={{ fontSize:9, color:'#8AABAB' }}>≈ same</span>
           </div>
         )
         const valColor = abs < 3 ? '#6b8080' : abs < 8 ? '#8AABAB' : IRIS_COLOR
         return (
           <div key={ax.label} style={{ display:'flex', gap:6, alignItems:'baseline', padding:'2px 0' }}>
-            <span style={{ fontSize:9, color:'#4a6060', width:80, flexShrink:0 }}>{ax.label}</span>
+            <span style={{ fontSize:9, color:'#8AABAB', width:80, flexShrink:0 }}>{ax.label}</span>
             <span style={{ fontSize:11, fontWeight:700, color:valColor, width:36, flexShrink:0 }}>
               {ax.delta > 0 ? '+' : ''}{ax.delta.toFixed(1)}
             </span>
-            <span style={{ fontSize:9, color:'#6b8080', lineHeight:1.4 }}>
+            <span style={{ fontSize:9, color:'#8AABAB', lineHeight:1.4 }}>
               {ax.direction} · <span style={{ color:'#8AABAB' }}>{ax.advice}</span>
             </span>
           </div>
