@@ -2,14 +2,14 @@ import { useEffect } from 'react'
 import { SECTION_LABELS } from '../data/paints.js'
 
 const BRAND_CYAN   = '#36E2DD'
-const SOLID_FINISH = new Set(['flat','gloss','satin','ink','one-coat','pigment'])
-const DASHED_FINISH= new Set(['metallic','wash','fx','clear'])
+const SOLID_FINISH = new Set(['flat','gloss','satin','ink','one-coat','pigment','primer','contrast_primer','dry'])
+const DASHED_FINISH= new Set(['metallic','wash','fx','clear','glaze','metallic_primer'])
 const CAN_SUBSTITUTE = new Set(['flat','gloss','satin','ink','one-coat','metallic','wash','fx','clear'])
 
 function Swatch({ paint, size = 56 }) {
   const ff  = paint.finish_family
   const isColorshift = ff === 'colorshift'
-  const isAuxiliary  = ff === 'auxiliary'
+  const isAuxiliary  = ff === 'auxiliary' || ff === 'varnish' || ff === 'satin_varnish'
   const isPending    = !ff
   const isSolid      = SOLID_FINISH.has(ff)
   const isDashed     = DASHED_FINISH.has(ff)

@@ -22,8 +22,8 @@ function grade(dE) {
 }
 
 // ── Swatch (6-state) ───────────────────────────────────────────────
-const SOLID_F  = new Set(['flat','gloss','satin','ink','one-coat','pigment'])
-const DASHED_F = new Set(['metallic','wash','fx','clear'])
+const SOLID_F  = new Set(['flat','gloss','satin','ink','one-coat','pigment','primer','contrast_primer','dry'])
+const DASHED_F = new Set(['metallic','wash','fx','clear','glaze','metallic_primer'])
 
 function Swatch({ paint, size }) {
   if (!paint) return (
@@ -31,7 +31,7 @@ function Swatch({ paint, size }) {
   )
   const ff = paint.finish_family
   const isCS  = ff === 'colorshift'
-  const isAux = ff === 'auxiliary'
+  const isAux = ff === 'auxiliary' || ff === 'varnish' || ff === 'satin_varnish'
   const bg    = isCS ? '#FFFFFF' : isAux ? 'transparent' : paint.hex || 'transparent'
   const bdr   = !ff && paint.hex ? 'none'
     : !ff      ? '1.5px dashed #333'
@@ -393,7 +393,7 @@ export default function SubstitutePanel({
             {/* Attribute comparison */}
             {candidate && (
               <div style={{ marginTop:10, padding:'8px 10px', background:BG_DEEP, borderRadius:6 }}>
-                <AttrRow label='Finish'    val1={paint.finish_family}    val2={candidate.finish_family}    />
+                <AttrRow label='Type'    val1={paint.finish_family}    val2={candidate.finish_family}    />
                 <AttrRow label='Chemistry' val1={paint.chemistry_family} val2={candidate.chemistry_family} />
                 <AttrRow label='Section'   val1={sec1} val2={sec2} />
               </div>

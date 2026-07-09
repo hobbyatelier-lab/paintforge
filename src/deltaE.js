@@ -111,8 +111,12 @@ export function deltaE2000(lab1, lab2) {
 //
 // Returns array of { paint, deltaE, grade, chips } sorted by deltaE asc.
 
-const SHEEN_TRIO   = new Set(['flat', 'satin', 'gloss'])
-const PRIMER_KEYS  = new Set(['mechaPrimer','vallejoSurfacePrimer','apWarpaintsPrimer','apDnDPrimer'])
+const SHEEN_TRIO      = new Set(['flat', 'satin', 'gloss'])
+const EXCLUDED_TYPES  = new Set([
+  'auxiliary','colorshift','pigment',           // never color-matchable
+  'primer','contrast_primer','metallic_primer', // functional products
+  'varnish','satin_varnish',                   // protective coats
+])
 
 export function rankSubstitutes(targetPaint, { tier, finishExpand, userPaints, catalog, brandFilter = new Set() }) {
   const tLab = { L: targetPaint.lab_l, a: targetPaint.lab_a, b: targetPaint.lab_b }
@@ -123,11 +127,8 @@ export function rankSubstitutes(targetPaint, { tier, finishExpand, userPaints, c
     if (!p.lab_l && p.lab_l !== 0) return false   // no LAB
     if (!p.hex)                    return false   // no hex
     if (!p.finish_family)          return false   // pending — exclude
-    if (p.finish_family === 'colorshift') return false
-    if (p.finish_family === 'pigment')    return false
-    if (p.finish_family === 'auxiliary')  return false
-    if (PRIMER_KEYS.has(p.section_key))   return false
-    if (p.category === 'auxiliary')       return false
+    if (EXCLUDED_TYPES.has(p.finish_family)) return false
+    if (p.category === 'auxiliary')         return false
 
     // Finish rule: same family only, unless finishExpand + sheen trio
     const tFinish = targetPaint.finish_family
