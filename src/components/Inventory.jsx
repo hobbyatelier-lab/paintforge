@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, memo } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo, memo } from 'react'
 import logoUrl from '../assets/logo.svg'
 import { supabase } from '../supabase.js'
 import { SECTION_LABELS, SECTION_ACCENTS, TAXONOMY } from '../data/paints.js'
