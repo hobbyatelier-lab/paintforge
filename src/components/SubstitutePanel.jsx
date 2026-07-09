@@ -175,14 +175,18 @@ function LabHints({ target, candidate }) {
 }
 
 
+
+
 // ── Paint Type Glossary ─────────────────────────────────────────────────────
 const GLOSS_TYPES = [
-  { heading:'Standard paints', note:'Flat, satin, and gloss aren\'t lab measurements — they\'re buckets along a spectrum, and every brand draws the lines differently. Treat the type tag as a strong guide, not a promise.', items:[
-    { n:'Flat',    d:'No shine when dry. Matt, matte, flat — all the same.' },
-    { n:'Satin',   d:'Soft sheen between flat and gloss. Semi-gloss and silk live here.' },
-    { n:'Gloss',   d:'Fully shiny when dry.' },
-  ]},
-  { heading:'Specialty paints', items:[
+  { heading: 'Standard paints',
+    note: "Flat, satin, and gloss aren't lab measurements — they're buckets along a spectrum, and every brand draws the lines differently. Treat the type tag as a strong guide, not a promise.",
+    items: [
+      { n:'Flat',   d:'No shine when dry. Matt, matte, flat — all the same.' },
+      { n:'Satin',  d:'Soft sheen between flat and gloss. Semi-gloss and silk live here.' },
+      { n:'Gloss',  d:'Fully shiny when dry.' },
+    ]},
+  { heading: 'Specialty paints', items: [
     { n:'Metallic',          d:'Color from metal-flake or mica. Swatch shows dominant tone, not the sparkle. Only another metallic is a fair comparison.' },
     { n:'Wash / Shade',      d:'Very thin, flows into recesses. Looks like a color on screen but gives a translucent puddle on a model. Washes match only washes.' },
     { n:'One-coat',          d:'Translucent by design — final color depends on undercoat and pooling. Contrast, Speedpaint, Xpress Color. Matches only other one-coats.' },
@@ -193,7 +197,7 @@ const GLOSS_TYPES = [
     { n:'Pigment',           d:'Dry powder, no liquid vehicle. Different application from all other types.' },
     { n:'FX',                d:'Special effects — blood, rust, frost, corrosion. Effect first, color second.' },
   ]},
-  { heading:'Non-color products', items:[
+  { heading: 'Non-color products', items: [
     { n:'Primer',    d:'Surface prep. Primers match only other primers, never standard colors.' },
     { n:'Varnish',   d:'Protective clear coat. Does not appear in color matching.' },
     { n:'Auxiliary', d:'Thinners, flow improvers, mediums. No color. Does not appear in color matching.' },
@@ -202,25 +206,40 @@ const GLOSS_TYPES = [
 
 function GlossaryPopup({ onClose }) {
   return (
-    <div onClick={onClose} style={{ position:\'fixed\', inset:0, zIndex:1300, background:\'rgba(0,0,0,0.72)\', display:\'flex\', alignItems:\'center\', justifyContent:\'center\', fontFamily:"\'Montserrat\',system-ui,sans-serif", padding:20 }}>
-      <div onClick={e=>e.stopPropagation()} style={{ background:\'#1E2428\', border:\'1px solid #2a3535\', borderRadius:12, width:\'100%\', maxWidth:460, maxHeight:\'85vh\', overflowY:\'auto\', padding:\'20px 20px 24px\', color:\'#e8e8e8\' }}>
-        <div style={{ display:\'flex\', justifyContent:\'space-between\', alignItems:\'flex-start\', marginBottom:16 }}>
+    <div onClick={onClose} style={{
+      position:'fixed', inset:0, zIndex:1300,
+      background:'rgba(0,0,0,0.72)',
+      display:'flex', alignItems:'center', justifyContent:'center',
+      fontFamily:"'Montserrat',system-ui,sans-serif", padding:20,
+    }}>
+      <div onClick={e=>e.stopPropagation()} style={{
+        background:'#1E2428', border:'1px solid #2a3535', borderRadius:12,
+        width:'100%', maxWidth:460, maxHeight:'85vh',
+        overflowY:'auto', padding:'20px 20px 24px', color:'#e8e8e8',
+      }}>
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:16 }}>
           <div>
-            <div style={{ fontSize:15, fontWeight:700, color:\'#e8e8e8\', marginBottom:3 }}>Paint Types</div>
-            <div style={{ fontSize:11, color:\'#4a6060\', lineHeight:1.5 }}>How PaintForge classifies paint. One vocabulary across all brands.</div>
+            <div style={{ fontSize:15, fontWeight:700, color:'#e8e8e8', marginBottom:3 }}>Paint Types</div>
+            <div style={{ fontSize:11, color:'#4a6060', lineHeight:1.5 }}>How PaintForge classifies paint. One vocabulary across all brands.</div>
           </div>
-          <button onClick={onClose} style={{ background:\'none\', border:\'none\', color:\'#4a6060\', fontSize:18, cursor:\'pointer\', padding:\'0 4px\' }}>✕</button>
+          <button onClick={onClose} style={{ background:'none', border:'none', color:'#4a6060', fontSize:18, cursor:'pointer', padding:'0 4px' }}>✕</button>
         </div>
         {GLOSS_TYPES.map((sec, si) => (
           <div key={si} style={{ marginBottom:18 }}>
-            <div style={{ fontSize:9, color:\'#4a6060\', textTransform:\'uppercase\', letterSpacing:\'0.1em\', fontWeight:700, marginBottom:6, paddingBottom:4, borderBottom:\'1px solid #1a2428\' }}>{sec.heading}</div>
+            <div style={{ fontSize:9, color:'#4a6060', textTransform:'uppercase', letterSpacing:'0.1em', fontWeight:700, marginBottom:6, paddingBottom:4, borderBottom:'1px solid #1a2428' }}>
+              {sec.heading}
+            </div>
             {sec.items.map((item, ii) => (
-              <div key={ii} style={{ display:\'flex\', gap:10, padding:\'4px 0\', borderBottom:\'1px solid #141a1a\' }}>
-                <div style={{ minWidth:110, flexShrink:0, fontSize:11, fontWeight:600, color:\'#36E2DD\', paddingTop:1 }}>{item.n}</div>
-                <div style={{ fontSize:11, color:\'#8AABAB\', lineHeight:1.6 }}>{item.d}</div>
+              <div key={ii} style={{ display:'flex', gap:10, padding:'4px 0', borderBottom:'1px solid #141a1a' }}>
+                <div style={{ minWidth:110, flexShrink:0, fontSize:11, fontWeight:600, color:'#36E2DD', paddingTop:1 }}>{item.n}</div>
+                <div style={{ fontSize:11, color:'#8AABAB', lineHeight:1.6 }}>{item.d}</div>
               </div>
             ))}
-            {sec.note && <div style={{ marginTop:6, padding:\'7px 10px\', background:\'#141414\', borderRadius:6, fontSize:10, color:\'#5a7070\', lineHeight:1.6, borderLeft:\'2px solid #36E2DD30\' }}>{sec.note}</div>}
+            {sec.note && (
+              <div style={{ marginTop:6, padding:'7px 10px', background:'#141414', borderRadius:6, fontSize:10, color:'#5a7070', lineHeight:1.6, borderLeft:'2px solid #36E2DD30' }}>
+                {sec.note}
+              </div>
+            )}
           </div>
         ))}
       </div>
