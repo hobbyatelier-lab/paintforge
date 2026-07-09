@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { SECTION_LABELS } from '../data/paints.js'
 
 const BRAND_CYAN   = '#36E2DD'
-const SOLID_FINISH = new Set(['flat','gloss','satin','ink','one-coat','pigment','primer','contrast_primer','dry'])
+const SOLID_FINISH = new Set(['flat','gloss','satin','ink','one-coat','pigment','primer','contrast_primer','dry','custom'])
 const DASHED_FINISH= new Set(['metallic','wash','fx','clear','glaze','metallic_primer'])
 const CAN_SUBSTITUTE = new Set(['flat','gloss','satin','ink','one-coat','metallic','wash','fx','clear'])
 

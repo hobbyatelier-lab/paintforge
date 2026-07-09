@@ -22,7 +22,7 @@ function grade(dE) {
 }
 
 // ── Swatch (6-state) ───────────────────────────────────────────────
-const SOLID_F  = new Set(['flat','gloss','satin','ink','one-coat','pigment','primer','contrast_primer','dry'])
+const SOLID_F  = new Set(['flat','gloss','satin','ink','one-coat','pigment','primer','contrast_primer','dry','custom'])
 const DASHED_F = new Set(['metallic','wash','fx','clear','glaze','metallic_primer'])
 
 function Swatch({ paint, size }) {

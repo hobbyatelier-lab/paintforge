@@ -634,7 +634,7 @@ const ColorRow = memo(function ColorRow({ color, isChecked, inMySet, extraCount,
   // 5. empty, grey border, —      → auxiliary (no color by design)
   // 6. empty, grey border, ?      → finish known but hex missing (data gap)
   const swatchSize = 18
-  const SOLID_FINISH  = new Set(['flat','gloss','satin','ink','one-coat','pigment','primer','contrast_primer','dry'])
+  const SOLID_FINISH  = new Set(['flat','gloss','satin','ink','one-coat','pigment','primer','contrast_primer','dry','custom'])
   const DASHED_FINISH = new Set(['metallic','wash','fx','clear','glaze','metallic_primer'])
   const ff = color.finish_family
   const isColorshift = ff === 'colorshift'
