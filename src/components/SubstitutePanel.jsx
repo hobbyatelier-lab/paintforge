@@ -80,7 +80,7 @@ function ResultRow({ target, result, isOwned, isInSet }) {
       <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end', gap:2, flexShrink:0, minWidth:0 }}>
         <WarningChips chips={chips} />
         {isOwned && <Chip label='✓ owned' bg='#1a2a1a' color='#6aba6a' />}
-        {isInSet  && <Chip label='♦ set'   bg='#1e1a28' color:'#9060d0' />}
+        {isInSet  && <Chip label='♦ set'   bg='#1e1a28' color='#9060d0' />}
       </div>
     </div>
   )

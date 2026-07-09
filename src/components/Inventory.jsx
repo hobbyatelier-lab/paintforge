@@ -445,7 +445,7 @@ export default function Inventory({ user }) {
               style={{ width:'100%',padding:'6px 28px 6px 12px',borderRadius:8,background:'#0F1818',border:'1px solid #2A3A3A',color:'#e8e8e8',fontSize:13,outline:'none',boxSizing:'border-box' }} />
             {searchRaw && (
               <button onClick={()=>{setSearchRaw('');setSearch('')}}
-                style={{ position:'absolute',right:8,top:'50%',transform:'translateY(-50%)',background:'none',border:'none',color:'#666',cursor:'pointer',fontSize:13,lineHeight:1,padding:2,display:'flex',alignItems:'center',justifyContent:'center',width:16,height:16,borderRadius:'50%',border:'1px solid #444' }}>
+                style={{ position:'absolute',right:8,top:'50%',transform:'translateY(-50%)',background:'none',color:'#666',cursor:'pointer',fontSize:13,lineHeight:1,padding:2,display:'flex',alignItems:'center',justifyContent:'center',width:16,height:16,borderRadius:'50%',border:'1px solid #444' }}>
                 ✕
               </button>
             )}
