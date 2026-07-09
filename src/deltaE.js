@@ -174,10 +174,15 @@ export function rankSubstitutes(targetPaint, { tier, finishExpand, userPaints, c
   return results
 }
 
-function grade(dE) {
-  if (dE < 1)  return { label: 'Identical in practice', color: '#36E2DD' }
-  if (dE < 2)  return { label: 'Excellent',             color: '#2BABA8' }
-  if (dE < 5)  return { label: 'Close',                 color: '#6B89A8' }
-  if (dE < 10) return { label: 'Usable with adjustment',color: '#6E7F8A' }
-  return             { label: 'Distant',                color: '#4A5560' }
+// ── Grade scale — CANONICAL SINGLE SOURCE ───────────────────────
+// Hobby-calibrated thresholds (business doc law):
+// Near Identical <1.5 · Excellent <3 · Close <6 · Usable <12 · Distant ≥12
+// Cool/neutral ramp only — warm hues are warnings, never grades.
+// UI components must import this — do not create local copies.
+export function grade(dE) {
+  if (dE < 1.5) return { label:'Near Identical', color:'#36E2DD', bg:'#0e3535' }
+  if (dE < 3)   return { label:'Excellent',      color:'#2BABA8', bg:'#0d2e2e' }
+  if (dE < 6)   return { label:'Close',          color:'#6B89A8', bg:'#0e1e2e' }
+  if (dE < 12)  return { label:'Usable',         color:'#6E7F8A', bg:'#1a2028' }
+  return              { label:'Distant',         color:'#4A5560', bg:'#181c20' }
 }

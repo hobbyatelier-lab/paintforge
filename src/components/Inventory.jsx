@@ -456,7 +456,7 @@ export default function Inventory({ user }) {
 
           {/* Row 1: tools — Shop (orange!), Export, Brand Filter */}
           <div style={{ display:'flex',gap:5,marginBottom:4 }}>
-            <button onClick={handleShopList} style={{ padding:'3px 10px',borderRadius:20,border:'2px solid #FF6B00',cursor:'pointer',fontSize:11,fontWeight:700,background:'transparent',color:'#FF6B00' }}>Shop 🛒</button>
+            <button onClick={handleShopList} style={{ padding:'3px 10px',borderRadius:20,border:'2px solid #9060d0',cursor:'pointer',fontSize:11,fontWeight:700,background:'transparent',color:'#9060d0' }}>Shop 🛒</button>
             <button onClick={handleExport} style={{ padding:'3px 10px',borderRadius:20,border:'none',cursor:'pointer',fontSize:11,fontWeight:600,background:'#1E2828',color:'#888' }}>Export</button>
             <button onClick={()=>setShowBrandFilter(true)} style={{ padding:'3px 10px',borderRadius:20,cursor:'pointer',fontSize:11,fontWeight:600,border:hiddenSections.size>0?`1px solid ${BRAND_CYAN}`:'1px solid #2A3A3A',background:hiddenSections.size>0?'#0A1E1E':'transparent',color:hiddenSections.size>0?BRAND_CYAN:'#6B8080' }}>Brand Filter{hiddenSections.size>0?` (${hiddenSections.size})`:''}</button>
           </div>

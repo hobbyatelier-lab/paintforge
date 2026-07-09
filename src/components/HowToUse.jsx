@@ -290,7 +290,7 @@ export default function HowToUse({ onClose, dontShow, onDontShowChange }) {
 
           {/* Export / Shop */}
           <div style={H}>Export & Shop</div>
-          {row(<span style={{ color:'#FF6B00',fontWeight:700 }}>Shop 🛒</span>, "Shopping list: everything in My Set you don't own yet, plus paints below their backup target, with quantities. Auto-copied to clipboard.")}
+          {row(<span style={{ color:'#9060d0',fontWeight:700 }}>Shop 🛒</span>, "Shopping list: everything in My Set you don't own yet, plus paints below their backup target, with quantities. Auto-copied to clipboard.")}
           {row(<span style={{ color:'#888',fontWeight:600 }}>Export</span>, <><div>Full inventory as a text list for backup or sharing. Auto-copied to clipboard.</div><div style={{ marginTop:4, color:'#888' }}>Includes owned inventory, curated inventory (My Set), current backup reserves, and backup targets.</div></>)}
 
           {/* Preferences */}

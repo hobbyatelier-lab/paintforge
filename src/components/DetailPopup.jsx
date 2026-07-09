@@ -4,7 +4,7 @@ import { SECTION_LABELS } from '../data/paints.js'
 const BRAND_CYAN   = '#36E2DD'
 const SOLID_FINISH = new Set(['flat','gloss','satin','ink','one-coat','pigment','primer','contrast_primer','dry','custom'])
 const DASHED_FINISH= new Set(['metallic','wash','fx','clear','glaze','metallic_primer'])
-const CAN_SUBSTITUTE = new Set(['flat','gloss','satin','ink','one-coat','metallic','wash','fx','clear'])
+const CAN_SUBSTITUTE = new Set(['flat','gloss','satin','ink','one-coat','metallic','wash','fx','clear','primer','contrast_primer','metallic_primer','dry','glaze'])  // pools are equality-on-type; primers match primers (rev U decision)
 
 function Swatch({ paint, size = 56 }) {
   const ff  = paint.finish_family
@@ -182,7 +182,7 @@ export default function DetailPopup({ paint, isOwned, isInSet, onClose, onFindSu
               letterSpacing:'0.02em',
             }}
           >
-            Find a Substitute
+            Find a Substitute with IrisMatch
           </button>
         ) : (
           <div style={{ fontSize:12, color:'#5a7070', textAlign:'center', lineHeight:1.5 }}>

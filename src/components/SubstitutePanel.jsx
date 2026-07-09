@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react'
-import { rankSubstitutes } from '../deltaE.js'
+import { rankSubstitutes, grade } from '../deltaE.js'
 import { SECTION_LABELS }   from '../data/paints.js'
 
 // ── Design tokens ─────────────────────────────────────────────────
@@ -10,16 +10,9 @@ const BG_PANEL    = '#171B1B'
 const BG_CARD     = '#1E2428'
 const BG_DEEP     = '#141414'
 const BORDER      = '#2a3535'
-const SHOP_COLOR  = '#FF6B00'
+const SHOP_COLOR  = '#9060d0'  // violet — commerce/action accent (law: warm hues are warnings only)
 
-// ── Grade scale (hobby-calibrated thresholds) ──────────────────────
-function grade(dE) {
-  if (dE < 1.5) return { label:'Near Identical', color: BRAND_CYAN, bg:'#0e3535' }
-  if (dE < 3)   return { label:'Excellent',       color:'#2BABA8',  bg:'#0d2e2e' }
-  if (dE < 6)   return { label:'Close',           color:'#6B89A8',  bg:'#0e1e2e' }
-  if (dE < 12)  return { label:'Usable',          color:'#6E7F8A',  bg:'#1a2028' }
-  return              { label:'Distant',          color:'#4A5560',  bg:'#181c20' }
-}
+// grade() is imported from deltaE.js — canonical single source, no local copies.
 
 // ── Swatch (6-state) ───────────────────────────────────────────────
 const SOLID_F  = new Set(['flat','gloss','satin','ink','one-coat','pigment','primer','contrast_primer','dry','custom'])
@@ -393,7 +386,7 @@ export default function SubstitutePanel({
       target_id:paint.id, tier, finish_expand:finishExpand,
       top_result_deltaE:results[0]?.deltaE??null,
     })
-  }, [tier, finishExpand]) // eslint-disable-line
+  }, [paint?.id, tier, finishExpand]) // eslint-disable-line
 
   if(!paint) return null
 
@@ -433,7 +426,7 @@ export default function SubstitutePanel({
                 <div style={{ fontSize:17, fontWeight:800, letterSpacing:'-0.02em', lineHeight:1 }}>
                   <span style={{ color:IRIS_COLOR }}>Iris</span><span style={{ color:MATCH_COLOR }}>Match</span>
                 </div>
-                <div style={{ fontSize:10, color:'#6b8080', marginTop:3 }}>Paint with what you own</div>
+                <div style={{ fontSize:10, color:'#6b8080', marginTop:3 }}>Paint It With What I Own</div>
               </div>
               <button onClick={onClose} style={{ background:'none', border:'none', color:'#4a6060', fontSize:18, cursor:'pointer' }}>✕</button>
             </div>
