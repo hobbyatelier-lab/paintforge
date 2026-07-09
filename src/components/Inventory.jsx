@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback, useRef, memo } from 'react'
 import logoUrl from '../assets/logo.svg'
 import { supabase } from '../supabase.js'
 import { SECTION_LABELS, SECTION_ACCENTS, TAXONOMY } from '../data/paints.js'
-import DetailPopup from './DetailPopup.jsx'
+import DetailPopup      from './DetailPopup.jsx'
+import SubstitutePanel from './SubstitutePanel.jsx'
 import BrandFilter from './BrandFilter.jsx'
 import HowToUse from './HowToUse.jsx'
 
@@ -76,6 +77,7 @@ export default function Inventory({ user }) {
   const [exportText,      setExportText]      = useState('')
   const [exportTitle,     setExportTitle]     = useState('')
   const [paintsBySection, setPaintsBySection] = useState({})
+  const catalogFlat = useMemo(() => Object.values(paintsBySection).flat(), [paintsBySection])
   const [catalogError,    setCatalogError]    = useState(false)
   const prefSaveRef = useRef(null)
 
@@ -394,6 +396,16 @@ export default function Inventory({ user }) {
         isInSet={!!(detailPaint && mySet[detailPaint.id])}
         onClose={()=>setDetailPaint(null)}
         onFindSubstitute={(p)=>{ setDetailPaint(null); setSubPaint(p) }}
+      />
+
+      {/* Substitute Panel */}
+      <SubstitutePanel
+        paint={subPaint}
+        catalog={catalogFlat}
+        checked={checked}
+        mySet={mySet}
+        hiddenSections={hiddenSections}
+        onClose={()=>setSubPaint(null)}
       />
             </div>
             <div style={{ display:'flex',alignItems:'center',gap:6 }}>
