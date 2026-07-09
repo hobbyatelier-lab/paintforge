@@ -87,12 +87,7 @@ function PaintInfo({ paint, emptyLabel }) {
         <div style={{ fontSize:11, color:'#8AABAB', marginBottom:1 }}>{brand}</div>
         {line && <div style={{ fontSize:10, color:'#8AABAB' }}>{line}</div>}
         {paint.id && <div style={{ fontSize:9, color:'#8AABAB', fontFamily:'monospace', marginTop:2 }}>{paint.id}</div>}
-        {paint.finish_family && (
-          <div style={{ fontSize:10, color:'#9B8FD0', marginTop:4 }}>
-            {paint.finish_family}
-            {paint.chemistry_family && <span style={{ color:'#8AABAB' }}> · {paint.chemistry_family}</span>}
-          </div>
-        )}
+
       </div>
     </div>
   )
