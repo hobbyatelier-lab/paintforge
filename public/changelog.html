@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Changelog — PaintForge</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#141414;color:#8AABAB;font-family:system-ui,sans-serif;padding:40px 24px;line-height:1.7}
+.wrap{max-width:680px;margin:0 auto}
+.logo{font-size:20px;font-weight:800;letter-spacing:-0.02em;margin-bottom:32px;display:block;text-decoration:none}
+.paint{color:#36E2DD}.forge{color:#8AABAB}
+h1{color:#e8e8e8;font-size:24px;font-weight:700;margin-bottom:32px}
+.entry{margin-bottom:40px;padding-bottom:40px;border-bottom:1px solid #1E2428}
+.entry:last-child{border-bottom:none}
+.version{display:flex;align-items:baseline;gap:12px;margin-bottom:12px}
+.vtag{color:#36E2DD;font-size:16px;font-weight:700}
+.vdate{color:#3a5050;font-size:12px}
+h2{color:#e8e8e8;font-size:13px;font-weight:600;margin:16px 0 6px;text-transform:uppercase;letter-spacing:0.08em}
+ul{padding-left:20px;font-size:14px}
+li{margin-bottom:4px}
+a{color:#36E2DD;text-decoration:none}
+.footer{margin-top:48px;padding-top:20px;border-top:1px solid #1E2428;font-size:11px;color:#3a5050;display:flex;gap:16px;flex-wrap:wrap}
+.nav{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:32px;font-size:12px}
+.nav a{color:#4a6060}
+</style>
+</head>
+<body><div class="wrap">
+<a href="/" class="logo"><span class="paint">Paint</span><span class="forge">forge</span></a>
+<div class="nav">
+  <a href="/about.html">About</a>
+  <a href="/tos.html">Terms of Service</a>
+  <a href="/privacy.html">Privacy Policy</a>
+  <a href="/changelog.html">Changelog</a>
+</div>
+
+<h1>Changelog</h1>
+
+<div class="entry">
+  <div class="version">
+    <span class="vtag">v0.1</span>
+    <span class="vdate">10 July 2026 — Pre-launch baseline</span>
+  </div>
+  <h2>Paint Catalog</h2>
+  <ul>
+    <li>6,259 entries across 13 brands: Vallejo, Citadel, Army Painter, Tamiya, Mr Hobby, AK Interactive, Two Thin Coats, Pro Acryl, P3, Scale 75, Reaper, Green Stuff World, Custom</li>
+    <li>Finish and chemistry classification complete for Vallejo, Army Painter, Citadel, and Tamiya</li>
+    <li>377 entries physically sampled by the PaintForge team</li>
+  </ul>
+  <h2>Features</h2>
+  <ul>
+    <li>Paint inventory — owned, My Set, backup targets, extras tracking</li>
+    <li>IrisMatch — color substitution engine using Delta E 2000 real color science</li>
+    <li>LAB directional hints: Δ Lightness, Δ Red-Green, Δ Yellow-Blue</li>
+    <li>Brand filter, content filters, search with filter override</li>
+    <li>Shopping list and inventory export</li>
+    <li>Section headers showing finish and chemistry classification</li>
+    <li>Filter and collapse state persistence across devices</li>
+  </ul>
+  <h2>Infrastructure</h2>
+  <ul>
+    <li>Supabase backend with full RLS, email confirmation via Resend</li>
+    <li>PostHog EU Cloud analytics in cookieless mode</li>
+  </ul>
+</div>
+
+<div class="footer">
+  <span>© 2026 Hobby Atelier · PaintForge</span>
+  <a href="/about.html">About</a>
+  <a href="/tos.html">Terms</a>
+  <a href="/privacy.html">Privacy</a>
+</div>
+</div></body></html>

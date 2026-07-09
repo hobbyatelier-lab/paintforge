@@ -195,6 +195,12 @@ export default function Auth() {
         </div>
 
         <p style={{ textAlign:'center', color:TEXT_MUTED, fontSize:11, marginTop:24, opacity:0.6 }}>
+          <div style={{ display:'flex', gap:12, justifyContent:'center', marginBottom:4, flexWrap:'wrap' }}>
+            <a href="/about.html" style={{ color:'#3a5050', fontSize:10, textDecoration:'none' }}>About</a>
+            <a href="/tos.html" style={{ color:'#3a5050', fontSize:10, textDecoration:'none' }}>Terms</a>
+            <a href="/privacy.html" style={{ color:'#3a5050', fontSize:10, textDecoration:'none' }}>Privacy</a>
+            <a href="/changelog.html" style={{ color:'#3a5050', fontSize:10, textDecoration:'none' }}>Changelog</a>
+          </div>
           © {new Date().getFullYear()} Hobby Atelier · PaintForge
         </p>
       </div>

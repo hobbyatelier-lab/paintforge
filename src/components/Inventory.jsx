@@ -602,6 +602,12 @@ export default function Inventory({ user }) {
 
       {/* Footer */}
       <div style={{ textAlign:'center', padding:'12px 20px 20px', color:'#444', fontSize:11, fontFamily:"'Montserrat',system-ui,sans-serif" }}>
+        <div style={{ display:'flex', gap:12, justifyContent:'center', marginBottom:6, flexWrap:'wrap' }}>
+          <a href="/about.html" style={{ color:'#3a5050', fontSize:10, textDecoration:'none' }}>About</a>
+          <a href="/tos.html" style={{ color:'#3a5050', fontSize:10, textDecoration:'none' }}>Terms</a>
+          <a href="/privacy.html" style={{ color:'#3a5050', fontSize:10, textDecoration:'none' }}>Privacy</a>
+          <a href="/changelog.html" style={{ color:'#3a5050', fontSize:10, textDecoration:'none' }}>Changelog</a>
+        </div>
         © {new Date().getFullYear()} Hobby Atelier · PaintForge
       </div>
     </div>
