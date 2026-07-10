@@ -11,6 +11,29 @@ const TEXT_PRIMARY = '#F0F4F4'
 const TEXT_MUTED   = '#6B8080'
 const MIN_PW       = 8
 
+// Map any thrown value to a human sentence. Never render raw objects —
+// JSON.stringify(Error) yields '{}' (the launch-eve front-door bug).
+function friendlyAuthError(err) {
+  let m = (typeof err === 'string' ? err : err?.message) || ''
+  // Junk guard: JSON-ish or letter-free "messages" ({} , {"code":...}) are not
+  // human sentences — discard them so the generic fallback speaks instead.
+  if (/^[\s{}\[\]",:0-9]*$/.test(m) || m.trim().startsWith('{')) m = ''
+  const low = m.toLowerCase()
+  if (low.includes('invalid format') || low.includes('validate email'))
+    return "That email address doesn't look complete — check for typos (e.g. name@example.com)."
+  if (low.includes('already registered') || low.includes('already exists'))
+    return 'An account with this email already exists — try signing in instead.'
+  if (low.includes('invalid login') || low.includes('invalid credentials'))
+    return "Email or password doesn't match. Typos happen — the eye icon shows your password."
+  if (low.includes('email not confirmed'))
+    return "Your email isn't confirmed yet — check your inbox (and spam) for the confirmation link."
+  if (low.includes('rate limit') || low.includes('too many'))
+    return 'Too many attempts — wait a minute and try again.'
+  if (low.includes('network') || low.includes('fetch'))
+    return 'Connection problem — check your internet and try again.'
+  return m || 'Something went wrong. Please try again.'
+}
+
 export default function Auth() {
   const [mode, setMode]         = useState('login')   // 'login' | 'signup' | 'forgot' | 'reset'
   const [email, setEmail]       = useState('')
@@ -19,16 +42,18 @@ export default function Auth() {
   const [error, setError]       = useState('')
   const [loading, setLoading]   = useState(false)
   const [success, setSuccess]   = useState('')
+  const [showPw, setShowPw]     = useState(false)
 
   // ── Detect password recovery session on mount ──────────────────────────────
   useEffect(() => {
-    supabase.auth.onAuthStateChange((event) => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') {
         setMode('reset')
         setError('')
         setSuccess('')
       }
     })
+    return () => sub?.subscription?.unsubscribe?.()
   }, [])
 
   function validate() {
@@ -37,7 +62,7 @@ export default function Auth() {
       if (password !== confirm)     { setError('Passwords do not match.'); return false }
       return true
     }
-    if (!email.includes('@')) { setError('Please enter a valid email address.'); return false }
+    if (!/^\S+@\S+\.\S+$/.test(email.trim())) { setError('Please enter a valid email address (e.g. name@example.com).'); return false }
     if (mode !== 'forgot' && password.length < MIN_PW) {
       setError(`Password must be at least ${MIN_PW} characters.`); return false
     }
@@ -71,7 +96,7 @@ export default function Auth() {
         if (error) throw error
       }
     } catch (err) {
-      setError(err.message || 'Something went wrong.')
+      setError(friendlyAuthError(err))
     } finally {
       setLoading(false)
     }
@@ -126,6 +151,8 @@ export default function Auth() {
               <label style={{ display:'block', fontSize:12, fontWeight:600, color:TEXT_MUTED, marginBottom:6, letterSpacing:'0.04em', textTransform:'uppercase' }}>Email</label>
               <input type="email" value={email} onChange={e=>setEmail(e.target.value)}
                 placeholder="you@example.com"
+                autoCapitalize="none" autoCorrect="off" spellCheck={false}
+                inputMode="email" autoComplete="email"
                 onKeyDown={e=>e.key==='Enter'&&handleSubmit()}
                 style={{ width:'100%', padding:'10px 14px', background:BG_INPUT, border:`1px solid ${BORDER}`, borderRadius:8, color:TEXT_PRIMARY, fontSize:14, fontFamily:'inherit', outline:'none', boxSizing:'border-box' }} />
             </div>
@@ -137,10 +164,18 @@ export default function Auth() {
               <label style={{ display:'block', fontSize:12, fontWeight:600, color:TEXT_MUTED, marginBottom:6, letterSpacing:'0.04em', textTransform:'uppercase' }}>
                 {isReset ? 'New Password' : 'Password'}
               </label>
-              <input type="password" value={password} onChange={e=>setPassword(e.target.value)}
-                placeholder={isSignup||isReset ? `At least ${MIN_PW} characters` : '••••••••'}
-                onKeyDown={e=>e.key==='Enter'&&handleSubmit()}
-                style={{ width:'100%', padding:'10px 14px', background:BG_INPUT, border:`1px solid ${BORDER}`, borderRadius:8, color:TEXT_PRIMARY, fontSize:14, fontFamily:'inherit', outline:'none', boxSizing:'border-box' }} />
+              <div style={{ position:'relative' }}>
+                <input type={showPw ? 'text' : 'password'} value={password} onChange={e=>setPassword(e.target.value)}
+                  placeholder={isSignup||isReset ? `At least ${MIN_PW} characters` : '••••••••'}
+                  autoComplete={isSignup||isReset ? 'new-password' : 'current-password'}
+                  onKeyDown={e=>e.key==='Enter'&&handleSubmit()}
+                  style={{ width:'100%', padding:'10px 42px 10px 14px', background:BG_INPUT, border:`1px solid ${BORDER}`, borderRadius:8, color:TEXT_PRIMARY, fontSize:14, fontFamily:'inherit', outline:'none', boxSizing:'border-box' }} />
+                <button type="button" onClick={()=>setShowPw(v=>!v)}
+                  aria-label={showPw ? 'Hide password' : 'Show password'}
+                  style={{ position:'absolute', right:10, top:'50%', transform:'translateY(-50%)', background:'none', border:'none', cursor:'pointer', color:TEXT_MUTED, fontSize:15, padding:2, lineHeight:1 }}>
+                  {showPw ? '🙈' : '👁'}
+                </button>
+              </div>
             </div>
           )}
 
@@ -148,8 +183,8 @@ export default function Auth() {
           {isReset && (
             <div style={{ marginBottom:8 }}>
               <label style={{ display:'block', fontSize:12, fontWeight:600, color:TEXT_MUTED, marginBottom:6, letterSpacing:'0.04em', textTransform:'uppercase' }}>Confirm Password</label>
-              <input type="password" value={confirm} onChange={e=>setConfirm(e.target.value)}
-                placeholder="Same password again"
+              <input type={showPw ? 'text' : 'password'} value={confirm} onChange={e=>setConfirm(e.target.value)}
+                placeholder="Same password again" autoComplete="new-password"
                 onKeyDown={e=>e.key==='Enter'&&handleSubmit()}
                 style={{ width:'100%', padding:'10px 14px', background:BG_INPUT, border:`1px solid ${BORDER}`, borderRadius:8, color:TEXT_PRIMARY, fontSize:14, fontFamily:'inherit', outline:'none', boxSizing:'border-box' }} />
             </div>
@@ -194,7 +229,7 @@ export default function Auth() {
           )}
         </div>
 
-        <p style={{ textAlign:'center', color:TEXT_MUTED, fontSize:11, marginTop:24, opacity:0.6 }}>
+        <div style={{ textAlign:'center', color:TEXT_MUTED, fontSize:11, marginTop:24, opacity:0.6 }}>
           <div style={{ display:'flex', gap:12, justifyContent:'center', marginBottom:4, flexWrap:'wrap' }}>
             <a href="/about.html" style={{ color:'#3a5050', fontSize:10, textDecoration:'none' }}>About</a>
             <a href="/tos.html" style={{ color:'#3a5050', fontSize:10, textDecoration:'none' }}>Terms</a>
@@ -202,7 +237,7 @@ export default function Auth() {
             <a href="/changelog.html" style={{ color:'#3a5050', fontSize:10, textDecoration:'none' }}>Changelog</a>
           </div>
           © {new Date().getFullYear()} Hobby Atelier · PaintForge
-        </p>
+        </div>
       </div>
     </div>
   )
