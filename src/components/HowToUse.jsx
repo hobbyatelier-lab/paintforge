@@ -242,7 +242,6 @@ export default function HowToUse({ onClose, dontShow, onDontShowChange }) {
               <div style={{ marginTop:4 }}><span style={{ color:AMBER,fontWeight:700 }}>Amber +N badge</span> — appears when you own fewer backups than your target. N = how many bottles to buy.</div>
             </div>
           )}
-          {tip('My Set is what you track against — the progress bars and section counters show My Set first, Collection second.')}
 
           {/* Tapping a paint name */}
           <div style={H}>Tapping a paint name</div>
@@ -299,6 +298,7 @@ export default function HowToUse({ onClose, dontShow, onDontShowChange }) {
           </div>
           <div style={S}>Three collapsible levels — tap any header to expand or collapse. <span style={{ color:BRAND_CYAN,fontWeight:600 }}>Cyan = brand</span>. <span style={{ color:AMBER,fontWeight:600 }}>Amber = product line</span>. <span style={{ color:'#9B8FD0',fontWeight:600 }}>Violet = section</span>. Section headers also show the paint <strong>type and chemistry</strong> in muted text when classified — for example, <em>flat · waterborne_acrylic</em>.</div>
           <div style={{ ...S, marginTop:6 }}>Each header shows <span style={{ color:PURPLE,fontWeight:600 }}>♦ owned/total</span> <span style={{ color:AMBER,fontWeight:600 }}>(missing)</span> for your <span style={{ color:PURPLE,fontWeight:600 }}>My Set</span>, then <span style={{ color:BRAND_CYAN,fontWeight:600 }}>owned/total</span> <span style={{ color:AMBER,fontWeight:600 }}>(missing)</span> for your <span style={{ color:BRAND_CYAN,fontWeight:600 }}>Collection</span>. Missing only shows when non-zero.</div>
+          {tip('My Set is what you track against — the progress bars and section counters show My Set first, Collection second.')}
 
           {/* Content filters */}
           <div style={H}>Content filters</div>
