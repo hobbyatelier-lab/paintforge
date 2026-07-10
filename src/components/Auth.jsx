@@ -83,6 +83,7 @@ export default function Auth() {
       } else if (mode === 'signup') {
         const { error } = await supabase.auth.signUp({ email, password })
         if (error) throw error
+        window.posthog?.capture('signup_completed')
         setSuccess('Account created! Check your inbox and confirm your email before signing in.')
         setMode('login'); setPassword('')
       } else if (mode === 'forgot') {
