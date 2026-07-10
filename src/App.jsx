@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from './supabase.js'
 import Auth from './components/Auth.jsx'
 import Inventory from './components/Inventory.jsx'
+import LoadingScreen from './components/LoadingScreen.jsx'
 
 export default function App() {
   const [session, setSession] = useState(null)
@@ -22,18 +23,7 @@ export default function App() {
     return () => subscription.unsubscribe()
   }, [])
 
-  if (loading) return (
-    <div style={{
-      background: '#141414', minHeight: '100vh',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      fontFamily: 'system-ui, sans-serif',
-    }}>
-      <div style={{ textAlign: 'center', color: '#555' }}>
-        <div style={{ fontSize: 40, marginBottom: 12 }}>⚒</div>
-        <p style={{ fontSize: 14 }}>Loading PaintForge…</p>
-      </div>
-    </div>
-  )
+  if (loading) return <LoadingScreen />
 
   if (!session) return <Auth />
 

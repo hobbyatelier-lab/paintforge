@@ -352,8 +352,8 @@ export default function Inventory({ user }) {
           </div>
         ))}
         <div style={{ position:'absolute',inset:0,background:'rgba(20,20,20,0.82)',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:14,borderRadius:4 }}>
-          <div className="pf-spin"/>
-          <span style={{ color:'#888',fontSize:13 }}>Loading your inventory and preferences…</span>
+          <div className="pf-spin" style={{ borderTopColor:'#36E2DD' }}/>
+          <span style={{ color:'#36E2DD',fontSize:13 }}>Heating the forge…</span>
         </div>
       </div>
     </div>
