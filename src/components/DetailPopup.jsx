@@ -43,7 +43,7 @@ function Swatch({ paint, size = 56 }) {
       display:'flex', alignItems:'center', justifyContent:'center',
     }}>
       {indicator && <span style={{ fontSize:12, color:isColorshift?'#888':'#666' }}>{indicator}</span>}
-      {isPaintForgeSampled(paint) && <AnvilBadge />}
+      {isPaintForgeSampled(paint) && <AnvilBadge size={18} />}
     </div>
   )
 }
@@ -119,8 +119,8 @@ export default function DetailPopup({ paint, isOwned, isInSet, onClose, onFindSu
               {brand}{line ? <span style={{ color:'#3a5050' }}> · {line}</span> : ''}
             </div>
             {isPaintForgeSampled(paint) && (
-              <div style={{ fontSize:10, color:'#7A9595', marginTop:5 }}>
-                ⚒ PaintForge-sampled · manufacturer digital chips
+              <div style={{ fontSize:10, color:'#7A9595', marginTop:5, display:'flex', alignItems:'center' }}>
+                <AnvilBadge size={14} inline /> PaintForge-sampled · manufacturer digital chips
               </div>
             )}
           </div>
@@ -159,19 +159,6 @@ export default function DetailPopup({ paint, isOwned, isInSet, onClose, onFindSu
               <span style={{ fontSize:10, padding:'3px 8px', background:'#1e1a28', borderRadius:20, color:'#9060d0', border:'1px solid #3a2a4a' }}>
                 ♦ My Set
               </span>
-            )}
-          </div>
-        )}
-
-        {/* Hex value */}
-        {paint.hex && (
-          <div style={{ fontSize:11, color:'#4a6060', fontFamily:'monospace', marginBottom:20 }}>
-            {paint.finish_family && DASHED_FINISH.has(paint.finish_family) && (
-              <span style={{ color:'#6b8080' }}>~ </span>
-            )}
-            {paint.hex}
-            {paint.finish_family && DASHED_FINISH.has(paint.finish_family) && (
-              <span style={{ color:'#4a6060', marginLeft:6 }}>(approximate)</span>
             )}
           </div>
         )}

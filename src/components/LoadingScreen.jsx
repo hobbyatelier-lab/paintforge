@@ -1,7 +1,9 @@
 // ── LoadingScreen — branded splash for both load moments ──────────
 // Use for (1) the pre-auth blink and (2) the post-auth → Anvil load.
 // Drop-in: render <LoadingScreen/> wherever the spinner/hammers were.
-// Assumes the canonical logo.svg is served at /logo.svg.
+// Uses the same asset import pattern as HowToUse (src/assets/logo.svg).
+
+import logoUrl from '../assets/logo.svg'
 
 export default function LoadingScreen({ label = '' }) {
   return (
@@ -10,7 +12,7 @@ export default function LoadingScreen({ label = '' }) {
       display:'flex', flexDirection:'column', alignItems:'center',
       justifyContent:'center', gap:18, zIndex:9999,
     }}>
-      <img src="/logo.svg" alt="PaintForge" style={{
+      <img src={logoUrl} alt="PaintForge" style={{
         width:96, height:'auto',
         animation:'pf-breathe 1.6s ease-in-out infinite',
       }}/>

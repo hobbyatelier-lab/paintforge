@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import logoUrl from '../assets/logo.svg'
+import { AnvilBadge } from './provenance.jsx'
 
 const BRAND_CYAN = '#36E2DD'
 const PURPLE     = '#9060d0'
@@ -194,12 +195,35 @@ export default function HowToUse({ onClose, dontShow, onDontShowChange }) {
                 </div>
                 <span style={{ fontSize:10,color:'#555' }}>No data yet</span>
               </div>
+              {/* Auxiliary = not applicable */}
+              <div style={{ display:'flex',alignItems:'center',gap:5 }}>
+                <div style={{ width:18,height:18,borderRadius:'50%',background:'transparent',border:'1.5px solid #3a3a4a',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0 }}>
+                  <span style={{ fontSize:8,color:'#555' }}>—</span>
+                </div>
+                <span style={{ fontSize:10,color:'#555' }}>Not applicable</span>
+              </div>
+              {/* Colorshift */}
+              <div style={{ display:'flex',alignItems:'center',gap:5 }}>
+                <div style={{ width:18,height:18,borderRadius:'50%',background:'#FFFFFF',border:'1.5px dashed rgba(255,255,255,0.7)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0 }}>
+                  <span style={{ fontSize:8,color:'#888' }}>~</span>
+                </div>
+                <span style={{ fontSize:10,color:'#888' }}>Colorshift</span>
+              </div>
+              {/* Anvil = PaintForge-sampled */}
+              <div style={{ display:'flex',alignItems:'center',gap:5 }}>
+                <div style={{ position:'relative',width:18,height:18,borderRadius:'50%',background:'#C43E33',border:'1.5px solid rgba(255,255,255,0.85)',boxShadow:'inset 0 0 0 2px rgba(0,0,0,0.4)',flexShrink:0 }}>
+                  <AnvilBadge size={11} />
+                </div>
+                <span style={{ fontSize:10,color:'#36E2DD' }}>PaintForge-sampled</span>
+              </div>
             </div>,
             <div style={S}>
               <div><strong>Solid white border</strong> — true swatch of solid colors based on manufacturer digital chips.</div>
               <div style={{ marginTop:5 }}><strong>Dashed border</strong> — approximate swatch. Metallics, one coat paints (Contrast, Xpress, Speedpaint, and similar), clears, and colorshift paints shift with angle, lighting, and texture and can't be fully captured in a flat swatch.</div>
-              <div style={{ marginTop:5 }}><strong>The anvil mark ⚒</strong> — a small cyan anvil on a swatch means PaintForge sampled this color directly from the manufacturer's official digital chips (559 entries and counting). Entries without the mark come from the open-source dataset credited in About. Either way, the honesty rule applies: screens approximate paint.</div>
-              <div style={{ marginTop:5 }}><strong>Empty ring with ?</strong> — either no color data available or not applicable for this product.</div>
+              <div style={{ marginTop:5 }}><strong>Empty ring with ?</strong> — no color data available yet.</div>
+              <div style={{ marginTop:5 }}><strong>Empty ring with —</strong> — color doesn't apply to this product (thinners, mediums, varnishes and other auxiliaries).</div>
+              <div style={{ marginTop:5 }}><strong>White dashed with ~</strong> — colorshift paint: the color depends on viewing angle, so no single swatch can represent it.</div>
+              <div style={{ marginTop:5 }}><strong>The cyan anvil</strong> — PaintForge sampled this color directly from the manufacturer's official digital chips (559 entries and counting). Entries without the mark come from the open-source dataset credited in About. Either way, the honesty rule applies: screens approximate paint.</div>
             </div>
           )}
           {row(

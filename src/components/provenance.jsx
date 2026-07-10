@@ -38,15 +38,17 @@ export const SAMPLED_TOOLTIP =
 // ── AnvilBadge — 12px cyan anvil on a dark disc ───────────────────
 // Generic anvil silhouette; swap the path for the logo.svg anvil if
 // you want pixel-identical branding.
-export function AnvilBadge({ size = 13 }) {
+export function AnvilBadge({ size = 16, inline = false }) {
   return (
     <span
       title={SAMPLED_TOOLTIP}
       style={{
-        position: 'absolute', right: -2, bottom: -2,
+        ...(inline
+          ? { display:'inline-flex', verticalAlign:'-2px', marginRight:5 }
+          : { display:'flex', position:'absolute', right:-2, bottom:-2 }),
         width: size, height: size, borderRadius: '50%',
         background: '#0A1414', border: '1px solid #36E2DD55',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        alignItems: 'center', justifyContent: 'center',
         lineHeight: 0, zIndex: 1,
       }}
     >

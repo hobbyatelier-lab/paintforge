@@ -43,7 +43,7 @@ function Swatch({ paint, size }) {
       display:'flex', alignItems:'center', justifyContent:'center',
     }}>
       {ind && <span style={{ fontSize:Math.round(size*.22), color:'#666' }}>{ind}</span>}
-      {size >= 40 && isPaintForgeSampled(paint) && <AnvilBadge size={Math.max(13, Math.round(size*.16))} />}
+      {size >= 40 && isPaintForgeSampled(paint) && <AnvilBadge size={Math.max(16, Math.round(size*.19))} />}
     </div>
   )
 }
