@@ -9,23 +9,29 @@
 // Durable post-launch path: hex_source column in Supabase.
 
 export const SAMPLED_SECTIONS = new Set([
-  // Tamiya — July 10 sampling record  [CONFIRM keys vs section_key values]
+  // Tamiya Color Spray (July 10)
   'tamiyaSpray',
-  'tamiyaEnamelFlat', 'tamiyaEnamelGloss',
-  'tamiyaAcrylicFlat', 'tamiyaAcrylicGloss',
-  'tamiyaPolycarbonate',
-  'tamiyaMarkers', 'tamiyaWeatheringStick',
-  // Vallejo
+  // Tamiya Color Enamel Paint — all sub-sections
+  'tamiyaEnamelFlat', 'tamiyaEnamelGloss', 'tamiyaEnamelMetallic',
+  'tamiyaEnamelSatin', 'tamiyaEnamelAux',
+  // Tamiya Color Acrylic Paint Mini — all sub-sections
+  'tamiyaAcrylicFlat', 'tamiyaAcrylicGloss', 'tamiyaAcrylicMetallic',
+  'tamiyaAcrylicSatin', 'tamiyaAcrylicClear', 'tamiyaAcrylicAux',
+  // Tamiya other lines
+  'tamiyaPolycarbSpray',   // was 'tamiyaPolycarbonate' — corrected
+  'tamiyaPaintMarkers',    // was 'tamiyaMarkers' — corrected
+  'tamiyaWeatheringStick',
+  // Vallejo TMM (all three tiers) + Mecha Color full range
   'tmmLight', 'tmmBase', 'tmmShade',
   'mechaColor', 'mechaFluo', 'mechaPrimer',
   'mechaMetallic', 'mechaWeathering',
-  // Warhammer Colour
+  // Warhammer Colour (Citadel Colour)
   'citadelContrast', 'citadelShade',
 ])
 
 // Partial-section stragglers, id-level:
 export const SAMPLED_IDS = new Set([
-  // 2 discontinued Shades sampled July 8  [CONFIRM ids]
+  // 2 discontinued Shades sampled July 8 — ids confirmed correct
   'CIT_SH_Coelia_Greenshade', 'CIT_SH_Seraphim_Sepia',
 ])
 
