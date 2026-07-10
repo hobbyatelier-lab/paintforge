@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import { rankSubstitutes, grade } from '../deltaE.js'
 import { SECTION_LABELS }   from '../data/paints.js'
+import { isPaintForgeSampled, AnvilBadge } from './provenance.jsx'
 
 // ── Design tokens ─────────────────────────────────────────────────
 const BRAND_CYAN  = '#36E2DD'
@@ -35,12 +36,14 @@ function Swatch({ paint, size }) {
   const ind = isCS ? '~' : isAux ? '—' : !paint.hex ? '?' : null
   return (
     <div style={{
+      position:'relative',
       width:size, height:size, borderRadius:'50%', flexShrink:0,
       background:bg, border:bdr,
       boxShadow:(!isCS&&!isAux&&paint.hex) ? `inset 0 0 0 ${Math.round(size*.07)}px rgba(0,0,0,.4),inset 0 0 0 ${Math.round(size*.12)}px ${paint.hex}` : 'none',
       display:'flex', alignItems:'center', justifyContent:'center',
     }}>
       {ind && <span style={{ fontSize:Math.round(size*.22), color:'#666' }}>{ind}</span>}
+      {size >= 40 && isPaintForgeSampled(paint) && <AnvilBadge size={Math.max(13, Math.round(size*.16))} />}
     </div>
   )
 }
@@ -241,6 +244,8 @@ function GlossaryPopup({ onClose }) {
 }
 
 // ── ΔE tooltip ─────────────────────────────────────────────────────
+// Contrast tokens: body #B8CFCF · muted #7A9595 · emphasis #E4F0F0.
+// Never use footer greys (#3a5050 range) for sentence text here.
 function DeltaTooltip({ onClose }) {
   const rows = [
     { range:'< 1.5',   label:'Near Identical', color:BRAND_CYAN },
@@ -249,27 +254,57 @@ function DeltaTooltip({ onClose }) {
     { range:'6 – 12',  label:'Usable',          color:'#6E7F8A' },
     { range:'≥ 12',    label:'Distant',         color:'#4A5560' },
   ]
+  const H = ({children}) => <div style={{ fontSize:11, fontWeight:700, color:'#E4F0F0', margin:'12px 0 4px' }}>{children}</div>
+  const P = ({children}) => <p style={{ fontSize:11, color:'#B8CFCF', lineHeight:1.6, margin:0 }}>{children}</p>
   return (
     <div onClick={onClose} style={{ position:'fixed', inset:0, zIndex:1300, display:'flex', alignItems:'center', justifyContent:'center', background:'rgba(0,0,0,0.6)' }}>
-      <div onClick={e=>e.stopPropagation()} style={{ background:BG_CARD, border:`1px solid ${BORDER}`, borderRadius:10, padding:20, maxWidth:300, width:'90%' }}>
-        <div style={{ display:'flex', justifyContent:'space-between', marginBottom:12 }}>
-          <span style={{ fontSize:13, fontWeight:700, color:'#e8e8e8' }}>What is ΔE?</span>
-          <button onClick={onClose} style={{ background:'none', border:'none', color:'#4a6060', cursor:'pointer', fontSize:16 }}>✕</button>
+      <div onClick={e=>e.stopPropagation()} style={{ background:BG_CARD, border:`1px solid ${BORDER}`, borderRadius:10, padding:20, maxWidth:340, width:'92%', maxHeight:'82vh', overflowY:'auto' }}>
+        <div style={{ display:'flex', justifyContent:'space-between', marginBottom:4 }}>
+          <span style={{ fontSize:13, fontWeight:700, color:'#E4F0F0' }}>What is ΔE?</span>
+          <button onClick={onClose} style={{ background:'none', border:'none', color:'#7A9595', cursor:'pointer', fontSize:16 }}>✕</button>
         </div>
-        <p style={{ fontSize:11, color:'#8AABAB', lineHeight:1.6, marginBottom:12 }}>
-          ΔE (Delta E) measures the perceptual distance between two colours in LAB colour space — calibrated to match how human vision perceives colour differences.
-        </p>
+
+        <P>ΔE ("delta-E") measures how different two colors <b>look to a
+        human eye</b> — not how different their codes are. 0 = identical.
+        Around 1 is the smallest difference most people can spot side by
+        side; below ~2 is nearly indistinguishable on a model; past ~12
+        it's clearly a different color.</P>
+
+        <H>The science</H>
+        <P>PaintForge computes <b>CIEDE2000</b> — the current CIE standard
+        for perceptual color difference, the same math used in print and
+        textile quality control — in CIE LAB space, which is built around
+        human vision rather than screen electronics. Our implementation is
+        ported directly from Sharma et&nbsp;al. (2005) and validated
+        against all 34 published test pairs to four decimal places.</P>
+
+        <H>The three numbers under a comparison</H>
+        <P><b>Δ Lightness (L)</b> — lighter or darker.<br/>
+        <b>Δ Red–Green (a)</b> — positive = candidate leans redder,
+        negative = greener.<br/>
+        <b>Δ Yellow–Blue (b)</b> — positive = more yellow, negative =
+        bluer.<br/>
+        These are the three axes of LAB space; the "add X to equalize"
+        advice tells you which way to nudge a mix to close the gap.</P>
+
+        <H>The grades</H>
         <div style={{ display:'flex', flexDirection:'column', gap:5 }}>
           {rows.map(r=>(
             <div key={r.range} style={{ display:'flex', gap:8, alignItems:'center' }}>
-              <span style={{ fontSize:9, color:'#3a5050', width:52, flexShrink:0 }}>{r.range}</span>
+              <span style={{ fontSize:9, color:'#7A9595', width:52, flexShrink:0 }}>{r.range}</span>
               <span style={{ fontSize:11, color:r.color, fontWeight:600 }}>{r.label}</span>
             </div>
           ))}
         </div>
-        <p style={{ fontSize:10, color:'#3a5050', marginTop:10, lineHeight:1.5 }}>
-          Scores are computed from sampled hex values — real paints may differ. Swatch before committing.
-        </p>
+        <div style={{ height:6 }} />
+        <P>Thresholds are calibrated for miniature painting at arm's
+        length, not laboratory viewing booths.</P>
+
+        <H>The honesty rule</H>
+        <P>ΔE compares digital chip values, and chips approximate real
+        paint: finish, opacity, and pigment behaviour aren't captured, and
+        every screen renders color a little differently. Matches are a
+        ranked starting point — swatch before committing.</P>
       </div>
     </div>
   )

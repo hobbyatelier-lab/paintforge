@@ -198,6 +198,7 @@ export default function HowToUse({ onClose, dontShow, onDontShowChange }) {
             <div style={S}>
               <div><strong>Solid white border</strong> — true swatch of solid colors based on manufacturer digital chips.</div>
               <div style={{ marginTop:5 }}><strong>Dashed border</strong> — approximate swatch. Metallics, one coat paints (Contrast, Xpress, Speedpaint, and similar), clears, and colorshift paints shift with angle, lighting, and texture and can't be fully captured in a flat swatch.</div>
+              <div style={{ marginTop:5 }}><strong>The anvil mark ⚒</strong> — a small cyan anvil on a swatch means PaintForge sampled this color directly from the manufacturer's official digital chips (559 entries and counting). Entries without the mark come from the open-source dataset credited in About. Either way, the honesty rule applies: screens approximate paint.</div>
               <div style={{ marginTop:5 }}><strong>Empty ring with ?</strong> — either no color data available or not applicable for this product.</div>
             </div>
           )}

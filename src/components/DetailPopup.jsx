@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { SECTION_LABELS } from '../data/paints.js'
+import { isPaintForgeSampled, AnvilBadge } from './provenance.jsx'
 
 const BRAND_CYAN   = '#36E2DD'
 const SOLID_FINISH = new Set(['flat','gloss','satin','ink','one-coat','pigment','primer','contrast_primer','dry','custom'])
@@ -33,6 +34,7 @@ function Swatch({ paint, size = 56 }) {
 
   return (
     <div style={{
+      position:'relative',
       width:size, height:size, borderRadius:'50%', flexShrink:0,
       background:bg, border,
       boxShadow: (!isColorshift&&!isAuxiliary&&paint.hex)
@@ -41,6 +43,7 @@ function Swatch({ paint, size = 56 }) {
       display:'flex', alignItems:'center', justifyContent:'center',
     }}>
       {indicator && <span style={{ fontSize:12, color:isColorshift?'#888':'#666' }}>{indicator}</span>}
+      {isPaintForgeSampled(paint) && <AnvilBadge />}
     </div>
   )
 }
@@ -115,6 +118,11 @@ export default function DetailPopup({ paint, isOwned, isInSet, onClose, onFindSu
             <div style={{ fontSize:11, color:'#6b8080' }}>
               {brand}{line ? <span style={{ color:'#3a5050' }}> · {line}</span> : ''}
             </div>
+            {isPaintForgeSampled(paint) && (
+              <div style={{ fontSize:10, color:'#7A9595', marginTop:5 }}>
+                ⚒ PaintForge-sampled · manufacturer digital chips
+              </div>
+            )}
           </div>
 
           <button
