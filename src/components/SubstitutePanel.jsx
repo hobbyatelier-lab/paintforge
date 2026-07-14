@@ -269,76 +269,73 @@ function DeltaTooltip({ onClose }) {
 }
 
 // ── Result row ─────────────────────────────────────────────────────
-// DD-01 changes:
-//   isOwned   — new prop. Shows a green "✓ owned" indicator on the candidate's
-//               name line when true. Part of Step 3 (owned visibility in results).
-//   onOpenHub — new prop. Called when the user taps the candidate's swatch or name.
-//               Opens the DetailPopup Ownership Hub for that candidate.
-//               stopPropagation prevents the row's onSelect from also firing.
+// Tapping anywhere in the row SELECTS the candidate for comparison (updates top panel).
+// The hub opens from the SELECTED candidate at the top — not from the result rows.
+// DD-01: isOwned and isInSet are shown as read-only badges in the name line.
 const ROW_H = 56
-function ResultRow({ target, result, isInSet, isOwned, onSelect, onToggleSet, isSelected, onOpenHub }) {
+function ResultRow({ target, result, isInSet, isOwned, onSelect, onToggleSet, isSelected }) {
   const { paint:p, deltaE:dE, chips } = result
   const g     = grade(dE)
   const parts = (SECTION_LABELS[p.section_key]||p.section_key).split(' — ')
   const brand = parts[0], line = parts[1]||''
 
   return (
-    <div
-      onClick={() => onSelect(result)}
-      style={{
-        display:'flex', alignItems:'center', gap:6,
-        padding:'0 12px', height:ROW_H,
-        borderBottom:`1px solid #1a2428`,
-        cursor:'pointer',
-        background: isSelected ? '#1A2424' : 'transparent',
-        borderLeft: isSelected ? `3px solid ${BRAND_CYAN}` : '3px solid transparent',
-      }}
-    >
-      {/* ── Swatch pair + name — tapping either opens the Ownership Hub ──
-          stopPropagation prevents the outer row's onSelect from firing at the same time.
-          ΔE score and ♦ button are outside this div and keep their own behavior. */}
-      <div
-        onClick={e => { e.stopPropagation(); onOpenHub(p) }}
-        style={{ display:'flex', alignItems:'center', gap:6, flex:1, minWidth:0, cursor:'pointer' }}
-      >
-        {/* Swatch pair: target on left, candidate on right, touching */}
-        <div style={{ display:'flex', flexShrink:0 }}>
-          <Swatch paint={target} size={ROW_H-14} />
-          <Swatch paint={p}      size={ROW_H-14} />
-        </div>
-
-        {/* Name + brand line + owned indicator + warning chips */}
-        <div style={{ flex:1, minWidth:0 }}>
-          <div style={{
-            fontSize:14, fontWeight:600, color:'#d8d8d8',
-            fontFamily:"'Barlow Condensed','Montserrat',system-ui",
-            overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap',
-          }}>{p.name}</div>
-          <div style={{ fontSize:9, color:'#6b8080', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
-            {brand}{line && <span style={{ color:'#4a6060' }}> · {line}</span>}
-            {/* Step 3 — green owned indicator. Small, same line as brand, no layout shift. */}
-            {isOwned && <span style={{ color:'#6aba6a', marginLeft:6 }}>✓ owned</span>}
-          </div>
-          {chips.length > 0 && (
-            <div style={{ display:'flex', gap:3, marginTop:2 }}>
-              {chips.map((chip,i) => {
-                if (chip==='yellow') return <Chip key={i} label='⚠ section'   color='#E8C840' bg='#2a2200' />
-                if (chip==='orange') return <Chip key={i} label='⚠ chemistry' color='#E8A838' bg='#2a1400' />
-                if (chip.startsWith('sheen:')) return <Chip key={i} label={chip.slice(6)} color='#8AABAB' bg='#1a1e28' />
-                return null
-              })}
-            </div>
-          )}
-        </div>
+    <div onClick={() => onSelect(result)} style={{
+      display:'flex', alignItems:'center', gap:6,
+      padding:'0 12px', height:ROW_H,
+      borderBottom:`1px solid #1a2428`,
+      cursor:'pointer',
+      background: isSelected ? '#1A2424' : 'transparent',
+      borderLeft: isSelected ? `3px solid ${BRAND_CYAN}` : '3px solid transparent',
+    }}>
+      {/* Swatch pair touching (target + candidate) */}
+      <div style={{ display:'flex', flexShrink:0 }}>
+        <Swatch paint={target} size={ROW_H-14} />
+        <Swatch paint={p}      size={ROW_H-14} />
       </div>
 
-      {/* ΔE + grade — outside the hub-tap area; clicking here selects for comparison */}
+      {/* Name + brand + owned/set status badges */}
+      <div style={{ flex:1, minWidth:0 }}>
+        <div style={{
+          fontSize:14, fontWeight:600, color:'#d8d8d8',
+          fontFamily:"'Barlow Condensed','Montserrat',system-ui",
+          overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap',
+        }}>{p.name}</div>
+
+        {/* Brand line + read-only owned (✓ green) and set (♦ violet) status badges */}
+        <div style={{ fontSize:9, color:'#6b8080', display:'flex', alignItems:'center', gap:5, overflow:'hidden' }}>
+          <span style={{ overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+            {brand}{line && <span style={{ color:'#4a6060' }}> · {line}</span>}
+          </span>
+          {/* Green owned badge — read-only indicator */}
+          {isOwned && (
+            <span style={{ flexShrink:0, fontSize:9, padding:'1px 5px', borderRadius:10, background:'#1a2a1a', color:'#6aba6a', border:'1px solid #2a4a2a' }}>✓</span>
+          )}
+          {/* Violet My Set badge — read-only indicator (separate from the ♦ toggle button below) */}
+          {isInSet && (
+            <span style={{ flexShrink:0, fontSize:9, padding:'1px 5px', borderRadius:10, background:'#1e1a28', color:'#9060d0', border:'1px solid #3a2a4a' }}>♦</span>
+          )}
+        </div>
+
+        {chips.length > 0 && (
+          <div style={{ display:'flex', gap:3, marginTop:2 }}>
+            {chips.map((chip,i) => {
+              if (chip==='yellow') return <Chip key={i} label='⚠ section'   color='#E8C840' bg='#2a2200' />
+              if (chip==='orange') return <Chip key={i} label='⚠ chemistry' color='#E8A838' bg='#2a1400' />
+              if (chip.startsWith('sheen:')) return <Chip key={i} label={chip.slice(6)} color='#8AABAB' bg='#1a1e28' />
+              return null
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* ΔE + grade */}
       <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end', gap:3, flexShrink:0 }}>
         <span style={{ fontSize:13, fontWeight:700, color:g.color }}>Δ{dE.toFixed(1)}</span>
         <Chip label={g.label} color={g.color} bg={g.bg} />
       </div>
 
-      {/* ♦ My Set toggle — outside the hub-tap area */}
+      {/* ♦ My Set quick-toggle — stopPropagation so it doesn't also select the row */}
       <button
         onClick={e=>{ e.stopPropagation(); onToggleSet(p.id) }}
         title={isInSet?'Remove from My Set':'Add to My Set'}
@@ -357,21 +354,22 @@ function ResultRow({ target, result, isInSet, isOwned, onSelect, onToggleSet, is
 // ── Main panel ─────────────────────────────────────────────────────
 const TIERS = [
   { id:'owned',  label:'Owned'         },
+  { id:'myset',  label:'My Set'        },
   { id:'brands', label:'Custom Brands' },
   { id:'all',    label:'All'           },
 ]
 
 // Props:
-//   paint, catalog, hiddenSections — unchanged
+//   paint, catalog, hiddenSections, toggleMySet, onShop, onBrandFilter, onClose — unchanged
 //   checked     : { paint_id: boolean } — owned status per paint
 //   mySet       : { paint_id: boolean } — My Set membership per paint
-//   extras      : { paint_id: number  } — extra bottle counts (new — needed for hub display)
-//   targets     : { paint_id: number  } — target counts (new — needed for hub display)
-//   toggleMySet : (id) → flips My Set — unchanged
-//   onShop, onBrandFilter, onClose — unchanged
-//   onOpenHub   : (paint) → opens the DetailPopup hub for the given candidate paint (new)
+//   onOpenHub   : (paint) → opens the DetailPopup hub for a paint.
+//                 Called from the SELECTED CANDIDATE at the top of the panel,
+//                 NOT from the result rows (rows only select for comparison).
+//   extras/targets are no longer needed here — hub data is fetched by Inventory
+//   when onOpenHub triggers the DetailPopup render there.
 export default function SubstitutePanel({
-  paint, catalog, checked, mySet, extras, targets, hiddenSections,
+  paint, catalog, checked, mySet, hiddenSections,
   toggleMySet, onShop, onBrandFilter, onClose, onOpenHub,
 }) {
   const [tier,         setTier]         = useState('all')
@@ -458,6 +456,8 @@ export default function SubstitutePanel({
           <div style={{ padding:'12px 14px', borderBottom:`1px solid ${BORDER}`, flexShrink:0 }}>
             <div style={{ display:'flex', gap:10, alignItems:'flex-start' }}>
               <PaintInfo paint={paint} />
+
+              {/* Centre: ΔE */}
               <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', paddingTop:40, gap:4, flexShrink:0, width:48 }}>
                 {candidate ? (
                   <>
@@ -477,7 +477,17 @@ export default function SubstitutePanel({
                   <span style={{ color:'#2a3535', fontSize:20 }}>↔</span>
                 )}
               </div>
-              <PaintInfo paint={candidate} emptyLabel={'select an\nalternative\nto compare'} />
+
+              {/* Candidate — tappable when selected to open Ownership Hub.
+                  Tap a row first to select; then tap here to open the hub.
+                  Empty state shows prompt, not tappable. */}
+              <div
+                onClick={candidate ? () => onOpenHub(candidate) : undefined}
+                style={{ flex:1, cursor: candidate ? 'pointer' : 'default' }}
+                title={candidate ? 'Tap to open Ownership Hub' : undefined}
+              >
+                <PaintInfo paint={candidate} emptyLabel={'select an\nalternative\nto compare'} />
+              </div>
             </div>
 
             {candidate && (
@@ -538,7 +548,6 @@ export default function SubstitutePanel({
                 onSelect={setSelected}
                 onToggleSet={toggleMySet}
                 isSelected={selected?.paint.id===r.paint.id&&selected?.paint.section_key===r.paint.section_key}
-                onOpenHub={onOpenHub}
               />
             ))}
           </div>

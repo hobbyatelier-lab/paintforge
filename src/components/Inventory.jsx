@@ -446,17 +446,15 @@ export default function Inventory({ user }) {
       />
 
       {/* ── Substitute Panel — DD-01 Step 2 ──────────────────────────────────
-          Now receives extras, targets (for hub display) and onOpenHub (to open
-          the DetailPopup for a candidate from within IrisMatch).
-          candidate_detail_opened PostHog event fires here because this is the
-          only place we know the open originated from IrisMatch. */}
+          onOpenHub triggers when the user taps the SELECTED CANDIDATE at the top
+          of the panel (not from result rows — those now just select for comparison).
+          extras/targets no longer passed here; Inventory provides them to DetailPopup
+          directly when onOpenHub triggers the hub render. */}
       <SubstitutePanel
         paint={subPaint}
         catalog={catalogFlat}
         checked={checked}
         mySet={mySet}
-        extras={extras}
-        targets={targets}
         hiddenSections={hiddenSections}
         toggleMySet={toggleMySet}
         onShop={handleShopList}
@@ -645,6 +643,7 @@ export default function Inventory({ user }) {
                                   extraCount={extras[c.id]||0} targetCount={targets[c.id]||0}
                                   toggleOwned={toggleOwned} toggleMySet={toggleMySet}
                                   setExtraCount={setExtraCount} setTargetCount={setTargetCount}
+                                  setHubState={setHubState}
                                   onNameClick={handleNameClick}
                                 />
                               ))}
@@ -681,7 +680,7 @@ const ROLE_COLORS = {
   S:{bg:'#101820',color:'#6090a8'},
 }
 
-const ColorRow = memo(function ColorRow({ color, isChecked, inMySet, extraCount, targetCount, toggleOwned, toggleMySet, setExtraCount, setTargetCount, onNameClick }) {
+const ColorRow = memo(function ColorRow({ color, isChecked, inMySet, extraCount, targetCount, toggleOwned, toggleMySet, setExtraCount, setTargetCount, setHubState, onNameClick }) {
   const isLow=(isChecked&&targetCount>0&&extraCount<targetCount)||(!isChecked&&inMySet&&targetCount>0)
   const need=isChecked?Math.max(0,targetCount-extraCount):targetCount+1
   const dispCode = getDisplayCode(color.id, color.name)
@@ -720,30 +719,62 @@ const ColorRow = memo(function ColorRow({ color, isChecked, inMySet, extraCount,
                      : color.hex    ? color.hex
                      : 'Hex missing'
 
-  // Battery pill builder — inventory row pips.
-  // Matches the HubPips visual system (green for extras, violet for target, "|+||||" format)
-  // but smaller (5×12px vs 22×36px in the hub) to fit the compact inventory row.
-  // Tap behavior: pip n → sets count to n, or to 0 if n is already the active count.
-  // The interactive version with labels lives in DetailPopup as HubPips.
-  // If a third location ever needs this, extract both to src/components/Pips.jsx.
-  const Pips = ({count, activeColor, isExtras}) => (
-    <div style={{ display:'flex',gap:2,flexShrink:0,alignItems:'center',border:'1px solid #2A3535',borderRadius:4,padding:'2px 3px' }}>
-      {/* Pip 1 — base bottle */}
-      <button
-        onClick={()=>{ isExtras ? setExtraCount(color.id,1) : setTargetCount(color.id,1) }}
-        style={{ width:5,height:12,borderRadius:2,border:`1px solid ${1<=count?activeColor:'#333'}`,cursor:'pointer',padding:0,flexShrink:0,background:1<=count?activeColor:'transparent' }}
-      />
-      {/* Separator — matches hub "|+||||" format, smaller */}
-      <span style={{ fontSize:7,color:'#3a5050',fontWeight:700,lineHeight:1,flexShrink:0 }}>+</span>
-      {/* Pips 2–5 — backup bottles */}
-      {[2,3,4,5].map(n=>(
-        <button key={n}
-          onClick={()=>{ isExtras ? setExtraCount(color.id,n) : setTargetCount(color.id,n) }}
-          style={{ width:5,height:12,borderRadius:2,border:`1px solid ${n<=count?activeColor:'#333'}`,cursor:'pointer',padding:0,flexShrink:0,background:n<=count?activeColor:'transparent' }}
-        />
-      ))}
-    </div>
-  )
+  // ── Inventory Pips — matches the hub visual system ──────────────────────
+  // pip 1 = the base bottle (owned / in My Set), same as hub.
+  // pips 2–5 = extra backup bottles (extraCount 1–4) or target bottles (targetCount 1–4).
+  // count formula: green → isChecked ? 1 + extraCount : 0
+  //                violet → inMySet  ? 1 + targetCount : 0
+  // Tap behavior mirrors hub: tap pip 1 = toggle owned/set; tap pip n (n>1) = set count;
+  // same pip again = set to 0. setHubState used for atomic owned+extras updates.
+  // No Step 6 destructive guard in rows — that lives in the DetailPopup hub.
+  // If a third location needs this pip system, extract to src/components/Pips.jsx.
+  const greenCount  = isChecked ? 1 + extraCount  : 0
+  const violetCount = inMySet   ? 1 + targetCount : 0
+
+  const GreenPips = () => {
+    function handleTap(n) {
+      if (n === greenCount) {
+        // toggling off — same pip as current total
+        setHubState(color.id, { owned: false, extraCount: 0 })
+      } else if (n === 1) {
+        // pip 1 when not active — just toggle owned, keep extras as-is
+        toggleOwned(color.id)
+      } else {
+        // pip n>1 — set owned=true and extras=n-1 atomically
+        setHubState(color.id, { owned: true, extraCount: n - 1 })
+      }
+    }
+    return (
+      <div style={{ display:'flex',gap:2,flexShrink:0,alignItems:'center',border:'1px solid #2A3535',borderRadius:4,padding:'2px 3px' }}>
+        <button onClick={() => handleTap(1)} style={{ width:5,height:12,borderRadius:2,border:`1px solid ${1<=greenCount?'#4caf50':'#333'}`,cursor:'pointer',padding:0,flexShrink:0,background:1<=greenCount?'#4caf50':'transparent' }} />
+        <span style={{ fontSize:7,color:'#3a5050',fontWeight:700,lineHeight:1,flexShrink:0 }}>+</span>
+        {[2,3,4,5].map(n=>(
+          <button key={n} onClick={() => handleTap(n)} style={{ width:5,height:12,borderRadius:2,border:`1px solid ${n<=greenCount?'#4caf50':'#333'}`,cursor:'pointer',padding:0,flexShrink:0,background:n<=greenCount?'#4caf50':'transparent' }} />
+        ))}
+      </div>
+    )
+  }
+
+  const VioletPips = () => {
+    function handleTap(n) {
+      if (n === violetCount) {
+        setHubState(color.id, { inSet: false, targetCount: 0 })
+      } else if (n === 1) {
+        toggleMySet(color.id)
+      } else {
+        setHubState(color.id, { inSet: true, targetCount: n - 1 })
+      }
+    }
+    return (
+      <div style={{ display:'flex',gap:2,flexShrink:0,alignItems:'center',border:'1px solid #2A3535',borderRadius:4,padding:'2px 3px' }}>
+        <button onClick={() => handleTap(1)} style={{ width:5,height:12,borderRadius:2,border:`1px solid ${1<=violetCount?'#9060d0':'#333'}`,cursor:'pointer',padding:0,flexShrink:0,background:1<=violetCount?'#9060d0':'transparent' }} />
+        <span style={{ fontSize:7,color:'#3a5050',fontWeight:700,lineHeight:1,flexShrink:0 }}>+</span>
+        {[2,3,4,5].map(n=>(
+          <button key={n} onClick={() => handleTap(n)} style={{ width:5,height:12,borderRadius:2,border:`1px solid ${n<=violetCount?'#9060d0':'#333'}`,cursor:'pointer',padding:0,flexShrink:0,background:n<=violetCount?'#9060d0':'transparent' }} />
+        ))}
+      </div>
+    )
+  }
 
   return (
     <div style={{
@@ -797,14 +828,14 @@ const ColorRow = memo(function ColorRow({ color, isChecked, inMySet, extraCount,
       {/* Low stock badge */}
       {isLow&&<span style={{ fontSize:9,fontWeight:700,color:'#e0a040',flexShrink:0 }}>+{need}</span>}
 
-      {/* Battery pips — owned extras (green, matches hub owned color) */}
-      <Pips count={extraCount} activeColor='#4caf50' isExtras={true} />
+      {/* Battery pips — owned extras (green, hub-matching system: pip1=owned, pips2-5=backup) */}
+      <GreenPips />
 
       {/* Gap between groups */}
       <div style={{ width:5, flexShrink:0 }} />
 
-      {/* Battery pips — My Set target (violet, matches hub set color) */}
-      <Pips count={targetCount} activeColor='#9060d0' isExtras={false} />
+      {/* Battery pips — My Set target (violet, hub-matching system: pip1=inSet, pips2-5=target) */}
+      <VioletPips />
     </div>
   )
 }, (prev, next) =>

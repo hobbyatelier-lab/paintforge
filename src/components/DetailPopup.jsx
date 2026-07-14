@@ -87,7 +87,9 @@ function HubPips({ count, activeColor, onTap }) {
   )
 
   return (
-    <div style={{ display:'inline-flex', flexDirection:'column', gap:2 }}>
+    // alignSelf:'flex-start' prevents the column's flex:1 from stretching this wrapper
+    // width:'fit-content' ensures the pip row border hugs its content exactly (no phantom space)
+    <div style={{ display:'inline-flex', flexDirection:'column', gap:2, alignSelf:'flex-start', width:'fit-content' }}>
 
       {/* ── Pip row ── */}
       <div style={{
@@ -122,7 +124,7 @@ function HubPips({ count, activeColor, onTap }) {
           padding: '1px 2px 2px',
           textAlign: 'center',
           fontSize: 7,
-          color: '#4a6060',
+          color: '#8AABAB',
         }}>
           backup stock
         </div>
@@ -442,8 +444,24 @@ export default function DetailPopup({
 
           </div>
 
+          {/* Shop button — surfaces purchase intent after seeing ownership state.
+              Violet per the commerce/action accent law (warm hues are warnings only).
+              Same style as the Shop button in IrisMatch and the inventory header. */}
+          <button
+            onClick={() => window.posthog?.capture('shop_from_hub', { paint_id: paint.id })}
+            style={{
+              width:'100%', marginTop:10,
+              padding:'7px', background:'transparent',
+              border:`2px solid #9060d0`, borderRadius:7,
+              color:'#9060d0', fontSize:12, fontWeight:700,
+              cursor:'pointer', letterSpacing:'0.02em',
+            }}
+          >
+            Shop 🛒
+          </button>
+
           {/* Independence sentence — verbatim from spec. Always visible. */}
-          <div style={{ fontSize:10, color:'#5a7070', marginTop:12, lineHeight:1.6, fontStyle:'italic' }}>
+          <div style={{ fontSize:10, color:'#5a7070', marginTop:10, lineHeight:1.6, fontStyle:'italic' }}>
             Owned means you have it; My Set means you're tracking it — they're independent.
           </div>
         </div>

@@ -103,7 +103,7 @@ export function deltaE2000(lab1, lab2) {
 // Pure client-side. Runs over in-memory catalog, < 10ms @ 6-7k rows.
 //
 // targetPaint  — full paint object from catalog (must have lab_l/a/b)
-// tier         — 'owned' | 'brands' | 'all'
+// tier         — 'owned' | 'myset' | 'brands' | 'all'
 // finishExpand — bool: expand to flat↔satin↔gloss sheen trio
 // userPaints   — map of paint_id → { owned, in_my_set }
 // catalog      — full paintsBySection flattened to array
@@ -142,6 +142,12 @@ export function rankSubstitutes(targetPaint, { tier, finishExpand, userPaints, c
     if (tier === 'owned') {
       const up = userPaints[p.id]
       if (!up || !up.owned) return false
+    }
+    if (tier === 'myset') {
+      // myset tier: filter to paints the user is tracking in My Set.
+      // userPaints[id].inSet is set from the mySet state in SubstitutePanel.
+      const up = userPaints[p.id]
+      if (!up || !up.inSet) return false
     }
     if (tier === 'brands') {
       if (brandFilter.has(p.section_key)) return false
