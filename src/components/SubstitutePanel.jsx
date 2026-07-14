@@ -302,16 +302,19 @@ function ResultRow({ target, result, isInSet, isOwned, onSelect, onToggleSet, is
           overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap',
         }}>{p.name}</div>
 
-        {/* Brand line + read-only owned (✓ green) and set (♦ violet) status badges */}
+        {/* Brand line + read-only owned (✓ green) and set (♦ violet) status badges.
+            Brand span needs flex:1 + minWidth:0 so it truncates properly and
+            leaves room for the flexShrink:0 badges — without this the badges
+            get clipped by the parent's overflow:hidden. */}
         <div style={{ fontSize:9, color:'#6b8080', display:'flex', alignItems:'center', gap:5, overflow:'hidden' }}>
-          <span style={{ overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+          <span style={{ flex:1, minWidth:0, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
             {brand}{line && <span style={{ color:'#4a6060' }}> · {line}</span>}
           </span>
           {/* Green owned badge — read-only indicator */}
           {isOwned && (
             <span style={{ flexShrink:0, fontSize:9, padding:'1px 5px', borderRadius:10, background:'#1a2a1a', color:'#6aba6a', border:'1px solid #2a4a2a' }}>✓</span>
           )}
-          {/* Violet My Set badge — read-only indicator (separate from the ♦ toggle button below) */}
+          {/* Violet My Set badge — read-only indicator (separate from the ♦ toggle button) */}
           {isInSet && (
             <span style={{ flexShrink:0, fontSize:9, padding:'1px 5px', borderRadius:10, background:'#1e1a28', color:'#9060d0', border:'1px solid #3a2a4a' }}>♦</span>
           )}

@@ -442,6 +442,7 @@ export default function Inventory({ user }) {
         setHubState={setHubState}
         onClose={() => { setDetailPaint(null); setDetailFromPanel(false) }}
         onFindSubstitute={(p) => { setDetailPaint(null); setDetailFromPanel(false); setSubPaint(p) }}
+        onShop={handleShopList}
         zIndex={detailFromPanel ? 1200 : 1000}
       />
 

@@ -169,6 +169,7 @@ function edgeCase(paint) {
 //                  so they land in Supabase as one write, not two racing ones.
 //   onClose      : () → closes this popup
 //   onFindSubstitute : (paint) → opens IrisMatch for this paint; closes this popup first
+//   onShop       : () → opens the shopping list export (same handler as inventory Shop button)
 //   zIndex       : z-index for the overlay.
 //                  1000 when opened from the inventory list.
 //                  1200 when opened from IrisMatch (SubstitutePanel sits at 1100).
@@ -177,7 +178,7 @@ export default function DetailPopup({
   isOwned, isInSet,
   extras = 0, targetCount = 0,
   toggleOwned, toggleMySet, setHubState,
-  onClose, onFindSubstitute,
+  onClose, onFindSubstitute, onShop,
   zIndex = 1000,
 }) {
   if (!paint) return null
@@ -448,7 +449,10 @@ export default function DetailPopup({
               Violet per the commerce/action accent law (warm hues are warnings only).
               Same style as the Shop button in IrisMatch and the inventory header. */}
           <button
-            onClick={() => window.posthog?.capture('shop_from_hub', { paint_id: paint.id })}
+            onClick={() => {
+              window.posthog?.capture('shop_from_hub', { paint_id: paint.id })
+              onShop?.()
+            }}
             style={{
               width:'100%', marginTop:10,
               padding:'7px', background:'transparent',
