@@ -59,29 +59,75 @@ function Swatch({ paint, size = 56 }) {
 // If pips are ever needed in a third location, extract both here and in Inventory
 // to src/components/Pips.jsx at that point.
 //
+// Visual layout ("|+||||" format):
+//   [ pip 1 ] + [ pip 2 ][ pip 3 ][ pip 4 ][ pip 5 ]
+//                └─────────── backup stock ──────────┘
+//
+// Pip 1 = the base bottle (owned / in My Set).
+// Pips 2–5 = extra backup bottles beyond the base.
+// The "backup stock" U-bracket below pips 2–5 makes this grouping explicit.
+//
 // count      : total active pips (0–5).
 //              Green side : isOwned ? 1 + extras : 0
 //              Violet side: isInSet ? 1 + targetCount : 0
 // activeColor: fill and border color for active pips (#4caf50 green / #9060d0 violet)
 // onTap(n)   : called with the pip number (1–5) the user tapped
 function HubPips({ count, activeColor, onTap }) {
+  const pip = (n) => (
+    <button
+      key={n}
+      onClick={() => onTap(n)}
+      style={{
+        width:22, height:36, borderRadius:4,
+        padding:0, flexShrink:0, cursor:'pointer',
+        background: n <= count ? activeColor : 'transparent',
+        border: `1px solid ${n <= count ? activeColor : '#333'}`,
+      }}
+    />
+  )
+
   return (
-    <div style={{
-      display:'flex', gap:3, alignItems:'center',
-      border:'1px solid #2A3535', borderRadius:6, padding:'3px 4px',
-    }}>
-      {[1,2,3,4,5].map(n => (
-        <button
-          key={n}
-          onClick={() => onTap(n)}
-          style={{
-            width:22, height:36, borderRadius:4,
-            padding:0, flexShrink:0, cursor:'pointer',
-            background: n <= count ? activeColor : 'transparent',
-            border: `1px solid ${n <= count ? activeColor : '#333'}`,
-          }}
-        />
-      ))}
+    <div style={{ display:'inline-flex', flexDirection:'column', gap:2 }}>
+
+      {/* ── Pip row ── */}
+      <div style={{
+        display:'flex', gap:3, alignItems:'center',
+        border:'1px solid #2A3535', borderRadius:6, padding:'3px 4px',
+      }}>
+        {/* Pip 1 — base bottle */}
+        {pip(1)}
+
+        {/* Separator between base and backup group */}
+        <span style={{ fontSize:11, color:'#3a5050', fontWeight:700, lineHeight:1, flexShrink:0 }}>+</span>
+
+        {/* Pips 2–5 — backup bottles */}
+        {[2,3,4,5].map(pip)}
+      </div>
+
+      {/* ── Label row — "backup stock" U-bracket under pips 2–5 ── */}
+      {/* Uses a transparent "+" spacer to mirror the pip row layout exactly,
+          so the bracket aligns with pips 2–5 without hardcoded pixel offsets. */}
+      <div style={{ display:'flex', gap:3, alignItems:'flex-start', paddingLeft:5, paddingRight:5 }}>
+        {/* Spacer matching pip 1 */}
+        <div style={{ width:22, flexShrink:0 }} />
+        {/* Spacer matching "+" — transparent, same size as the visible one above */}
+        <span style={{ fontSize:11, fontWeight:700, lineHeight:1, flexShrink:0, color:'transparent' }}>+</span>
+        {/* U-bracket spanning pips 2–5 */}
+        <div style={{
+          flex:1,
+          borderLeft:   '1px solid #2a4040',
+          borderBottom: '1px solid #2a4040',
+          borderRight:  '1px solid #2a4040',
+          borderRadius: '0 0 3px 3px',
+          padding: '1px 2px 2px',
+          textAlign: 'center',
+          fontSize: 7,
+          color: '#4a6060',
+        }}>
+          backup stock
+        </div>
+      </div>
+
     </div>
   )
 }

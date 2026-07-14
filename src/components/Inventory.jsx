@@ -720,12 +720,23 @@ const ColorRow = memo(function ColorRow({ color, isChecked, inMySet, extraCount,
                      : color.hex    ? color.hex
                      : 'Hex missing'
 
-  // Battery pill builder — display-only inventory pips (read-only glance).
-  // The interactive version lives in DetailPopup as HubPips.
-  // If a third location ever needs interactive pips, extract both to src/components/Pips.jsx.
+  // Battery pill builder — inventory row pips.
+  // Matches the HubPips visual system (green for extras, violet for target, "|+||||" format)
+  // but smaller (5×12px vs 22×36px in the hub) to fit the compact inventory row.
+  // Tap behavior: pip n → sets count to n, or to 0 if n is already the active count.
+  // The interactive version with labels lives in DetailPopup as HubPips.
+  // If a third location ever needs this, extract both to src/components/Pips.jsx.
   const Pips = ({count, activeColor, isExtras}) => (
     <div style={{ display:'flex',gap:2,flexShrink:0,alignItems:'center',border:'1px solid #2A3535',borderRadius:4,padding:'2px 3px' }}>
-      {[1,2,3,4,5].map(n=>(
+      {/* Pip 1 — base bottle */}
+      <button
+        onClick={()=>{ isExtras ? setExtraCount(color.id,1) : setTargetCount(color.id,1) }}
+        style={{ width:5,height:12,borderRadius:2,border:`1px solid ${1<=count?activeColor:'#333'}`,cursor:'pointer',padding:0,flexShrink:0,background:1<=count?activeColor:'transparent' }}
+      />
+      {/* Separator — matches hub "|+||||" format, smaller */}
+      <span style={{ fontSize:7,color:'#3a5050',fontWeight:700,lineHeight:1,flexShrink:0 }}>+</span>
+      {/* Pips 2–5 — backup bottles */}
+      {[2,3,4,5].map(n=>(
         <button key={n}
           onClick={()=>{ isExtras ? setExtraCount(color.id,n) : setTargetCount(color.id,n) }}
           style={{ width:5,height:12,borderRadius:2,border:`1px solid ${n<=count?activeColor:'#333'}`,cursor:'pointer',padding:0,flexShrink:0,background:n<=count?activeColor:'transparent' }}
@@ -786,14 +797,14 @@ const ColorRow = memo(function ColorRow({ color, isChecked, inMySet, extraCount,
       {/* Low stock badge */}
       {isLow&&<span style={{ fontSize:9,fontWeight:700,color:'#e0a040',flexShrink:0 }}>+{need}</span>}
 
-      {/* Battery pips — owned extras (orange) */}
-      <Pips count={extraCount} activeColor='#f07030' isExtras={true} />
+      {/* Battery pips — owned extras (green, matches hub owned color) */}
+      <Pips count={extraCount} activeColor='#4caf50' isExtras={true} />
 
       {/* Gap between groups */}
       <div style={{ width:5, flexShrink:0 }} />
 
-      {/* Battery pips — target (teal) */}
-      <Pips count={targetCount} activeColor='#20a080' isExtras={false} />
+      {/* Battery pips — My Set target (violet, matches hub set color) */}
+      <Pips count={targetCount} activeColor='#9060d0' isExtras={false} />
     </div>
   )
 }, (prev, next) =>
