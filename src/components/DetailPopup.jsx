@@ -1,14 +1,18 @@
-import { useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { SECTION_LABELS } from '../data/paints.js'
 import { isPaintForgeSampled, AnvilBadge } from './provenance.jsx'
 
-const BRAND_CYAN   = '#36E2DD'
-const SOLID_FINISH = new Set(['flat','gloss','satin','ink','one-coat','pigment','primer','contrast_primer','dry','custom'])
-const DASHED_FINISH= new Set(['metallic','wash','fx','clear','glaze','metallic_primer'])
-const CAN_SUBSTITUTE = new Set(['flat','gloss','satin','ink','one-coat','metallic','wash','fx','clear','primer','contrast_primer','metallic_primer','dry','glaze'])  // pools are equality-on-type; primers match primers (rev U decision)
+const BRAND_CYAN    = '#36E2DD'
+const SOLID_FINISH  = new Set(['flat','gloss','satin','ink','one-coat','pigment','primer','contrast_primer','dry','custom'])
+const DASHED_FINISH = new Set(['metallic','wash','fx','clear','glaze','metallic_primer'])
+const CAN_SUBSTITUTE = new Set(['flat','gloss','satin','ink','one-coat','metallic','wash','fx','clear','primer','contrast_primer','metallic_primer','dry','glaze'])
 
+// ── Swatch ─────────────────────────────────────────────────────────
+// Unchanged from previous version.
+// Renders the 6-state finish_family swatch circle (solid / dashed / colorshift /
+// auxiliary / pending / data-gap).
 function Swatch({ paint, size = 56 }) {
-  const ff  = paint.finish_family
+  const ff           = paint.finish_family
   const isColorshift = ff === 'colorshift'
   const isAuxiliary  = ff === 'auxiliary' || ff === 'varnish' || ff === 'satin_varnish'
   const isPending    = !ff
@@ -48,6 +52,43 @@ function Swatch({ paint, size = 56 }) {
   )
 }
 
+// ── HubPips ────────────────────────────────────────────────────────
+// Interactive pip row for the Ownership Hub.
+// Intentionally separate from the display-only Pips inside Inventory's ColorRow —
+// these are the primary ownership touch target; inventory pips are read-only glances.
+// If pips are ever needed in a third location, extract both here and in Inventory
+// to src/components/Pips.jsx at that point.
+//
+// count      : total active pips (0–5).
+//              Green side : isOwned ? 1 + extras : 0
+//              Violet side: isInSet ? 1 + targetCount : 0
+// activeColor: fill and border color for active pips (#4caf50 green / #9060d0 violet)
+// onTap(n)   : called with the pip number (1–5) the user tapped
+function HubPips({ count, activeColor, onTap }) {
+  return (
+    <div style={{
+      display:'flex', gap:3, alignItems:'center',
+      border:'1px solid #2A3535', borderRadius:6, padding:'3px 4px',
+    }}>
+      {[1,2,3,4,5].map(n => (
+        <button
+          key={n}
+          onClick={() => onTap(n)}
+          style={{
+            width:22, height:36, borderRadius:4,
+            padding:0, flexShrink:0, cursor:'pointer',
+            background: n <= count ? activeColor : 'transparent',
+            border: `1px solid ${n <= count ? activeColor : '#333'}`,
+          }}
+        />
+      ))}
+    </div>
+  )
+}
+
+// ── edgeCase ───────────────────────────────────────────────────────
+// Returns a human-readable message when this paint cannot be used with IrisMatch.
+// Returns null if substitution is available.
 function edgeCase(paint) {
   if (!paint.finish_family)
     return 'Classification pending — substitute search not yet available for this paint.'
@@ -62,15 +103,56 @@ function edgeCase(paint) {
   return null
 }
 
-export default function DetailPopup({ paint, isOwned, isInSet, onClose, onFindSubstitute }) {
+// ── DetailPopup ────────────────────────────────────────────────────
+// Shows full paint detail plus the DD-01 Ownership Hub.
+// The hub replaces the old read-only owned/set badge pills.
+//
+// Props:
+//   paint        : the paint object from the catalog
+//   isOwned      : whether the user currently owns this paint (boolean)
+//   isInSet      : whether the paint is currently in My Set (boolean)
+//   extras       : extra bottle count beyond the one base owned bottle (0–4, default 0)
+//   targetCount  : My Set target count beyond the one base tracked slot (0–4, default 0)
+//   toggleOwned  : (id) → flips owned boolean; used for single-field changes only
+//   toggleMySet  : (id) → flips in_my_set boolean; used for single-field changes only
+//   setHubState  : (id, patch) → atomic multi-field save for the hub.
+//                  Used when one user tap must change two fields at once, e.g.
+//                  tapping pip 2 when not owned: sets owned=true AND extras=1 together
+//                  so they land in Supabase as one write, not two racing ones.
+//   onClose      : () → closes this popup
+//   onFindSubstitute : (paint) → opens IrisMatch for this paint; closes this popup first
+//   zIndex       : z-index for the overlay.
+//                  1000 when opened from the inventory list.
+//                  1200 when opened from IrisMatch (SubstitutePanel sits at 1100).
+export default function DetailPopup({
+  paint,
+  isOwned, isInSet,
+  extras = 0, targetCount = 0,
+  toggleOwned, toggleMySet, setHubState,
+  onClose, onFindSubstitute,
+  zIndex = 1000,
+}) {
   if (!paint) return null
 
-  // Close on Escape
+  // destructiveTarget — set when the user tries to clear pips while extra pips exist.
+  // Shows the Step 6 confirm dialog until they confirm or cancel.
+  // null   : no confirmation pending
+  // object : { field: 'owned'|'set', count: number }
+  //   field : which side is being cleared (determines copy and which state to update)
+  //   count : total pips that would be removed (shown in the dialog message)
+  const [destructiveTarget, setDestructiveTarget] = useState(null)
+
+  // Close on Escape. If a confirm dialog is open, Escape clears it first
+  // rather than closing the whole popup — one step back, not two.
   useEffect(() => {
-    const handler = e => { if (e.key === 'Escape') onClose() }
+    const handler = e => {
+      if (e.key !== 'Escape') return
+      if (destructiveTarget) setDestructiveTarget(null)
+      else onClose()
+    }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [onClose])
+  }, [onClose, destructiveTarget])
 
   const sectionLabel = SECTION_LABELS[paint.section_key] || paint.section_key
   const [brand, line] = sectionLabel.includes(' — ')
@@ -80,16 +162,121 @@ export default function DetailPopup({ paint, isOwned, isInSet, onClose, onFindSu
   const canSub  = CAN_SUBSTITUTE.has(paint.finish_family) && paint.hex && paint.lab_l != null
   const message = edgeCase(paint)
 
+  // greenTotal — total active green pips.
+  // Pip 1 = the one base owned bottle. Pips 2–5 = extra bottles.
+  const greenTotal  = isOwned ? 1 + extras : 0
+
+  // violetTotal — total active violet pips.
+  // Pip 1 = the one base My Set slot. Pips 2–5 = extra target bottles.
+  const violetTotal = isInSet ? 1 + targetCount : 0
+
+  // ── Green side handlers ──────────────────────────────────────────
+
+  // handleGreenTap — user tapped pip n on the owned (green) side.
+  // Tapping the same pip as the current total toggles it off (goes to 0).
+  // Tapping a different pip sets the total to n (owned=true, extras=n-1).
+  function handleGreenTap(n) {
+    if (n === greenTotal) {
+      // toggling off — would remove all green pips
+      if (extras > 0) {
+        // Step 6: there are extra pips — confirm before clearing
+        setDestructiveTarget({ field:'owned', count:greenTotal })
+      } else {
+        // only the base pip — safe to clear directly without a guard
+        toggleOwned(paint.id)
+        window.posthog?.capture('ownership_changed',
+          { field:'owned', from:true, to:false, source:'popup' })
+      }
+    } else {
+      // setting a new total — always owned=true, extras = n-1
+      const wasOwned = isOwned
+      setHubState(paint.id, { owned:true, extraCount:n - 1 })
+      window.posthog?.capture('ownership_changed',
+        { field:'owned', from:wasOwned, to:true, source:'popup' })
+    }
+  }
+
+  // handleGreenCheckbox — user clicked the ✓ checkbox directly.
+  // Checking: sets owned=true; existing extras are preserved.
+  // Unchecking: fires Step 6 guard if extras > 0, otherwise clears directly.
+  function handleGreenCheckbox() {
+    if (isOwned) {
+      if (extras > 0) {
+        setDestructiveTarget({ field:'owned', count:greenTotal })
+      } else {
+        toggleOwned(paint.id)
+        window.posthog?.capture('ownership_changed',
+          { field:'owned', from:true, to:false, source:'popup' })
+      }
+    } else {
+      toggleOwned(paint.id)
+      window.posthog?.capture('ownership_changed',
+        { field:'owned', from:false, to:true, source:'popup' })
+    }
+  }
+
+  // ── Violet side handlers ─────────────────────────────────────────
+  // Mirror of the green handlers above, operating on My Set (inSet / targetCount).
+
+  function handleVioletTap(n) {
+    if (n === violetTotal) {
+      if (targetCount > 0) {
+        setDestructiveTarget({ field:'set', count:violetTotal })
+      } else {
+        toggleMySet(paint.id)
+        window.posthog?.capture('ownership_changed',
+          { field:'set', from:true, to:false, source:'popup' })
+      }
+    } else {
+      const wasInSet = isInSet
+      setHubState(paint.id, { inSet:true, targetCount:n - 1 })
+      window.posthog?.capture('ownership_changed',
+        { field:'set', from:wasInSet, to:true, source:'popup' })
+    }
+  }
+
+  function handleVioletCheckbox() {
+    if (isInSet) {
+      if (targetCount > 0) {
+        setDestructiveTarget({ field:'set', count:violetTotal })
+      } else {
+        toggleMySet(paint.id)
+        window.posthog?.capture('ownership_changed',
+          { field:'set', from:true, to:false, source:'popup' })
+      }
+    } else {
+      toggleMySet(paint.id)
+      window.posthog?.capture('ownership_changed',
+        { field:'set', from:false, to:true, source:'popup' })
+    }
+  }
+
+  // ── Step 6 confirm handler ───────────────────────────────────────
+  // Called when the user clicks "Yes, remove" in the destructive confirm dialog.
+  // Clears all pips on the relevant side (owned=false+extras=0, or inSet=false+targetCount=0).
+  function confirmDestructive() {
+    if (destructiveTarget.field === 'owned') {
+      setHubState(paint.id, { owned:false, extraCount:0 })
+      window.posthog?.capture('ownership_changed',
+        { field:'owned', from:true, to:false, source:'popup' })
+    } else {
+      setHubState(paint.id, { inSet:false, targetCount:0 })
+      window.posthog?.capture('ownership_changed',
+        { field:'set', from:true, to:false, source:'popup' })
+    }
+    setDestructiveTarget(null)
+  }
+
   return (
     <div
       onClick={onClose}
       style={{
         position:'fixed', inset:0, background:'rgba(0,0,0,0.72)',
         display:'flex', alignItems:'center', justifyContent:'center',
-        zIndex:1000, padding:20, fontFamily:"'Montserrat',system-ui,sans-serif",
+        zIndex, padding:20, fontFamily:"'Montserrat',system-ui,sans-serif",
       }}
     >
-      {/* Card — stop propagation so clicking inside doesn't close */}
+      {/* Card — stopPropagation so clicking inside doesn't close the overlay */}
       <div
         onClick={e => e.stopPropagation()}
         style={{
@@ -99,7 +286,8 @@ export default function DetailPopup({ paint, isOwned, isInSet, onClose, onFindSu
           boxShadow:'0 24px 60px rgba(0,0,0,0.6)',
         }}
       >
-        {/* Header row: swatch + name + close */}
+
+        {/* ── Header: swatch + name + close ── */}
         <div style={{ display:'flex', alignItems:'flex-start', gap:16, marginBottom:20 }}>
           <Swatch paint={paint} size={56} />
 
@@ -131,7 +319,7 @@ export default function DetailPopup({ paint, isOwned, isInSet, onClose, onFindSu
           >✕</button>
         </div>
 
-        {/* Tags row */}
+        {/* ── Finish / chemistry tags ── */}
         {(paint.finish_family || paint.chemistry_family) && (
           <div style={{ display:'flex', gap:6, marginBottom:16, flexWrap:'wrap' }}>
             {paint.finish_family && (
@@ -147,26 +335,116 @@ export default function DetailPopup({ paint, isOwned, isInSet, onClose, onFindSu
           </div>
         )}
 
-        {/* Ownership badges */}
-        {(isOwned || isInSet) && (
-          <div style={{ display:'flex', gap:6, marginBottom:16 }}>
-            {isOwned && (
-              <span style={{ fontSize:10, padding:'3px 8px', background:'#1a2a1a', borderRadius:20, color:'#6aba6a', border:'1px solid #2a4a2a' }}>
-                ✓ Owned
-              </span>
-            )}
-            {isInSet && (
-              <span style={{ fontSize:10, padding:'3px 8px', background:'#1e1a28', borderRadius:20, color:'#9060d0', border:'1px solid #3a2a4a' }}>
-                ♦ My Set
-              </span>
-            )}
+        {/* ── Ownership Hub ──────────────────────────────────────────
+            DD-01 Step 2. Two-column layout:
+            Left  (green)  = Owned — tracks physical possession.
+            Right (violet) = My Set — tracks what the user wants to manage.
+            The two sides are fully independent; see the sentence below.
+        ─────────────────────────────────────────────────────────── */}
+        <div style={{ marginBottom:16 }}>
+          <div style={{ display:'flex', gap:16 }}>
+
+            {/* ── Green column — Owned ── */}
+            <div style={{ flex:1, display:'flex', flexDirection:'column', gap:10 }}>
+
+              {/* Checkbox + "Owned" label — clicking mirrors tapping pip 1 */}
+              <button onClick={handleGreenCheckbox} style={{
+                display:'flex', alignItems:'center', gap:7,
+                background:'none', border:'none', cursor:'pointer', padding:0,
+              }}>
+                <div style={{
+                  width:17, height:17, borderRadius:3, flexShrink:0,
+                  background: isOwned ? '#4caf50' : 'transparent',
+                  border: isOwned ? 'none' : '1.5px solid #2a4a2a',
+                  display:'flex', alignItems:'center', justifyContent:'center',
+                }}>
+                  {isOwned && <span style={{ color:'#fff', fontSize:11, lineHeight:1 }}>✓</span>}
+                </div>
+                <span style={{ fontSize:12, fontWeight:600, color: isOwned ? '#6aba6a' : '#4a6060' }}>
+                  Owned
+                </span>
+              </button>
+
+              {/* Green pips. Count = 1 + extras when owned, 0 when not owned. */}
+              <HubPips count={greenTotal} activeColor='#4caf50' onTap={handleGreenTap} />
+            </div>
+
+            {/* ── Violet column — My Set ── */}
+            <div style={{ flex:1, display:'flex', flexDirection:'column', gap:10 }}>
+
+              {/* Checkbox + "My Set" label */}
+              <button onClick={handleVioletCheckbox} style={{
+                display:'flex', alignItems:'center', gap:7,
+                background:'none', border:'none', cursor:'pointer', padding:0,
+              }}>
+                <div style={{
+                  width:17, height:17, borderRadius:3, flexShrink:0,
+                  background: isInSet ? '#9060d0' : 'transparent',
+                  border: isInSet ? 'none' : '1.5px solid #3a2a4a',
+                  display:'flex', alignItems:'center', justifyContent:'center',
+                }}>
+                  {isInSet && <span style={{ color:'#fff', fontSize:11, lineHeight:1 }}>♦</span>}
+                </div>
+                <span style={{ fontSize:12, fontWeight:600, color: isInSet ? '#9060d0' : '#4a6060' }}>
+                  My Set
+                </span>
+              </button>
+
+              {/* Violet pips. Count = 1 + targetCount when in set, 0 when not. */}
+              <HubPips count={violetTotal} activeColor='#9060d0' onTap={handleVioletTap} />
+            </div>
+
+          </div>
+
+          {/* Independence sentence — verbatim from spec. Always visible. */}
+          <div style={{ fontSize:10, color:'#5a7070', marginTop:12, lineHeight:1.6, fontStyle:'italic' }}>
+            Owned means you have it; My Set means you're tracking it — they're independent.
+          </div>
+        </div>
+
+        {/* ── Step 6: Destructive confirm dialog ────────────────────
+            Appears in-place when the user tries to clear all pips
+            while extra pips (beyond the base) still exist.
+            Escape or Cancel = no-op. "Yes, remove" = clears all.
+        ─────────────────────────────────────────────────────────── */}
+        {destructiveTarget && (
+          <div style={{
+            background:'#141414', border:'1px solid #5a2a2a',
+            borderRadius:8, padding:14, marginBottom:16,
+          }}>
+            <div style={{ fontSize:12, color:'#e8c0a0', lineHeight:1.6, marginBottom:12 }}>
+              You have {destructiveTarget.count} {destructiveTarget.field === 'owned' ? 'owned' : 'targeted'} pip{destructiveTarget.count !== 1 ? 's' : ''} set
+              for <strong>{paint.name}</strong>. Remove {destructiveTarget.count === 1 ? 'it' : 'all of them'}?
+            </div>
+            <div style={{ display:'flex', gap:8 }}>
+              <button
+                onClick={confirmDestructive}
+                style={{
+                  flex:1, padding:'8px', borderRadius:6, cursor:'pointer',
+                  background:'#5a2a2a', border:'1px solid #8a4a4a',
+                  color:'#e8a0a0', fontSize:12, fontWeight:600,
+                }}
+              >
+                Yes, remove
+              </button>
+              <button
+                onClick={() => setDestructiveTarget(null)}
+                style={{
+                  flex:1, padding:'8px', borderRadius:6, cursor:'pointer',
+                  background:'transparent', border:'1px solid #2a3535',
+                  color:'#8AABAB', fontSize:12, fontWeight:600,
+                }}
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         )}
 
-        {/* Divider */}
+        {/* ── Divider ── */}
         <div style={{ borderTop:'1px solid #2a3535', marginBottom:16 }} />
 
-        {/* Find a Substitute button or edge case message */}
+        {/* ── IrisMatch button / edge case message ── */}
         {canSub ? (
           <button
             onClick={() => onFindSubstitute(paint)}
@@ -184,6 +462,7 @@ export default function DetailPopup({ paint, isOwned, isInSet, onClose, onFindSu
             {message}
           </div>
         )}
+
       </div>
     </div>
   )

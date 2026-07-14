@@ -64,6 +64,10 @@ export default function Inventory({ user }) {
   const [saving,          setSaving]          = useState(false)
   const [saveError,       setSaveError]       = useState(false)
   const [detailPaint,     setDetailPaint]     = useState(null)
+  // detailFromPanel — true when DetailPopup was opened by tapping a candidate
+  // in IrisMatch (SubstitutePanel), false when opened from the inventory list.
+  // Used to give the popup a higher z-index so it renders above IrisMatch.
+  const [detailFromPanel, setDetailFromPanel] = useState(false)
   const [subPaint,        setSubPaint]        = useState(null)
   const [searchRaw,       setSearchRaw]       = useState('')
   const [search,          setSearch]          = useState('')
@@ -221,6 +225,39 @@ export default function Inventory({ user }) {
   function toggleMySet(id)    { const v=!mySet[id];   setMySet(p=>{const n={...p};if(v)n[id]=true;else delete n[id];return n}); savePaint(id,{in_my_set:v}) }
   function setExtraCount(id,n){ const v=extras[id]===n?0:n; setExtras(p=>{const e={...p};if(v)e[id]=v;else delete e[id];return e}); savePaint(id,{extras:v}) }
   function setTargetCount(id,n){ const v=targets[id]===n?0:n; setTargets(p=>{const t={...p};if(v)t[id]=v;else delete t[id];return t}); savePaint(id,{target_count:v}) }
+
+  // setHubState — atomic multi-field ownership update used by the DetailPopup hub.
+  // PLACEMENT: must sit after savePaint (above, ~line 194) and after the other
+  // setter functions above. savePaint is referenced inside; placing setHubState
+  // before savePaint causes a JS reference error on load.
+  //
+  // The existing toggleOwned / toggleMySet / setExtraCount / setTargetCount
+  // are unchanged — they handle single-field changes from inventory rows.
+  // This function exists for hub interactions that must change two fields at once
+  // in a single Supabase write. Example: tapping pip 2 on an unowned paint must
+  // set owned=true AND extras=1 together. Calling toggleOwned + setExtraCount
+  // separately risks the second call reading stale state and saving the wrong data.
+  // Passing an explicit patch to savePaint overrides any stale closure values.
+  //
+  // patch fields (all optional — only pass the ones changing):
+  //   owned      : boolean — new owned status
+  //   inSet      : boolean — new My Set status
+  //   extraCount : number  — new extra bottle count (0–4)
+  //   targetCount: number  — new My Set target count (0–4)
+  const setHubState = useCallback((id, { owned: newOwned, inSet: newInSet, extraCount: newExtras, targetCount: newTarget }) => {
+    if (newOwned   !== undefined) setChecked(p => { const n={...p}; if(newOwned)    n[id]=true; else delete n[id]; return n })
+    if (newInSet   !== undefined) setMySet(p   => { const n={...p}; if(newInSet)    n[id]=true; else delete n[id]; return n })
+    if (newExtras  !== undefined) setExtras(p  => { const e={...p}; if(newExtras>0) e[id]=newExtras;  else delete e[id]; return e })
+    if (newTarget  !== undefined) setTargets(p => { const t={...p}; if(newTarget>0) t[id]=newTarget;  else delete t[id]; return t })
+    // Single savePaint call — the patch overrides any stale values from the closure
+    savePaint(id, {
+      ...(newOwned   !== undefined ? { owned:        newOwned  } : {}),
+      ...(newInSet   !== undefined ? { in_my_set:    newInSet  } : {}),
+      ...(newExtras  !== undefined ? { extras:       newExtras } : {}),
+      ...(newTarget  !== undefined ? { target_count: newTarget } : {}),
+    })
+  }, [savePaint])
+
   async function handleSignOut() { await supabase.auth.signOut() }
 
   // ── Exports ───────────────────────────────────────────────────────────────
@@ -389,26 +426,50 @@ export default function Inventory({ user }) {
               {saving    && <span style={{ fontSize:10,color:'#555' }}>saving…</span>}
               {saveError && <span style={{ fontSize:10,color:'#e05050' }}>⚠ save failed — check connection</span>}
 
-      {/* Detail Popup */}
+      {/* ── Detail Popup — DD-01 Step 2 ──────────────────────────────────────
+          Now receives all hub props (extras, targetCount, toggleOwned, toggleMySet,
+          setHubState) so the hub is always interactive regardless of how the
+          popup was opened.
+          zIndex: 1000 from inventory list, 1200 from IrisMatch (panel is at 1100). */}
       <DetailPopup
         paint={detailPaint}
         isOwned={!!(detailPaint && checked[detailPaint.id])}
         isInSet={!!(detailPaint && mySet[detailPaint.id])}
-        onClose={()=>setDetailPaint(null)}
-        onFindSubstitute={(p)=>{ setDetailPaint(null); setSubPaint(p) }}
+        extras={detailPaint ? (extras[detailPaint.id] || 0) : 0}
+        targetCount={detailPaint ? (targets[detailPaint.id] || 0) : 0}
+        toggleOwned={toggleOwned}
+        toggleMySet={toggleMySet}
+        setHubState={setHubState}
+        onClose={() => { setDetailPaint(null); setDetailFromPanel(false) }}
+        onFindSubstitute={(p) => { setDetailPaint(null); setDetailFromPanel(false); setSubPaint(p) }}
+        zIndex={detailFromPanel ? 1200 : 1000}
       />
 
-      {/* Substitute Panel */}
+      {/* ── Substitute Panel — DD-01 Step 2 ──────────────────────────────────
+          Now receives extras, targets (for hub display) and onOpenHub (to open
+          the DetailPopup for a candidate from within IrisMatch).
+          candidate_detail_opened PostHog event fires here because this is the
+          only place we know the open originated from IrisMatch. */}
       <SubstitutePanel
         paint={subPaint}
         catalog={catalogFlat}
         checked={checked}
         mySet={mySet}
+        extras={extras}
+        targets={targets}
         hiddenSections={hiddenSections}
         toggleMySet={toggleMySet}
         onShop={handleShopList}
-        onBrandFilter={()=>setShowBrandFilter(true)}
-        onClose={()=>setSubPaint(null)}
+        onBrandFilter={() => setShowBrandFilter(true)}
+        onClose={() => setSubPaint(null)}
+        onOpenHub={(p) => {
+          window.posthog?.capture('candidate_detail_opened', {
+            paint_id:    p.id,
+            section_key: p.section_key,
+          })
+          setDetailFromPanel(true)
+          setDetailPaint(p)
+        }}
       />
             </div>
             <div style={{ display:'flex',alignItems:'center',gap:6 }}>
@@ -454,7 +515,7 @@ export default function Inventory({ user }) {
             )}
           </div>
 
-          {/* Row 1: tools — Shop (orange!), Export, Brand Filter */}
+          {/* Row 1: tools — Shop, Export, Brand Filter */}
           <div style={{ display:'flex',gap:5,marginBottom:4 }}>
             <button onClick={handleShopList} style={{ padding:'3px 10px',borderRadius:20,border:'2px solid #9060d0',cursor:'pointer',fontSize:11,fontWeight:700,background:'transparent',color:'#9060d0' }}>Shop 🛒</button>
             <button onClick={handleExport} style={{ padding:'3px 10px',borderRadius:20,border:'none',cursor:'pointer',fontSize:11,fontWeight:600,background:'#1E2828',color:'#888' }}>Export</button>
@@ -627,12 +688,6 @@ const ColorRow = memo(function ColorRow({ color, isChecked, inMySet, extraCount,
   const dispName = getDisplayName(color.id, color.name)
 
   // ── Swatch — 6-state system driven by finish_family ─────────────────────
-  // 1. solid fill, solid border   → flat/gloss/satin/ink/one-coat/pigment
-  // 2. solid fill, dashed border  → metallic/wash/fx/clear  (approx hex)
-  // 3. white fill, dashed border  → colorshift (no hex — would be a lie)
-  // 4. empty, no border           → pending (finish_family not yet set)
-  // 5. empty, grey border, —      → auxiliary (no color by design)
-  // 6. empty, grey border, ?      → finish known but hex missing (data gap)
   const swatchSize = 18
   const SOLID_FINISH  = new Set(['flat','gloss','satin','ink','one-coat','pigment','primer','contrast_primer','dry','custom'])
   const DASHED_FINISH = new Set(['metallic','wash','fx','clear','glaze','metallic_primer'])
@@ -644,14 +699,14 @@ const ColorRow = memo(function ColorRow({ color, isChecked, inMySet, extraCount,
   const isDashed     = DASHED_FINISH.has(ff)
   const swatchBg     = isColorshift            ? '#FFFFFF'
                      : isAuxiliary             ? 'transparent'
-                     : color.hex               ? color.hex      // pending OR classified — show hex if we have it
+                     : color.hex               ? color.hex
                      : 'transparent'
-  const outerBorder  = isPending && color.hex  ? 'none'         // pending + hex → color, no border
-                     : isPending               ? '1px dashed #333'  // pending + no hex → almost invisible hint
+  const outerBorder  = isPending && color.hex  ? 'none'
+                     : isPending               ? '1px dashed #333'
                      : isAuxiliary             ? '1.5px solid #3a3a4a'
                      : isColorshift||isDashed  ? '1.5px dashed rgba(255,255,255,0.7)'
                      : (isSolid||ff) && color.hex ? '1.5px solid rgba(255,255,255,0.85)'
-                     : '1.5px solid #444'      // finish known, hex missing → muted border + ?
+                     : '1.5px solid #444'
   const swatchInner  = isColorshift ? '~'
                      : isAuxiliary  ? '—'
                      : (!ff && color.hex) ? null
@@ -665,7 +720,9 @@ const ColorRow = memo(function ColorRow({ color, isChecked, inMySet, extraCount,
                      : color.hex    ? color.hex
                      : 'Hex missing'
 
-  // Battery pill builder — bordered with group outline
+  // Battery pill builder — display-only inventory pips (read-only glance).
+  // The interactive version lives in DetailPopup as HubPips.
+  // If a third location ever needs interactive pips, extract both to src/components/Pips.jsx.
   const Pips = ({count, activeColor, isExtras}) => (
     <div style={{ display:'flex',gap:2,flexShrink:0,alignItems:'center',border:'1px solid #2A3535',borderRadius:4,padding:'2px 3px' }}>
       {[1,2,3,4,5].map(n=>(

@@ -83,7 +83,6 @@ function PaintInfo({ paint, emptyLabel }) {
         <div style={{ fontSize:11, color:'#8AABAB', marginBottom:1 }}>{brand}</div>
         {line && <div style={{ fontSize:10, color:'#8AABAB' }}>{line}</div>}
         {paint.id && <div style={{ fontSize:9, color:'#8AABAB', fontFamily:'monospace', marginTop:2 }}>{paint.id}</div>}
-
       </div>
     </div>
   )
@@ -96,7 +95,7 @@ function AttrRow({ label, val1, val2, onInfo }) {
     <div style={{ display:'flex', alignItems:'center', gap:6, fontSize:10, padding:'3px 0' }}>
       <div style={{ display:'flex', alignItems:'center', gap:3, width:64, flexShrink:0 }}>
         <span style={{ color:'#8AABAB' }}>{label}</span>
-        {onInfo && <button onClick={onInfo} style={{ background:'none', border:`1px solid #2a3535`, color:'#4a6060', borderRadius:'50%', width:18, height:18, cursor:'pointer', fontSize:10, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, padding:0, color:'#8AABAB' }}>?</button>}
+        {onInfo && <button onClick={onInfo} style={{ background:'none', border:`1px solid #2a3535`, color:'#8AABAB', borderRadius:'50%', width:18, height:18, cursor:'pointer', fontSize:10, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, padding:0 }}>?</button>}
       </div>
       <span style={{ flex:1, color:'#8AABAB', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', textAlign:'left' }}>{val1||'—'}</span>
       <span style={{ fontSize:13, flexShrink:0, color: same ? '#4caf50' : (val1&&val2) ? '#E8A838' : '#3a5050' }}>
@@ -117,24 +116,9 @@ function LabHints({ target, candidate }) {
   const db = candidate.lab_b - target.lab_b
 
   const axes = [
-    {
-      label:'Δ Lightness',
-      delta:dL,
-      direction: dL > 0 ? 'candidate is lighter' : 'candidate is darker',
-      advice:    dL > 0 ? 'add black to equalize'   : 'add white to equalize',
-    },
-    {
-      label:'Δ Red-Green',
-      delta:da,
-      direction: da > 0 ? 'candidate is more red'    : 'candidate is greener',
-      advice:    da > 0 ? 'add green/teal to equalize'  : 'add red/magenta to equalize',
-    },
-    {
-      label:'Δ Yellow-Blue',
-      delta:db,
-      direction: db > 0 ? 'candidate is more yellow'        : 'candidate is bluer',
-      advice:    db > 0 ? 'add blue to equalize'               : 'add yellow/orange to equalize',
-    },
+    { label:'Δ Lightness',   delta:dL, direction: dL > 0 ? 'candidate is lighter'     : 'candidate is darker',   advice: dL > 0 ? 'add black to equalize'       : 'add white to equalize' },
+    { label:'Δ Red-Green',   delta:da, direction: da > 0 ? 'candidate is more red'     : 'candidate is greener',  advice: da > 0 ? 'add green/teal to equalize'  : 'add red/magenta to equalize' },
+    { label:'Δ Yellow-Blue', delta:db, direction: db > 0 ? 'candidate is more yellow'  : 'candidate is bluer',    advice: db > 0 ? 'add blue to equalize'         : 'add yellow/orange to equalize' },
   ]
 
   const significant = axes.filter(a => Math.abs(a.delta) >= 1)
@@ -170,10 +154,7 @@ function LabHints({ target, candidate }) {
   )
 }
 
-
-
-
-// ── Paint Type Glossary ─────────────────────────────────────────────────────
+// ── Paint Type Glossary ────────────────────────────────────────────
 const GLOSS_TYPES = [
   { heading: 'Standard paints',
     note: "Flat, satin, and gloss aren't lab measurements — they're buckets along a spectrum, and every brand draws the lines differently. Treat the type tag as a strong guide, not a promise.",
@@ -184,7 +165,7 @@ const GLOSS_TYPES = [
     ]},
   { heading: 'Specialty paints', items: [
     { n:'Metallic',          d:'Color from metal-flake or mica. Swatch shows dominant tone, not the sparkle. Only another metallic is a fair comparison.' },
-    { n:'Wash',      d:'Very thin, flows into recesses. Looks like a color on screen but gives a translucent puddle on a model. Washes match only washes.' },
+    { n:'Wash',              d:'Very thin, flows into recesses. Looks like a color on screen but gives a translucent puddle on a model. Washes match only washes.' },
     { n:'One-coat',          d:'Translucent by design — final color depends on undercoat and pooling. Contrast, Speedpaint, Xpress Color. Matches only other one-coats.' },
     { n:'Transparent color', d:'Deliberately clear tinting paints and candy effects.' },
     { n:'Ink',               d:'Transparent high-intensity pigment for glazing and tinting. Inks match inks.' },
@@ -243,9 +224,7 @@ function GlossaryPopup({ onClose }) {
   )
 }
 
-// ── ΔE tooltip ─────────────────────────────────────────────────────
-// Contrast tokens: body #B8CFCF · muted #7A9595 · emphasis #E4F0F0.
-// Never use footer greys (#3a5050 range) for sentence text here.
+// ── ΔE tooltip ────────────────────────────────────────────────────
 function DeltaTooltip({ onClose }) {
   const rows = [
     { range:'< 1.5',   label:'Near Identical', color:BRAND_CYAN },
@@ -263,30 +242,14 @@ function DeltaTooltip({ onClose }) {
           <span style={{ fontSize:13, fontWeight:700, color:'#E4F0F0' }}>What is ΔE?</span>
           <button onClick={onClose} style={{ background:'none', border:'none', color:'#7A9595', cursor:'pointer', fontSize:16 }}>✕</button>
         </div>
-
-        <P>ΔE ("delta-E") measures how different two colors <b>look to a
-        human eye</b> — not how different their codes are. 0 = identical.
-        Around 1 is the smallest difference most people can spot side by
-        side; below ~2 is nearly indistinguishable on a model; past ~12
-        it's clearly a different color.</P>
-
+        <P>ΔE ("delta-E") measures how different two colors <b>look to a human eye</b> — not how different their codes are. 0 = identical. Around 1 is the smallest difference most people can spot side by side; below ~2 is nearly indistinguishable on a model; past ~12 it's clearly a different color.</P>
         <H>The science</H>
-        <P>PaintForge computes <b>CIEDE2000</b> — the current CIE standard
-        for perceptual color difference, the same math used in print and
-        textile quality control — in CIE LAB space, which is built around
-        human vision rather than screen electronics. Our implementation is
-        ported directly from Sharma et&nbsp;al. (2005) and validated
-        against all 34 published test pairs to four decimal places.</P>
-
+        <P>PaintForge computes <b>CIEDE2000</b> — the current CIE standard for perceptual color difference, the same math used in print and textile quality control — in CIE LAB space, which is built around human vision rather than screen electronics. Our implementation is ported directly from Sharma et&nbsp;al. (2005) and validated against all 34 published test pairs to four decimal places.</P>
         <H>The three numbers under a comparison</H>
         <P><b>Δ Lightness (L)</b> — lighter or darker.<br/>
-        <b>Δ Red–Green (a)</b> — positive = candidate leans redder,
-        negative = greener.<br/>
-        <b>Δ Yellow–Blue (b)</b> — positive = more yellow, negative =
-        bluer.<br/>
-        These are the three axes of LAB space; the "add X to equalize"
-        advice tells you which way to nudge a mix to close the gap.</P>
-
+        <b>Δ Red–Green (a)</b> — positive = candidate leans redder, negative = greener.<br/>
+        <b>Δ Yellow–Blue (b)</b> — positive = more yellow, negative = bluer.<br/>
+        These are the three axes of LAB space; the "add X to equalize" advice tells you which way to nudge a mix to close the gap.</P>
         <H>The grades</H>
         <div style={{ display:'flex', flexDirection:'column', gap:5 }}>
           {rows.map(r=>(
@@ -297,70 +260,85 @@ function DeltaTooltip({ onClose }) {
           ))}
         </div>
         <div style={{ height:6 }} />
-        <P>Thresholds are calibrated for miniature painting at arm's
-        length, not laboratory viewing booths.</P>
-
+        <P>Thresholds are calibrated for miniature painting at arm's length, not laboratory viewing booths.</P>
         <H>The honesty rule</H>
-        <P>ΔE compares digital chip values, and chips approximate real
-        paint: finish, opacity, and pigment behaviour aren't captured, and
-        every screen renders color a little differently. Matches are a
-        ranked starting point — swatch before committing.</P>
+        <P>ΔE compares digital chip values, and chips approximate real paint: finish, opacity, and pigment behaviour aren't captured, and every screen renders color a little differently. Matches are a ranked starting point — swatch before committing.</P>
       </div>
     </div>
   )
 }
 
-// ── Result row ──────────────────────────────────────────────────────
+// ── Result row ─────────────────────────────────────────────────────
+// DD-01 changes:
+//   isOwned   — new prop. Shows a green "✓ owned" indicator on the candidate's
+//               name line when true. Part of Step 3 (owned visibility in results).
+//   onOpenHub — new prop. Called when the user taps the candidate's swatch or name.
+//               Opens the DetailPopup Ownership Hub for that candidate.
+//               stopPropagation prevents the row's onSelect from also firing.
 const ROW_H = 56
-function ResultRow({ target, result, isInSet, onSelect, onToggleSet, isSelected }) {
+function ResultRow({ target, result, isInSet, isOwned, onSelect, onToggleSet, isSelected, onOpenHub }) {
   const { paint:p, deltaE:dE, chips } = result
   const g     = grade(dE)
   const parts = (SECTION_LABELS[p.section_key]||p.section_key).split(' — ')
   const brand = parts[0], line = parts[1]||''
+
   return (
-    <div onClick={()=>onSelect(result)} style={{
-      display:'flex', alignItems:'center', gap:6,
-      padding:'0 12px', height:ROW_H,
-      borderBottom:`1px solid #1a2428`,
-      cursor:'pointer',
-      background: isSelected ? '#1A2424' : 'transparent',
-      borderLeft: isSelected ? `3px solid ${BRAND_CYAN}` : '3px solid transparent',
-    }}>
-      {/* Swatch pair touching (target + candidate) */}
-      <div style={{ display:'flex', flexShrink:0 }}>
-        <Swatch paint={target} size={ROW_H-14} />
-        <Swatch paint={p}      size={ROW_H-14} />
-      </div>
-
-      {/* Name + brand */}
-      <div style={{ flex:1, minWidth:0 }}>
-        <div style={{
-          fontSize:14, fontWeight:600, color:'#d8d8d8',
-          fontFamily:"'Barlow Condensed','Montserrat',system-ui",
-          overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap',
-        }}>{p.name}</div>
-        <div style={{ fontSize:9, color:'#6b8080', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
-          {brand}{line && <span style={{ color:'#4a6060' }}> · {line}</span>}
+    <div
+      onClick={() => onSelect(result)}
+      style={{
+        display:'flex', alignItems:'center', gap:6,
+        padding:'0 12px', height:ROW_H,
+        borderBottom:`1px solid #1a2428`,
+        cursor:'pointer',
+        background: isSelected ? '#1A2424' : 'transparent',
+        borderLeft: isSelected ? `3px solid ${BRAND_CYAN}` : '3px solid transparent',
+      }}
+    >
+      {/* ── Swatch pair + name — tapping either opens the Ownership Hub ──
+          stopPropagation prevents the outer row's onSelect from firing at the same time.
+          ΔE score and ♦ button are outside this div and keep their own behavior. */}
+      <div
+        onClick={e => { e.stopPropagation(); onOpenHub(p) }}
+        style={{ display:'flex', alignItems:'center', gap:6, flex:1, minWidth:0, cursor:'pointer' }}
+      >
+        {/* Swatch pair: target on left, candidate on right, touching */}
+        <div style={{ display:'flex', flexShrink:0 }}>
+          <Swatch paint={target} size={ROW_H-14} />
+          <Swatch paint={p}      size={ROW_H-14} />
         </div>
-        {chips.length > 0 && (
-          <div style={{ display:'flex', gap:3, marginTop:2 }}>
-            {chips.map((chip,i) => {
-              if (chip==='yellow') return <Chip key={i} label='⚠ section'   color='#E8C840' bg='#2a2200' />
-              if (chip==='orange') return <Chip key={i} label='⚠ chemistry' color='#E8A838' bg='#2a1400' />
-              if (chip.startsWith('sheen:')) return <Chip key={i} label={chip.slice(6)} color='#8AABAB' bg='#1a1e28' />
-              return null
-            })}
+
+        {/* Name + brand line + owned indicator + warning chips */}
+        <div style={{ flex:1, minWidth:0 }}>
+          <div style={{
+            fontSize:14, fontWeight:600, color:'#d8d8d8',
+            fontFamily:"'Barlow Condensed','Montserrat',system-ui",
+            overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap',
+          }}>{p.name}</div>
+          <div style={{ fontSize:9, color:'#6b8080', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+            {brand}{line && <span style={{ color:'#4a6060' }}> · {line}</span>}
+            {/* Step 3 — green owned indicator. Small, same line as brand, no layout shift. */}
+            {isOwned && <span style={{ color:'#6aba6a', marginLeft:6 }}>✓ owned</span>}
           </div>
-        )}
+          {chips.length > 0 && (
+            <div style={{ display:'flex', gap:3, marginTop:2 }}>
+              {chips.map((chip,i) => {
+                if (chip==='yellow') return <Chip key={i} label='⚠ section'   color='#E8C840' bg='#2a2200' />
+                if (chip==='orange') return <Chip key={i} label='⚠ chemistry' color='#E8A838' bg='#2a1400' />
+                if (chip.startsWith('sheen:')) return <Chip key={i} label={chip.slice(6)} color='#8AABAB' bg='#1a1e28' />
+                return null
+              })}
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* ΔE + grade */}
+      {/* ΔE + grade — outside the hub-tap area; clicking here selects for comparison */}
       <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end', gap:3, flexShrink:0 }}>
         <span style={{ fontSize:13, fontWeight:700, color:g.color }}>Δ{dE.toFixed(1)}</span>
         <Chip label={g.label} color={g.color} bg={g.bg} />
       </div>
 
-      {/* ♦ My Set */}
+      {/* ♦ My Set toggle — outside the hub-tap area */}
       <button
         onClick={e=>{ e.stopPropagation(); onToggleSet(p.id) }}
         title={isInSet?'Remove from My Set':'Add to My Set'}
@@ -376,16 +354,25 @@ function ResultRow({ target, result, isInSet, onSelect, onToggleSet, isSelected 
   )
 }
 
-// ── Main panel ──────────────────────────────────────────────────────
+// ── Main panel ─────────────────────────────────────────────────────
 const TIERS = [
   { id:'owned',  label:'Owned'         },
   { id:'brands', label:'Custom Brands' },
   { id:'all',    label:'All'           },
 ]
 
+// Props:
+//   paint, catalog, hiddenSections — unchanged
+//   checked     : { paint_id: boolean } — owned status per paint
+//   mySet       : { paint_id: boolean } — My Set membership per paint
+//   extras      : { paint_id: number  } — extra bottle counts (new — needed for hub display)
+//   targets     : { paint_id: number  } — target counts (new — needed for hub display)
+//   toggleMySet : (id) → flips My Set — unchanged
+//   onShop, onBrandFilter, onClose — unchanged
+//   onOpenHub   : (paint) → opens the DetailPopup hub for the given candidate paint (new)
 export default function SubstitutePanel({
-  paint, catalog, checked, mySet, hiddenSections,
-  toggleMySet, onShop, onBrandFilter, onClose,
+  paint, catalog, checked, mySet, extras, targets, hiddenSections,
+  toggleMySet, onShop, onBrandFilter, onClose, onOpenHub,
 }) {
   const [tier,         setTier]         = useState('all')
   const [finishExpand, setFinishExpand] = useState(false)
@@ -401,7 +388,7 @@ export default function SubstitutePanel({
     const h = e => { if(e.key==='Escape'){ if(showGlossary) setShowGlossary(false); else if(showTooltip) setShowTooltip(false); else onClose() } }
     window.addEventListener('keydown', h)
     return ()=>window.removeEventListener('keydown', h)
-  }, [onClose, showTooltip])
+  }, [onClose, showTooltip, showGlossary])
 
   const userPaints = useMemo(()=>{
     const m={}
@@ -454,7 +441,7 @@ export default function SubstitutePanel({
           display:'flex', flexDirection:'column', overflow:'hidden',
         }}>
 
-          {/* ── IrisMatch header ─────────────────────────────── */}
+          {/* ── IrisMatch header ── */}
           <div style={{ padding:'12px 20px 10px', borderBottom:`1px solid ${BORDER}`, flexShrink:0 }}>
             <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between' }}>
               <div>
@@ -467,12 +454,10 @@ export default function SubstitutePanel({
             </div>
           </div>
 
-          {/* ── Two-column comparison ─────────────────────────── */}
+          {/* ── Two-column comparison ── */}
           <div style={{ padding:'12px 14px', borderBottom:`1px solid ${BORDER}`, flexShrink:0 }}>
             <div style={{ display:'flex', gap:10, alignItems:'flex-start' }}>
               <PaintInfo paint={paint} />
-
-              {/* Centre: ΔE */}
               <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', paddingTop:40, gap:4, flexShrink:0, width:48 }}>
                 {candidate ? (
                   <>
@@ -492,25 +477,20 @@ export default function SubstitutePanel({
                   <span style={{ color:'#2a3535', fontSize:20 }}>↔</span>
                 )}
               </div>
-
               <PaintInfo paint={candidate} emptyLabel={'select an\nalternative\nto compare'} />
             </div>
 
-            {/* Attribute comparison */}
             {candidate && (
               <div style={{ marginTop:10, padding:'8px 10px', background:BG_DEEP, borderRadius:6 }}>
-                <AttrRow label='Type'    val1={paint.finish_family}    val2={candidate.finish_family}
-                  onInfo={()=>setShowGlossary(true)} />
+                <AttrRow label='Type'      val1={paint.finish_family}    val2={candidate.finish_family} onInfo={()=>setShowGlossary(true)} />
                 <AttrRow label='Chemistry' val1={paint.chemistry_family} val2={candidate.chemistry_family} />
-                <AttrRow label='Section'   val1={sec1} val2={sec2} />
+                <AttrRow label='Section'   val1={sec1}                   val2={sec2} />
               </div>
             )}
-
-            {/* LAB direction hints */}
             <LabHints target={paint} candidate={candidate} />
           </div>
 
-          {/* ── Controls ──────────────────────────────────────── */}
+          {/* ── Controls ── */}
           <div style={{ padding:'8px 14px', borderBottom:`1px solid ${BORDER}`, flexShrink:0 }}>
             <div style={{ display:'flex', gap:5, marginBottom:7 }}>
               {TIERS.map(t=>(
@@ -542,7 +522,7 @@ export default function SubstitutePanel({
             </div>
           </div>
 
-          {/* ── Results (scrollable, 20 items) ────────────────── */}
+          {/* ── Results (scrollable, 20 items) ── */}
           <div style={{ flex:1, overflowY:'auto' }}>
             {results.length===0 ? (
               <div style={{ padding:40, textAlign:'center', color:'#3a5050', fontSize:12 }}>
@@ -554,14 +534,16 @@ export default function SubstitutePanel({
                 target={paint}
                 result={r}
                 isInSet={!!mySet[r.paint.id]}
+                isOwned={!!checked[r.paint.id]}
                 onSelect={setSelected}
                 onToggleSet={toggleMySet}
                 isSelected={selected?.paint.id===r.paint.id&&selected?.paint.section_key===r.paint.section_key}
+                onOpenHub={onOpenHub}
               />
             ))}
           </div>
 
-          {/* ── Honesty note ──────────────────────────────────── */}
+          {/* ── Honesty note ── */}
           <div style={{ padding:'8px 14px', borderTop:`1px solid ${BORDER}`, flexShrink:0 }}>
             <p style={{ fontSize:10, color:'#3a5050', lineHeight:1.5, margin:0 }}>
               Hex swatches approximate real paint — finish, opacity and pigment behaviour aren't captured. Matches are a starting point; swatch before committing.
